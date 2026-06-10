@@ -58,6 +58,19 @@ export const saveUserPreferences = async (payload: any) => {
   }
 };
 
+// ---- Home Page Data ----
+
+export const fetchHomeData = async () => {
+  try {
+    const response = await fetchWithTimeout(`${BASE_URL}/home`);
+    if (response.ok) return await response.json();
+    throw new Error(`API error: ${response.status}`);
+  } catch (err) {
+    console.error('Failed to fetch home data:', err);
+    throw err;
+  }
+};
+
 // ---- Budget Generation (Core AI endpoint) ----
 
 export const generateBudgetMatch = async (payload: {

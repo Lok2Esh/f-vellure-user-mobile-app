@@ -30,7 +30,8 @@ import {
   Star,
   Users,
 } from 'lucide-react-native';
-import { fetchUserPreferences, fetchVendorPacks } from '../../services/api';
+import { fetchUserPreferences, fetchHomeData } from '../../services/api';
+import * as Icons from 'lucide-react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PAGE_PADDING = 20;
@@ -41,188 +42,74 @@ const COLLAGE_HEIGHT = 198;
 const COLLAGE_INNER_WIDTH = PACKAGE_WIDTH - 8;
 const COLLAGE_MAIN_WIDTH = Math.round(COLLAGE_INNER_WIDTH * 0.62);
 const COLLAGE_SIDE_WIDTH = COLLAGE_INNER_WIDTH - COLLAGE_MAIN_WIDTH - COLLAGE_GAP;
-const NIL = 'fake (Nil)';
+const NIL = 'Not available';
 const INR_SYMBOL = '\u20B9';
+
 const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1519741497674-611481863552?q=90&w=1200&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=90&w=1200&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=90&w=1200&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=90&w=1200&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1555244162-803834f70033?q=90&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1537633552985-df8429e8048b?q=90&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=90&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1549400265-57833cc6f5b9?q=90&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=90&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=90&w=1200&auto=format&fit=crop',
 ];
-
-const EVENT_TYPE_IMAGES = [
-  'https://images.unsplash.com/photo-1519741497674-611481863552?w=900',
-  'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=900',
-  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=900',
-  'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=900',
-  'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=900',
-  'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=900',
-  'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=900',
-  'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=900',
-];
-
-const DEFAULT_EVENT_TYPES = [
-  { id: 'wedding', name: 'Wedding', count: 'fake (220+)', icon: Heart, color: '#7E244A', image: EVENT_TYPE_IMAGES[0] },
-  { id: 'engagement', name: 'Engagement', count: 'fake (90+)', icon: Crown, color: '#8A5A27', image: EVENT_TYPE_IMAGES[1] },
-  { id: 'reception', name: 'Reception', count: 'fake (120+)', icon: Flower2, color: '#A05A2C', image: EVENT_TYPE_IMAGES[2] },
-  { id: 'birthday', name: 'Birthday', count: 'fake (75+)', icon: Gift, color: '#7B4D83', image: EVENT_TYPE_IMAGES[3] },
-  { id: 'anniversary', name: 'Anniversary', count: 'fake (55+)', icon: Sparkles, color: '#6F3D82', image: EVENT_TYPE_IMAGES[4] },
-  { id: 'corporate', name: 'Corporate', count: 'fake (65+)', icon: Hotel, color: '#365C78', image: EVENT_TYPE_IMAGES[5] },
-  { id: 'sangeet', name: 'Sangeet', count: 'fake (80+)', icon: Music, color: '#9A3F32', image: EVENT_TYPE_IMAGES[6] },
-  { id: 'other', name: 'Other', count: 'fake (40+)', icon: CalendarDays, color: '#7E5C3A', image: EVENT_TYPE_IMAGES[7] },
-];
-
-type EventCategory = {
-  id: string;
-  name: string;
-  count: string;
-  icon: any;
-  color: string;
-  image: string | null;
-};
-
-type OfferBanner = {
-  id: string;
-  title: string;
-  subtitle: string;
-  tag: string;
-  image: string | null;
-};
-
-type CreatedPackage = {
-  id: string;
-  name: string;
-  tagline: string;
-  price: string;
-  duration: string;
-  guests: string;
-  rating: string;
-  badge: string;
-  services: string[];
-  images: string[];
-};
-
-function nilText(value: any): string {
-  if (value === null || value === undefined) return NIL;
-  if (typeof value === 'string' && value.trim().length === 0) return NIL;
-  return String(value);
-}
-
-function fakeText(sample: string): string {
-  return `fake (${sample})`;
-}
 
 function randomFallbackImage(seed = 0): string {
   const randomIndex = Math.floor(Math.random() * FALLBACK_IMAGES.length);
   return FALLBACK_IMAGES[(randomIndex + seed) % FALLBACK_IMAGES.length];
 }
 
-function formatInrPrice(value: any): string {
-  if (value === null || value === undefined || value === '') return fakeText(`${INR_SYMBOL}20,00,000`);
-  if (typeof value === 'string' && value.includes(INR_SYMBOL)) return value;
+const DEFAULT_CATEGORY_COLORS = [
+  '#7E244A', '#8A5A27', '#A05A2C', '#7B4D83', 
+  '#6F3D82', '#365C78', '#9A3F32', '#7E5C3A'
+];
 
-  const textValue = String(value);
-  const suffixMatch = textValue.match(/\/\s*[a-zA-Z ]+/);
-  const suffix = suffixMatch ? suffixMatch[0].replace(/\s+/g, '') : '';
-
-  if (typeof value === 'string' && value.toLowerCase().includes('inr')) {
-    const numeric = Number(value.replace(/[^0-9.]/g, ''));
-    return numeric ? `${INR_SYMBOL}${numeric.toLocaleString('en-IN')}${suffix}` : value.replace(/inr/i, INR_SYMBOL);
-  }
-
-  const numeric = typeof value === 'number' ? value : Number(String(value).replace(/[^0-9.]/g, ''));
-  if (!numeric) return nilText(value);
-  return `${INR_SYMBOL}${numeric.toLocaleString('en-IN')}${suffix}`;
+function getIconComponent(iconName: string | null) {
+  if (!iconName) return Icons.CalendarDays;
+  const formattedName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
+  return (Icons as any)[formattedName] || Icons.CalendarDays;
 }
 
-function normalizeEventCategories(source: any): EventCategory[] {
-  const rawEventTypes = Array.isArray(source?.eventTypes)
-    ? source.eventTypes
-    : Array.isArray(source?.eventCategories)
-      ? source.eventCategories
-      : [];
-
-  if (rawEventTypes.length === 0) return DEFAULT_EVENT_TYPES;
-
-  return rawEventTypes.map((item: any, index: number) => {
-    const defaultVisual = DEFAULT_EVENT_TYPES[index % DEFAULT_EVENT_TYPES.length];
-    const eventName = typeof item === 'string' ? item : item?.name || item?.title;
-    const countValue = typeof item === 'string' ? null : item?.count || item?.optionsCount;
-
-    return {
-      id: nilText((typeof item === 'string' ? item : item?.id) || eventName || `event-${index}`),
-      name: nilText(eventName),
-      count: countValue ? `${countValue}` : fakeText('120+'),
-      icon: defaultVisual.icon,
-      color: (typeof item === 'string' ? null : item?.color) || defaultVisual.color,
-      image: (typeof item === 'string' ? null : item?.image || item?.imageUrl) || defaultVisual.image,
-    };
-  });
+function mapCategories(backendCategories: any[]): EventCategory[] {
+  if (!backendCategories || backendCategories.length === 0) return [];
+  return backendCategories.map((cat, idx) => ({
+    id: cat.id,
+    name: cat.name,
+    count: `${cat.vendorCount} options`,
+    icon: getIconComponent(cat.icon),
+    color: DEFAULT_CATEGORY_COLORS[idx % DEFAULT_CATEGORY_COLORS.length],
+    image: cat.imageUrl,
+  }));
 }
 
-function getPackageImages(pack: any, seed: number): string[] {
-  const rawImages = [
-    ...(Array.isArray(pack?.images) ? pack.images : []),
-    ...(Array.isArray(pack?.gallery) ? pack.gallery : []),
-    ...(Array.isArray(pack?.portfolio) ? pack.portfolio : []),
-  ]
-    .map((item: any) => (typeof item === 'string' ? item : item?.imageUrl || item?.image || item?.url))
-    .filter(Boolean);
-
-  return [
-    rawImages[0] || randomFallbackImage(seed),
-    rawImages[1] || randomFallbackImage(seed + 1),
-    rawImages[2] || randomFallbackImage(seed + 2),
-    rawImages[3] || randomFallbackImage(seed + 3),
-  ];
+function mapOffers(backendOffers: any[]): OfferBanner[] {
+  if (!backendOffers || backendOffers.length === 0) return [];
+  return backendOffers.map(offer => ({
+    id: offer.id,
+    title: offer.title,
+    subtitle: offer.subtitle,
+    tag: offer.badge || 'PROMO',
+    image: offer.imageUrl,
+  }));
 }
 
-function normalizePackage(pack: any, index: number): CreatedPackage {
-  const services = Array.isArray(pack?.services)
-    ? pack.services
-    : Array.isArray(pack?.categories)
-      ? pack.categories
-      : Array.isArray(pack?.vendors)
-        ? pack.vendors.map((vendor: any) => vendor?.category || vendor?.name)
-        : [];
-
-  return {
-    id: nilText(pack?.id || `pack-${index}`),
-    name: nilText(pack?.name || pack?.title || fakeText('Essential Elegance')),
-    tagline: nilText(pack?.description || pack?.tagline || pack?.subtitle || fakeText('Quality core services for a balanced celebration.')),
-    price: formatInrPrice(pack?.priceLabel || pack?.price || pack?.totalPrice || pack?.amount),
-    duration: nilText(pack?.duration || pack?.eventDuration || pack?.days || fakeText('1 day event')),
-    guests: nilText(pack?.guests || pack?.guestRange || pack?.guestCount || fakeText('150-250 guests')),
-    rating: nilText(pack?.rating || fakeText('4.5')),
-    badge: nilText(pack?.tag || pack?.badge || fakeText('Best Value')),
-    services: services.length > 0 ? services.map(nilText) : ['Venue', 'Catering', 'Photography', 'Decor'].map(fakeText),
-    images: getPackageImages(pack, index),
-  };
+function formatInrPrice(value: number): string {
+  if (!value) return `${INR_SYMBOL}0`;
+  return `${INR_SYMBOL}${value.toLocaleString('en-IN')}`;
 }
 
-function normalizeBanners(rawPacks: any[], packagesData: CreatedPackage[]): OfferBanner[] {
-  if (!rawPacks.length) {
-    return [{
-      id: 'nil-banner',
-      title: fakeText('Royal Wedding Week'),
-      subtitle: fakeText('Save up to 18% on decor + photography bundles'),
-      tag: fakeText('Limited'),
-      image: randomFallbackImage(0),
-    }];
-  }
-
-  return rawPacks.slice(0, 5).map((pack, index) => ({
-    id: nilText(pack?.bannerId || pack?.id || `banner-${index}`),
-    title: nilText(pack?.offerTitle || pack?.bannerTitle || pack?.name || pack?.title || fakeText('Royal Wedding Week')),
-    subtitle: nilText(pack?.offerSubtitle || pack?.bannerSubtitle || pack?.description || fakeText('Save up to 18% on premium bundles')),
-    tag: nilText(pack?.offerTag || pack?.tag || pack?.badge || fakeText('Limited')),
-    image: pack?.bannerImage || pack?.offerImage || packagesData[index]?.images?.find(Boolean) || randomFallbackImage(index),
+function mapPackages(backendPackages: any[]): CreatedPackage[] {
+  if (!backendPackages || backendPackages.length === 0) return [];
+  return backendPackages.map(pkg => ({
+    id: pkg.id,
+    name: pkg.name,
+    tagline: pkg.description || '',
+    price: formatInrPrice(pkg.basePrice),
+    duration: pkg.duration || '1 day',
+    guests: pkg.guestRange || 'Varies',
+    rating: String(pkg.rating || 4.5),
+    badge: pkg.badge || 'POPULAR',
+    services: pkg.services || [],
+    images: pkg.images || [],
   }));
 }
 
@@ -386,33 +273,18 @@ export default function HomeScreen() {
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        const preferences = await fetchUserPreferences().catch((error) => {
-          console.error('Failed to load home preferences', error);
-          return null;
-        });
-        const selectedBudget = Number(preferences?.totalBudget || 0);
-        if (preferences?.city) setCity(preferences.city);
-
-        const [packsData] = await Promise.all([
-          fetchVendorPacks(selectedBudget).catch((error) => {
-            console.error('Failed to load home packages', error);
-            return [];
-          }),
+        const [preferences, homeData] = await Promise.all([
+          fetchUserPreferences().catch(() => null),
+          fetchHomeData().catch(() => ({ categories: [], offers: [], packages: [] }))
         ]);
 
-        const normalizedPackages = Array.isArray(packsData)
-          ? packsData.map(normalizePackage)
-          : [normalizePackage(packsData, 0)];
+        if (preferences?.city) setCity(preferences.city);
 
-        setCategories(normalizeEventCategories(preferences));
-        setPackages(normalizedPackages.length > 0 ? normalizedPackages : [normalizePackage(null, 0)]);
-        setBanners(normalizeBanners(Array.isArray(packsData) ? packsData : [], normalizedPackages));
+        setCategories(mapCategories(homeData.categories));
+        setBanners(mapOffers(homeData.offers));
+        setPackages(mapPackages(homeData.packages));
       } catch (error) {
         console.error('Failed to load home data', error);
-        setCategories(normalizeEventCategories(null));
-        const nilPackage = normalizePackage(null, 0);
-        setPackages([nilPackage]);
-        setBanners(normalizeBanners([], [nilPackage]));
       } finally {
         setIsLoading(false);
       }
