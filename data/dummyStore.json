@@ -1,0 +1,787 @@
+{
+  "concierge": {
+    "budget": 2500000,
+    "vibe": "Grand & Royal",
+    "guestCount": "300",
+    "city": "Patiala",
+    "date": "2026-11-12"
+  },
+  "budgetDashboard": {
+    "totalBudget": 2500000,
+    "categories": [
+      {
+        "id": "cat_1",
+        "name": "Venue & Catering",
+        "amount": 1000000,
+        "color": "#800020",
+        "icon": "hotel"
+      },
+      {
+        "id": "cat_2",
+        "name": "Decor & Lighting",
+        "amount": 500000,
+        "color": "#D4AF37",
+        "icon": "flower"
+      },
+      {
+        "id": "cat_3",
+        "name": "Photography",
+        "amount": 300000,
+        "color": "#BA0F6B",
+        "icon": "camera"
+      },
+      {
+        "id": "cat_4",
+        "name": "Attire & Makeup",
+        "amount": 400000,
+        "color": "#F8C8DC",
+        "icon": "brush"
+      },
+      {
+        "id": "cat_5",
+        "name": "Miscellaneous",
+        "amount": 300000,
+        "color": "#A0A0A0",
+        "icon": "more-horizontal"
+      }
+    ]
+  },
+  "vendors": {
+    "venues": [
+      {
+        "id": "v1",
+        "name": "Fort Patiala",
+        "price": "₹1000/plate",
+        "rating": 4.3,
+        "reviews": 1300,
+        "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3",
+        "verified": true
+      },
+      {
+        "id": "v2",
+        "name": "The Shaurya",
+        "price": "₹950/plate",
+        "rating": 4.5,
+        "reviews": 400,
+        "image": "https://images.unsplash.com/photo-1544145945-f904253db0ad",
+        "verified": true
+      },
+      {
+        "id": "v3",
+        "name": "KC Farms",
+        "price": "₹700/plate",
+        "rating": 4.1,
+        "reviews": 1050,
+        "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3",
+        "verified": false
+      },
+      {
+        "id": "v4",
+        "name": "Lakshmi Farms",
+        "price": "₹700/plate",
+        "rating": 4.4,
+        "reviews": 750,
+        "image": "https://images.unsplash.com/photo-1519741497674-611481863552",
+        "verified": true
+      },
+      {
+        "id": "v5",
+        "name": "Grand JD",
+        "price": "₹700/plate",
+        "rating": 4.2,
+        "reviews": 750,
+        "image": "https://images.unsplash.com/photo-1520854221256-17451cc331bf",
+        "verified": true
+      },
+      {
+        "id": "v6",
+        "name": "Hotel Polo Club",
+        "price": "₹1200/plate",
+        "rating": 4.6,
+        "reviews": 250,
+        "image": "https://images.unsplash.com/photo-1510076857177-74700760be15",
+        "verified": true
+      },
+      {
+        "id": "v7",
+        "name": "The Punjab Classics",
+        "price": "₹800/plate",
+        "rating": 4.5,
+        "reviews": 1000,
+        "image": "https://images.unsplash.com/photo-1523438885200-e635ba2c371e",
+        "verified": true
+      },
+      {
+        "id": "v8",
+        "name": "Ranbaas The Palace",
+        "price": "₹9000/day",
+        "rating": 4.8,
+        "reviews": 750,
+        "image": "https://images.unsplash.com/photo-1549400265-57833cc6f5b9",
+        "verified": true
+      },
+      {
+        "id": "v9",
+        "name": "Balsons Paradise",
+        "price": "₹1100/plate",
+        "rating": 4.4,
+        "reviews": 500,
+        "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3",
+        "verified": false
+      },
+      {
+        "id": "v10",
+        "name": "Gill Resort",
+        "price": "₹1200/plate",
+        "rating": 4.7,
+        "reviews": 1000,
+        "image": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
+        "verified": true
+      }
+    ],
+    "photography": [
+      {
+        "id": "p1",
+        "name": "RR Studios",
+        "price": "₹70,000/day",
+        "rating": 5.0,
+        "reviews": 212,
+        "image": "https://images.unsplash.com/photo-1537633552985-df8429e8048b",
+        "verified": true
+      },
+      {
+        "id": "p2",
+        "name": "Sanjay Digital Studio",
+        "price": "₹50,000/day",
+        "rating": 4.9,
+        "reviews": 315,
+        "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
+        "verified": true
+      },
+      {
+        "id": "p3",
+        "name": "Bansal Creations",
+        "price": "₹1,40,000/day",
+        "rating": 5.0,
+        "reviews": 147,
+        "image": "https://images.unsplash.com/photo-1520390138845-fd2d229dd553",
+        "verified": true
+      },
+      {
+        "id": "p4",
+        "name": "Studio Kunal",
+        "price": "₹35,000/day",
+        "rating": 4.9,
+        "reviews": 259,
+        "image": "https://images.unsplash.com/photo-1519741497674-611481863552",
+        "verified": true
+      },
+      {
+        "id": "p5",
+        "name": "Studio Narinder",
+        "price": "₹80,000/day",
+        "rating": 4.5,
+        "reviews": 150,
+        "image": "https://images.unsplash.com/photo-1512711311035-7c30f40a455a",
+        "verified": false
+      },
+      {
+        "id": "p6",
+        "name": "Batra Studio",
+        "price": "₹1,51,000/event",
+        "rating": 5.0,
+        "reviews": 253,
+        "image": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8",
+        "verified": true
+      },
+      {
+        "id": "p7",
+        "name": "Studio Snap Shoot",
+        "price": "₹45,000/day",
+        "rating": 5.0,
+        "reviews": 98,
+        "image": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4",
+        "verified": true
+      },
+      {
+        "id": "p8",
+        "name": "Israar Wedding Cinema",
+        "price": "₹90,000/day",
+        "rating": 5.0,
+        "reviews": 85,
+        "image": "https://images.unsplash.com/photo-1513271936660-333333333333",
+        "verified": true
+      },
+      {
+        "id": "p9",
+        "name": "Singh Studio Patiala",
+        "price": "₹60,000/day",
+        "rating": 4.5,
+        "reviews": 120,
+        "image": "https://images.unsplash.com/photo-1527529482837-4698179dc6ce",
+        "verified": false
+      },
+      {
+        "id": "p10",
+        "name": "Saajan Studio Nabha",
+        "price": "₹75,000/day",
+        "rating": 4.9,
+        "reviews": 60,
+        "image": "https://images.unsplash.com/photo-1510076857177-74700760be15",
+        "verified": true
+      }
+    ],
+    "makeup": [
+      {
+        "id": "m1",
+        "name": "Toni & Guy Patiala",
+        "price": "₹15,000",
+        "rating": 4.4,
+        "reviews": 1200,
+        "image": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
+        "verified": true
+      },
+      {
+        "id": "m2",
+        "name": "Looks Salon",
+        "price": "₹12,000",
+        "rating": 4.8,
+        "reviews": 709,
+        "image": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+        "verified": true
+      },
+      {
+        "id": "m3",
+        "name": "Shadowz Salon N Spa",
+        "price": "₹10,000",
+        "rating": 5.0,
+        "reviews": 248,
+        "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035",
+        "verified": true
+      },
+      {
+        "id": "m4",
+        "name": "MBM Makeup Studio",
+        "price": "₹18,000",
+        "rating": 5.0,
+        "reviews": 150,
+        "image": "https://images.unsplash.com/photo-1512496011951-a99934169ddc",
+        "verified": true
+      },
+      {
+        "id": "m5",
+        "name": "Krishna Makerovers",
+        "price": "₹9,000",
+        "rating": 5.0,
+        "reviews": 143,
+        "image": "https://images.unsplash.com/photo-1457974182524-97d1159af8a4",
+        "verified": true
+      },
+      {
+        "id": "m6",
+        "name": "Glam Masters",
+        "price": "₹20,000",
+        "rating": 5.0,
+        "reviews": 157,
+        "image": "https://images.unsplash.com/photo-1596462502278-27bfdc4033c8",
+        "verified": true
+      },
+      {
+        "id": "m7",
+        "name": "Blended By Mehar",
+        "price": "₹15,000",
+        "rating": 5.0,
+        "reviews": 85,
+        "image": "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937",
+        "verified": true
+      },
+      {
+        "id": "m8",
+        "name": "Amazing Salon",
+        "price": "₹8,500",
+        "rating": 4.4,
+        "reviews": 125,
+        "image": "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f",
+        "verified": false
+      },
+      {
+        "id": "m9",
+        "name": "Seraphic The Royal",
+        "price": "₹14,000",
+        "rating": 4.6,
+        "reviews": 67,
+        "image": "https://images.unsplash.com/photo-1526045612212-70caf35c11bc",
+        "verified": true
+      },
+      {
+        "id": "m10",
+        "name": "Doll's Beauty Experts",
+        "price": "₹11,000",
+        "rating": 5.0,
+        "reviews": 90,
+        "image": "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1",
+        "verified": true
+      }
+    ],
+    "decor": [
+      {
+        "id": "d1",
+        "name": "Shaandaar Events",
+        "price": "₹5,00,000",
+        "rating": 5.0,
+        "reviews": 100,
+        "image": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
+        "verified": true
+      },
+      {
+        "id": "d2",
+        "name": "DST Exports",
+        "price": "₹3,50,000",
+        "rating": 4.8,
+        "reviews": 85,
+        "image": "https://images.unsplash.com/photo-1469334031218-e382a71b716b",
+        "verified": true
+      },
+      {
+        "id": "d3",
+        "name": "Dream Decoration",
+        "price": "₹1,50,000",
+        "rating": 5.0,
+        "reviews": 98,
+        "image": "https://images.unsplash.com/photo-1525268771113-32d9e9021a97",
+        "verified": true
+      },
+      {
+        "id": "d4",
+        "name": "Subhash Decors",
+        "price": "₹2,00,000",
+        "rating": 4.7,
+        "reviews": 60,
+        "image": "https://images.unsplash.com/photo-1519741497674-611481863552",
+        "verified": true
+      },
+      {
+        "id": "d5",
+        "name": "Durga Tent House",
+        "price": "₹1,00,000",
+        "rating": 4.5,
+        "reviews": 120,
+        "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3",
+        "verified": false
+      },
+      {
+        "id": "d6",
+        "name": "Stallion Events",
+        "price": "₹4,50,000",
+        "rating": 4.9,
+        "reviews": 45,
+        "image": "https://images.unsplash.com/photo-1523438885200-e635ba2c371e",
+        "verified": true
+      },
+      {
+        "id": "d7",
+        "name": "Creative Catering & Decor",
+        "price": "₹3,00,000",
+        "rating": 4.8,
+        "reviews": 238,
+        "image": "https://images.unsplash.com/photo-1465495910483-04104996458d",
+        "verified": true
+      },
+      {
+        "id": "d8",
+        "name": "Klaa Kreators",
+        "price": "₹2,50,000",
+        "rating": 4.6,
+        "reviews": 30,
+        "image": "https://images.unsplash.com/photo-1496062031456-07b8f162a322",
+        "verified": true
+      },
+      {
+        "id": "d9",
+        "name": "Duggal Events",
+        "price": "₹3,00,000",
+        "rating": 4.9,
+        "reviews": 75,
+        "image": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3",
+        "verified": true
+      },
+      {
+        "id": "d10",
+        "name": "Bawa Wedding Planner",
+        "price": "₹2,00,000",
+        "rating": 4.7,
+        "reviews": 90,
+        "image": "https://images.unsplash.com/photo-1510076857177-74700760be15",
+        "verified": true
+      }
+    ],
+    "catering": [
+      {
+        "id": "c1",
+        "name": "Bhogal Caterers",
+        "price": "₹1,100/plate",
+        "rating": 4.8,
+        "reviews": 950,
+        "image": "https://images.unsplash.com/photo-1555244162-803834f70033",
+        "verified": true
+      },
+      {
+        "id": "c2",
+        "name": "Gopal's 56",
+        "price": "₹1,400/plate",
+        "rating": 4.9,
+        "reviews": 1200,
+        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+        "verified": true
+      },
+      {
+        "id": "c3",
+        "name": "Kwality Caterers",
+        "price": "₹950/plate",
+        "rating": 4.5,
+        "reviews": 600,
+        "image": "https://images.unsplash.com/photo-1547573854-74d2a71d0826",
+        "verified": true
+      },
+      {
+        "id": "c4",
+        "name": "Amritsari Kulcha Land",
+        "price": "₹600/plate",
+        "rating": 4.7,
+        "reviews": 450,
+        "image": "https://images.unsplash.com/photo-1601050633729-19548d4b3c79",
+        "verified": false
+      },
+      {
+        "id": "c5",
+        "name": "Saffron Foods",
+        "price": "₹1,250/plate",
+        "rating": 4.6,
+        "reviews": 320,
+        "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b",
+        "verified": true
+      },
+      {
+        "id": "c6",
+        "name": "Lazzat-e-Patiala",
+        "price": "₹1,050/plate",
+        "rating": 4.4,
+        "reviews": 180,
+        "image": "https://images.unsplash.com/photo-1589302168068-964664d93dc0",
+        "verified": true
+      },
+      {
+        "id": "c7",
+        "name": "The Royal Kitchen",
+        "price": "₹1,500/plate",
+        "rating": 5.0,
+        "reviews": 85,
+        "image": "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7",
+        "verified": true
+      },
+      {
+        "id": "c8",
+        "name": "Desi Tadka",
+        "price": "₹750/plate",
+        "rating": 4.2,
+        "reviews": 540,
+        "image": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8",
+        "verified": false
+      },
+      {
+        "id": "c9",
+        "name": "Satnam Caterers",
+        "price": "₹900/plate",
+        "rating": 4.3,
+        "reviews": 210,
+        "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd",
+        "verified": true
+      },
+      {
+        "id": "c10",
+        "name": "Modern Catering",
+        "price": "₹1,150/plate",
+        "rating": 4.7,
+        "reviews": 140,
+        "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9",
+        "verified": true
+      }
+    ],
+    "entertainment": [
+      {
+        "id": "e1",
+        "name": "DJ Sunny Patiala",
+        "price": "₹45,000",
+        "rating": 4.9,
+        "reviews": 320,
+        "image": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745",
+        "verified": true
+      },
+      {
+        "id": "e2",
+        "name": "The Bhangra Crew",
+        "price": "₹25,000",
+        "rating": 5.0,
+        "reviews": 150,
+        "image": "https://images.unsplash.com/photo-1514525253361-bee8718a300a",
+        "verified": true
+      },
+      {
+        "id": "e3",
+        "name": "Symphony Live Band",
+        "price": "₹80,000",
+        "rating": 4.8,
+        "reviews": 95,
+        "image": "https://images.unsplash.com/photo-1459749411177-042180ce673c",
+        "verified": true
+      },
+      {
+        "id": "e4",
+        "name": "Magic Man Manish",
+        "price": "₹15,000",
+        "rating": 4.6,
+        "reviews": 75,
+        "image": "https://images.unsplash.com/photo-1517263904808-5dc91e3e7044",
+        "verified": false
+      },
+      {
+        "id": "e5",
+        "name": "Punjab Dholis",
+        "price": "₹12,000",
+        "rating": 4.9,
+        "reviews": 500,
+        "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7",
+        "verified": true
+      },
+      {
+        "id": "e6",
+        "name": "Royal Orchestra",
+        "price": "₹65,000",
+        "rating": 4.5,
+        "reviews": 42,
+        "image": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4",
+        "verified": true
+      },
+      {
+        "id": "e7",
+        "name": "Anchor Mehak",
+        "price": "₹20,000",
+        "rating": 5.0,
+        "reviews": 110,
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd81",
+        "verified": true
+      },
+      {
+        "id": "e8",
+        "name": "Light & Sound Experts",
+        "price": "₹35,000",
+        "rating": 4.7,
+        "reviews": 88,
+        "image": "https://images.unsplash.com/photo-1429962714451-bb934ecbb4ec",
+        "verified": true
+      },
+      {
+        "id": "e9",
+        "name": "Giddha Queens",
+        "price": "₹18,000",
+        "rating": 4.8,
+        "reviews": 65,
+        "image": "https://images.unsplash.com/photo-1514525253361-bee8718a300a",
+        "verified": false
+      },
+      {
+        "id": "e10",
+        "name": "Karaoke Kings",
+        "price": "₹15,000",
+        "rating": 4.3,
+        "reviews": 30,
+        "image": "https://images.unsplash.com/photo-1525201548111-ad1b9af71ad0",
+        "verified": true
+      }
+    ],
+    "jewelry": [
+      {
+        "id": "j1",
+        "name": "Tanishq Patiala",
+        "price": "₹2,50,000+",
+        "rating": 4.9,
+        "reviews": 2500,
+        "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce33e",
+        "verified": true
+      },
+      {
+        "id": "j2",
+        "name": "Kalyan Jewellers",
+        "price": "₹2,00,000+",
+        "rating": 4.8,
+        "reviews": 1800,
+        "image": "https://images.unsplash.com/photo-1573408302355-4e0b7cb9333a",
+        "verified": true
+      },
+      {
+        "id": "j3",
+        "name": "Saraf The Jeweller",
+        "price": "₹1,50,000+",
+        "rating": 4.7,
+        "reviews": 400,
+        "image": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908",
+        "verified": true
+      },
+      {
+        "id": "j4",
+        "name": "PC Jeweller",
+        "price": "₹2,20,000+",
+        "rating": 4.6,
+        "reviews": 900,
+        "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed",
+        "verified": true
+      },
+      {
+        "id": "j5",
+        "name": "Malabar Gold",
+        "price": "₹2,80,000+",
+        "rating": 4.9,
+        "reviews": 3000,
+        "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f",
+        "verified": true
+      },
+      {
+        "id": "j6",
+        "name": "Punjab Jewellers",
+        "price": "₹1,00,000+",
+        "rating": 4.4,
+        "reviews": 150,
+        "image": "https://images.unsplash.com/photo-1602173574767-37ac01994b2a",
+        "verified": true
+      },
+      {
+        "id": "j7",
+        "name": "The Royal Ornaments",
+        "price": "₹3,50,000+",
+        "rating": 5.0,
+        "reviews": 45,
+        "image": "https://images.unsplash.com/photo-1617038220319-276d3cfab638",
+        "verified": true
+      },
+      {
+        "id": "j8",
+        "name": "Gold Smith Co.",
+        "price": "₹80,000+",
+        "rating": 4.2,
+        "reviews": 60,
+        "image": "https://images.unsplash.com/photo-1611085516853-7a79a0e9828e",
+        "verified": false
+      },
+      {
+        "id": "j9",
+        "name": "Jewel Palace",
+        "price": "₹1,70,000+",
+        "rating": 4.5,
+        "reviews": 110,
+        "image": "https://images.unsplash.com/photo-1605100804763-247f67b3557e",
+        "verified": true
+      },
+      {
+        "id": "j10",
+        "name": "Elite Diamonds",
+        "price": "₹5,00,000+",
+        "rating": 5.0,
+        "reviews": 25,
+        "image": "https://images.unsplash.com/photo-1603561591411-071c4f723935",
+        "verified": true
+      }
+    ],
+    "priest": [
+      {
+        "id": "r1",
+        "name": "Pandit Sharma Ji",
+        "price": "₹11,000",
+        "rating": 5.0,
+        "reviews": 450,
+        "image": "https://images.unsplash.com/photo-1582559930495-20790201e912",
+        "verified": true
+      },
+      {
+        "id": "r2",
+        "name": "Giani Singh Ji",
+        "price": "₹15,000",
+        "rating": 5.0,
+        "reviews": 600,
+        "image": "https://images.unsplash.com/photo-1610116303244-6239f893fa41",
+        "verified": true
+      },
+      {
+        "id": "r3",
+        "name": "Pandit Ravi Shastri",
+        "price": "₹21,000",
+        "rating": 4.9,
+        "reviews": 120,
+        "image": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874",
+        "verified": true
+      },
+      {
+        "id": "r4",
+        "name": "Acharya Gupta",
+        "price": "₹7,500",
+        "rating": 4.6,
+        "reviews": 85,
+        "image": "https://images.unsplash.com/photo-1581333100576-b73bbe9472c5",
+        "verified": false
+      },
+      {
+        "id": "r5",
+        "name": "Pandit Dinesh Tiwari",
+        "price": "₹15,100",
+        "rating": 4.8,
+        "reviews": 200,
+        "image": "https://images.unsplash.com/photo-1574170609519-d1d8d4b71f60",
+        "verified": true
+      },
+      {
+        "id": "r6",
+        "name": "Vedic Rituals Group",
+        "price": "₹31,000",
+        "rating": 5.0,
+        "reviews": 55,
+        "image": "https://images.unsplash.com/photo-1561069934-eee225952461",
+        "verified": true
+      },
+      {
+        "id": "r7",
+        "name": "Pandit Om Prakash",
+        "price": "₹9,000",
+        "rating": 4.4,
+        "reviews": 140,
+        "image": "https://images.unsplash.com/photo-1590050752117-23a9a16f2c03",
+        "verified": true
+      },
+      {
+        "id": "r8",
+        "name": "Shri Ram Pujan",
+        "price": "₹5,100",
+        "rating": 4.2,
+        "reviews": 30,
+        "image": "https://images.unsplash.com/photo-1621252179027-94459d278660",
+        "verified": false
+      },
+      {
+        "id": "r9",
+        "name": "Pandit Vasudev",
+        "price": "₹12,000",
+        "rating": 4.7,
+        "reviews": 95,
+        "image": "https://images.unsplash.com/photo-1590050752117-23a9a16f2c03",
+        "verified": true
+      },
+      {
+        "id": "r10",
+        "name": "Sacred Vows Team",
+        "price": "₹25,000",
+        "rating": 5.0,
+        "reviews": 20,
+        "image": "https://images.unsplash.com/photo-1561069934-eee225952461",
+        "verified": true
+      }
+    ]
+  }
+}
