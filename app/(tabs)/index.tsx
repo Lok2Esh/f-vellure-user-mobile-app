@@ -32,16 +32,13 @@ import {
 } from 'lucide-react-native';
 import { fetchUserPreferences, fetchHomeData } from '../../services/api';
 import * as Icons from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PAGE_PADDING = 20;
 const BANNER_WIDTH = SCREEN_WIDTH - PAGE_PADDING * 2;
-const PACKAGE_WIDTH = SCREEN_WIDTH - PAGE_PADDING * 2;
 const COLLAGE_GAP = 4;
 const COLLAGE_HEIGHT = 198;
-const COLLAGE_INNER_WIDTH = PACKAGE_WIDTH - 8;
-const COLLAGE_MAIN_WIDTH = Math.round(COLLAGE_INNER_WIDTH * 0.62);
-const COLLAGE_SIDE_WIDTH = COLLAGE_INNER_WIDTH - COLLAGE_MAIN_WIDTH - COLLAGE_GAP;
 const NIL = 'Not available';
 const INR_SYMBOL = '\u20B9';
 
@@ -69,12 +66,13 @@ function getIconComponent(iconName: string | null) {
   return (Icons as any)[formattedName] || Icons.CalendarDays;
 }
 
-function mapCategories(backendCategories: any[]): EventCategory[] {
+function mapCategories(backendCategories: any[]): any[] {
   if (!backendCategories || backendCategories.length === 0) return [];
   return backendCategories.map((cat, idx) => ({
     id: cat.id,
     name: cat.name,
-    count: `${cat.vendorCount} options`,
+    slug: cat.slug,
+    count: String(cat.vendorCount || 0),
     icon: getIconComponent(cat.icon),
     color: DEFAULT_CATEGORY_COLORS[idx % DEFAULT_CATEGORY_COLORS.length],
     image: cat.imageUrl,
@@ -156,7 +154,7 @@ function PackageCollage({ images }: { images: string[] }) {
       <View style={styles.collageSide}>
         <Image source={{ uri: visibleImages[1] || randomFallbackImage(1) }} style={styles.collageTop} resizeMode="cover" />
         <View style={styles.collageBottomRow}>
-          <Image source={{ uri: visibleImages[2] || randomFallbackImage(2) }} style={styles.collageBottomImage} resizeMode="cover" />
+          <Image source={{ uri: visibleImages[2] || randomFallbackImage(2) }} style={[styles.collageBottomImage, { borderBottomRightRadius: 0 }]} resizeMode="cover" />
           <Image source={{ uri: visibleImages[3] || randomFallbackImage(3) }} style={styles.collageBottomImage} resizeMode="cover" />
         </View>
       </View>
@@ -169,10 +167,15 @@ function PackageCollage({ images }: { images: string[] }) {
   );
 }
 
-function CategoryCard({ item }: { item: EventCategory }) {
+function CategoryCard({ item }: { item: any }) {
+  const router = useRouter();
   const Icon = item.icon;
   return (
-    <TouchableOpacity activeOpacity={0.88} style={styles.categoryCard}>
+    <TouchableOpacity 
+      activeOpacity={0.88} 
+      style={styles.categoryCard}
+      onPress={() => router.push({ pathname: '/vendors', params: { category: item.slug } })}
+    >
       <DynamicImage uri={item.image} imageStyle={styles.categoryImage} fallbackStyle={styles.nilDarkImage} />
       <View style={[styles.categoryTint, { backgroundColor: item.color }]} />
       <View style={styles.categoryIconWrap}>
@@ -738,8 +741,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   packageCard: {
-    width: PACKAGE_WIDTH,
-    alignSelf: 'center',
+    marginHorizontal: PAGE_PADDING,
     marginBottom: 18,
     borderRadius: 28,
     overflow: 'hidden',
@@ -760,13 +762,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3E9DB',
   },
   collageMain: {
-    width: COLLAGE_MAIN_WIDTH,
+    flex: 62,
     height: COLLAGE_HEIGHT - 8,
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 10,
   },
   collageSide: {
-    width: COLLAGE_SIDE_WIDTH,
+    flex: 38,
     height: COLLAGE_HEIGHT - 8,
     gap: COLLAGE_GAP,
   },

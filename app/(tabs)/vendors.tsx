@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, FlatList, 
 import { Settings2, Search } from 'lucide-react-native';
 import { fetchVendorsData } from '../../services/api';
 import VendorCard from '../../components/vendor/VendorCard';
+import { useLocalSearchParams } from 'expo-router';
 
 const PAGE_SIZE = 8;
 
@@ -11,6 +12,7 @@ function fakeText(context: string) {
 }
 
 export default function VendorsScreen() {
+  const params = useLocalSearchParams();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [allData, setAllData] = useState<any>({});
@@ -30,6 +32,12 @@ export default function VendorsScreen() {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (params.category && typeof params.category === 'string') {
+      setSelectedCategories([params.category.toLowerCase()]);
+    }
+  }, [params.category]);
 
   const displayedVendors = useMemo(() => {
     let list = selectedCategories.length
@@ -121,6 +129,25 @@ export default function VendorsScreen() {
             All
           </Text>
         </TouchableOpacity>
+        
+        {/* If a category is selected that doesn't exist in allData, show it as a pill so the user knows it's active */}
+        {selectedCategories.map((selectedCat) => {
+          if (!allData[selectedCat]) {
+            return (
+              <TouchableOpacity 
+                key={selectedCat}
+                onPress={() => handleFilter(selectedCat)}
+                className="bg-[#641E3D] shadow-[0_3px_8px_rgba(100,30,61,0.3)] px-6 h-10 rounded-full justify-center mr-3 transition-all"
+              >
+                <Text className="text-white text-[13px] font-bold tracking-wide capitalize">
+                  {getCategoryDisplayName(selectedCat)}
+                </Text>
+              </TouchableOpacity>
+            );
+          }
+          return null;
+        })}
+
         {Object.keys(allData).map((catKey) => {
           const isActive = selectedCategories.includes(catKey);
           return (
