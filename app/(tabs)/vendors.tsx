@@ -136,6 +136,7 @@ export default function VendorsScreen() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [inquiryVendor, setInquiryVendor] = useState<MarketplaceVendor | null>(null);
   const [customPackage, setCustomPackage] = useState<CustomPackage>(getCustomPackage());
+  const [isPackageBarDismissed, setIsPackageBarDismissed] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeCustomPackage((pkg) => {
@@ -294,17 +295,61 @@ export default function VendorsScreen() {
     return compareIds
       .map((id) => all.find((v) => v.id === id))
       .filter(Boolean)
-      .map((v) => ({
-        id: v!.id,
-        businessName: v!.businessName || v!.name || 'Vendor',
-        category: v!.category || 'Vendor',
-        city: v!.city || 'Patiala',
-        basePrice: v!.basePrice,
-        priceType: v!.priceType,
-        rating: v!.rating,
-        reviewsCount: v!.reviewsCount || v!.reviews,
-        verified: Boolean(v!.status === 'VERIFIED' || v!.verified),
-      }));
+      .map((v: any, index: number) => {
+        const exp = v.experienceYears || v.yearsInBusiness || (index === 0 ? 9 : 6);
+        const events = v.eventsCompleted || (Number(exp) * 45 + 30);
+        const team = v.teamSize || (index === 0 ? 'Lead Specialist + 4 Crew' : 'Lead Director + 3 Coordinators');
+        const overtime = v.overtimeFee || '₹5,000 / additional hour';
+        const travel = v.travelFee || 'Complimentary within 35km radius';
+        const taxes = v.taxesPolicy || '18% GST Applicable';
+        const paymentSchedule = v.paymentSchedule || '25% Booking • 50% Pre-event • 25% Completion';
+        const setup = v.setupTime || '3 Hours Prior to Event';
+        const backup = v.backupPlan || '100% Redundant Gear & Standby Lead';
+        const timeline = v.deliveryTimeline || (index === 0 ? 'Teaser in 5 Days • Master in 20 Days' : 'Highlights in 7 Days • Final Album in 25 Days');
+        const customFlex = v.customizationFlexibility || 'High (Custom themes & palettes)';
+        const specs = v.specialization || ['Royal Weddings', 'Sangeet Nights', 'Cocktail Galas'];
+        const exclusions = v.exclusions || ['Outstation Lodging', 'Speciality Pyrotechnics', 'Overnight Extra Hours'];
+        const verdict = v.verdictNote || (index === 0 ? 'Best for grand celebrations requiring comprehensive crew & high-end specs.' : 'Best value option with high agility, rapid turnaround, and dedicated director.');
+
+        return {
+          id: v.id,
+          businessName: v.businessName || v.name || 'Vendor',
+          category: v.category || 'Vendor',
+          city: v.city || 'Patiala',
+          state: v.state || 'Punjab',
+          image: v.image || (v.photos && v.photos[0]) || (v.gallery && v.gallery[0]) || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800',
+          basePrice: v.basePrice || v.priceNumeric,
+          priceType: v.priceType || 'STARTING_PRICE',
+          rating: v.rating || 4.8,
+          reviewsCount: v.reviewsCount || v.reviews || 36,
+          verified: Boolean(v.status === 'VERIFIED' || v.verified),
+          experienceYears: exp,
+          eventsCompleted: events,
+          teamSize: team,
+          overtimeFee: overtime,
+          travelFee: travel,
+          taxesPolicy: taxes,
+          paymentSchedule: paymentSchedule,
+          setupTime: setup,
+          backupPlan: backup,
+          deliveryTimeline: timeline,
+          customizationFlexibility: customFlex,
+          specialization: specs,
+          exclusions: exclusions,
+          verdictNote: verdict,
+          capacity: v.capacity || v.guestCapacity || '200 – 900 Guests',
+          amenities: v.amenities || v.features || v.servicesOffered || [
+            'Dedicated Lead Specialist',
+            'Custom Design Consultation',
+            'On-Site Setup & Rehearsal',
+            'Backup Power & Support Lead',
+          ],
+          cancellationPolicy: v.cancellationPolicy || '100% Refund > 30 days before; Free date rescheduling',
+          advancePayment: v.advancePayment || '25% on Booking Confirmation',
+          responseTime: v.responseTime || (index === 0 ? '< 1 Hour' : '< 2 Hours'),
+          description: v.description || v.about || 'Premium celebration specialist verified on Vellure platform.',
+        };
+      });
   }, [compareIds, allData]);
 
   const currentCityLabel = filters.city !== 'all' ? filters.city : 'Patiala, Punjab';
@@ -535,39 +580,52 @@ export default function VendorsScreen() {
         />
       )}
 
-      {/* ──── FLOATING CUSTOM PACKAGE BAR ──── */}
-      {customPackage.vendors.length > 0 && (
-        <VellureButton
-          style={styles.floatingPackageBar}
-          onPress={() => router.push('/custom-package')}
-          activeOpacity={0.92}
-          accessibilityRole="button"
-          accessibilityLabel={`View custom package with ${customPackage.vendors.length} vendors`}
-        >
-          <View style={styles.floatingPackageIcon}>
-            <Package size={16} color="#F4D58D" />
+      {/* ──── FLOATING BOTTOM TRAY STACK (AUTO-STACKED & RESPONSIVE) ──── */}
+      <View style={styles.floatingBottomStack} pointerEvents="box-none">
+        {/* Floating Custom Package Active Bar */}
+        {customPackage.vendors.length > 0 && !isPackageBarDismissed && (
+          <View style={styles.floatingPackageBarContainer}>
+            <VellureButton
+              style={styles.floatingPackageBar}
+              onPress={() => router.push('/custom-package')}
+              activeOpacity={0.92}
+              accessibilityRole="button"
+              accessibilityLabel={`View custom package with ${customPackage.vendors.length} vendors`}
+            >
+              <View style={styles.floatingPackageIcon}>
+                <Package size={16} color="#F4D58D" />
+              </View>
+              <View style={styles.floatingPackageCopy}>
+                <Text style={styles.floatingPackageTitle}>Custom Package Active</Text>
+                <Text style={styles.floatingPackageSubtitle} numberOfLines={1}>
+                  {customPackage.vendors.length} {customPackage.vendors.length === 1 ? 'Specialist' : 'Specialists'} • ₹{customPackage.totalPrice.toLocaleString('en-IN')}
+                </Text>
+              </View>
+              <View style={styles.floatingPackageAction}>
+                <Text style={styles.floatingPackageActionText}>View →</Text>
+              </View>
+              <VellureButton
+                style={styles.floatingPackageCloseBtn}
+                onPress={() => setIsPackageBarDismissed(true)}
+                activeOpacity={0.8}
+                accessibilityLabel="Dismiss custom package floating bar"
+              >
+                <X size={14} color="#F4D58D" />
+              </VellureButton>
+            </VellureButton>
           </View>
-          <View style={styles.floatingPackageCopy}>
-            <Text style={styles.floatingPackageTitle}>Custom Package Active</Text>
-            <Text style={styles.floatingPackageSubtitle}>
-              {customPackage.vendors.length} {customPackage.vendors.length === 1 ? 'Specialist' : 'Specialists'} • ₹{customPackage.totalPrice.toLocaleString('en-IN')}
-            </Text>
-          </View>
-          <View style={styles.floatingPackageAction}>
-            <Text style={styles.floatingPackageActionText}>View Package →</Text>
-          </View>
-        </VellureButton>
-      )}
+        )}
 
-      {/* ──── COMPARE TRAY & MODALS ──── */}
-      <VendorCompareTray
-        count={compareIds.length}
-        onCompare={() => setShowComparison(true)}
-        onClear={() => {
-          setCompareIds([]);
-          saveComparedVendorIds([]);
-        }}
-      />
+        {/* Floating Compare Tray */}
+        <VendorCompareTray
+          count={compareIds.length}
+          onCompare={() => setShowComparison(true)}
+          onClear={() => {
+            setCompareIds([]);
+            saveComparedVendorIds([]);
+          }}
+        />
+      </View>
 
       <VendorComparisonModal
         visible={showComparison}
@@ -825,42 +883,59 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
-  floatingPackageBar: {
+  floatingBottomStack: {
     position: 'absolute',
-    bottom: 80,
-    left: 18,
-    right: 18,
+    left: 14,
+    right: 14,
+    bottom: 12,
+    gap: 8,
+    zIndex: 99,
+  },
+  floatingPackageBarContainer: {
+    width: '100%',
+  },
+  floatingPackageBar: {
+    width: '100%',
     backgroundColor: '#641E3D',
     borderRadius: 18,
-    padding: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    shadowColor: '#641E3D',
+    gap: 8,
+    shadowColor: '#3E1428',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
+    shadowOpacity: 0.22,
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1,
     borderColor: 'rgba(244, 213, 141, 0.3)',
-    zIndex: 99,
   },
   floatingPackageIcon: {
-    width: 36,
-    height: 36,
+    width: 34,
+    height: 34,
     borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   floatingPackageCopy: { flex: 1 },
-  floatingPackageTitle: { color: '#F4D58D', fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.4 },
-  floatingPackageSubtitle: { color: '#FFFFFF', fontSize: 12, fontWeight: '800', marginTop: 1 },
+  floatingPackageTitle: { color: '#F4D58D', fontSize: 9.5, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.4 },
+  floatingPackageSubtitle: { color: '#FFFFFF', fontSize: 11.5, fontWeight: '800', marginTop: 1 },
   floatingPackageAction: {
     backgroundColor: '#F4D58D',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 7,
   },
-  floatingPackageActionText: { color: '#2A121E', fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
+  floatingPackageActionText: { color: '#2A121E', fontSize: 9.5, fontWeight: '900', textTransform: 'uppercase' },
+  floatingPackageCloseBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 2,
+  },
 });

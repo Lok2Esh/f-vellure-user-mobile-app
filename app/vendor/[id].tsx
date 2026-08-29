@@ -63,6 +63,7 @@ import { VerifiedBadge } from '../../components/ui/VerifiedBadge';
 import { RatingDisplay } from '../../components/ui/RatingDisplay';
 import { EventInquiryModal } from '../../components/inquiry/EventInquiryModal';
 import { AddVendorToPlanModal } from '../../components/vendor/AddVendorToPlanModal';
+import { AddToPackageModal } from '../../components/package/AddToPackageModal';
 import { CalendarModal } from '../../components/ui/CalendarModal';
 import { VendorWorkHistory, VendorWorkItem } from '../../components/vendor/VendorWorkHistory';
 import { colors } from '../../constants/theme';
@@ -212,6 +213,7 @@ export default function VendorDetailsScreen() {
   const [calendarModalVisible, setCalendarModalVisible] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [selectedInquiryDate, setSelectedInquiryDate] = useState<string>('');
+  const [showAddToPackageModal, setShowAddToPackageModal] = useState(false);
 
   const [isSaved, setIsSaved] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
@@ -270,19 +272,7 @@ export default function VendorDetailsScreen() {
 
   const handleToggleCustomPackage = () => {
     if (!vendor) return;
-    const res = toggleVendorInCustomPackage({
-      id: vendor.id,
-      businessName: vendor.businessName,
-      category: vendor.category,
-      city: vendor.city,
-      locality: vendor.locality,
-      basePrice: vendor.basePrice,
-      priceType: vendor.priceType,
-      rating: vendor.rating,
-      reviewsCount: vendor.reviewsCount,
-      image: vendor.image,
-    });
-    setInCustomPackage(res.added);
+    setShowAddToPackageModal(true);
   };
 
   const handleToggleCompare = async () => {
@@ -886,6 +876,26 @@ export default function VendorDetailsScreen() {
           <Text style={styles.stickyQuoteBtnText}>Request Quote</Text>
         </VellureButton>
       </View>
+
+      {/* 📦 Select Celebration Suite / Package Modal */}
+      {vendor && (
+        <AddToPackageModal
+          visible={showAddToPackageModal}
+          vendor={{
+            id: vendor.id,
+            businessName: vendor.businessName,
+            category: vendor.category,
+            city: vendor.city,
+            locality: vendor.locality,
+            basePrice: vendor.basePrice,
+            priceType: vendor.priceType,
+            rating: vendor.rating,
+            reviewsCount: vendor.reviewsCount,
+            image: vendor.image,
+          }}
+          onClose={() => setShowAddToPackageModal(false)}
+        />
+      )}
     </View>
   );
 }

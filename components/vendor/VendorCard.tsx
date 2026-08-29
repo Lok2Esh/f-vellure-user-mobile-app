@@ -32,9 +32,9 @@ import { getServiceMetadata } from '../../constants/services';
 import { PriceDisplay, VendorPriceType } from '../ui/PriceDisplay';
 import { VerifiedBadge } from '../ui/VerifiedBadge';
 import { RatingDisplay } from '../ui/RatingDisplay';
+import { AddToPackageModal } from '../package/AddToPackageModal';
 import {
   isVendorInCustomPackage,
-  toggleVendorInCustomPackage,
   subscribeCustomPackage,
 } from '../../services/customPackageStore';
 
@@ -57,7 +57,7 @@ export interface VendorCardProps {
   city: string;
   locality?: string;
   serviceRadiusKm?: number;
-  cityTier?: number;
+  cityTier?: string | number;
   basePrice?: number;
   priceType?: string;
   rating?: number;
@@ -67,7 +67,7 @@ export interface VendorCardProps {
   capacityMin?: number;
   capacityMax?: number;
   portfolio?: PortfolioItem[];
-  user?: { name: string };
+  user?: any;
   isSaved?: boolean;
   isComparing?: boolean;
   variant?: 'standard' | 'compact' | 'horizontal' | 'compare' | 'saved';
@@ -103,6 +103,7 @@ export function VendorCard({
 }: VendorCardProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [inCustomPackage, setInCustomPackage] = useState(isVendorInCustomPackage(id));
+  const [showAddToPackageModal, setShowAddToPackageModal] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -134,19 +135,7 @@ export function VendorCard({
   };
 
   const handleTogglePackage = () => {
-    const res = toggleVendorInCustomPackage({
-      id,
-      businessName,
-      category,
-      city,
-      locality,
-      basePrice,
-      priceType,
-      rating,
-      reviewsCount,
-      image: displayImages[0],
-    });
-    setInCustomPackage(res.added);
+    setShowAddToPackageModal(true);
   };
 
   const isVenue = category?.toLowerCase().includes('venue');
@@ -325,6 +314,24 @@ export function VendorCard({
           </View>
         </View>
       </VellureButton>
+
+      {/* 📦 Select Celebration Suite / Package Modal */}
+      <AddToPackageModal
+        visible={showAddToPackageModal}
+        vendor={{
+          id,
+          businessName,
+          category,
+          city,
+          locality,
+          basePrice,
+          priceType,
+          rating,
+          reviewsCount,
+          image: displayImages[0],
+        }}
+        onClose={() => setShowAddToPackageModal(false)}
+      />
     </View>
   );
 }

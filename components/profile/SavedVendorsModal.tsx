@@ -19,12 +19,14 @@ import {
   Trash2,
   ChevronRight,
   ExternalLink,
+  Package,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { toggleSaveVendorId } from '../../services/api';
 import { EmptyStateCard } from '../ui/EmptyStateCard';
 import { VellureSearchInput } from '../ui/VellureInputField';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
+import { AddToPackageModal } from '../package/AddToPackageModal';
 
 interface SavedVendorsModalProps {
   visible: boolean;
@@ -42,6 +44,7 @@ export function SavedVendorsModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
+  const [addToPackageTarget, setAddToPackageTarget] = useState<any | null>(null);
 
   const categories = ['All', ...Array.from(new Set(savedVendors.map((v) => v.category || 'Vendor')))];
 
@@ -160,20 +163,32 @@ export function SavedVendorsModal({
                       </View>
                     </VellureButton>
 
-                    <VellureButton
-                      style={styles.trashBtn}
-                      onPress={() =>
-                        setRemoveTarget({
-                          id: vendor.id,
-                          name: vendor.businessName || vendor.name || 'this specialist',
-                        })
-                      }
-                      activeOpacity={0.7}
-                      accessibilityRole="button"
-                      accessibilityLabel="Remove from wishlist"
-                    >
-                      <Trash2 size={16} color="#B63A4A" />
-                    </VellureButton>
+                    <View style={styles.actionsCol}>
+                      <VellureButton
+                        style={styles.packageAddBtn}
+                        onPress={() => setAddToPackageTarget(vendor)}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Add ${vendor.businessName || vendor.name} to celebration suite`}
+                      >
+                        <Package size={14} color="#641E3D" />
+                      </VellureButton>
+
+                      <VellureButton
+                        style={styles.trashBtn}
+                        onPress={() =>
+                          setRemoveTarget({
+                            id: vendor.id,
+                            name: vendor.businessName || vendor.name || 'this specialist',
+                          })
+                        }
+                        activeOpacity={0.7}
+                        accessibilityRole="button"
+                        accessibilityLabel="Remove from wishlist"
+                      >
+                        <Trash2 size={15} color="#B63A4A" />
+                      </VellureButton>
+                    </View>
                   </View>
                 );
               })
@@ -181,6 +196,26 @@ export function SavedVendorsModal({
           </ScrollView>
         </View>
       </View>
+
+      {/* 📦 Select Celebration Suite / Package Modal */}
+      {addToPackageTarget && (
+        <AddToPackageModal
+          visible={addToPackageTarget !== null}
+          vendor={{
+            id: addToPackageTarget.id,
+            businessName: addToPackageTarget.businessName || addToPackageTarget.name,
+            category: addToPackageTarget.category,
+            city: addToPackageTarget.city,
+            locality: addToPackageTarget.locality,
+            basePrice: addToPackageTarget.basePrice,
+            priceType: addToPackageTarget.priceType,
+            rating: addToPackageTarget.rating,
+            reviewsCount: addToPackageTarget.reviewsCount,
+            image: addToPackageTarget.image,
+          }}
+          onClose={() => setAddToPackageTarget(null)}
+        />
+      )}
 
       {/* ⚠️ Reusable Confirmation Dialog */}
       <ConfirmationModal
@@ -340,13 +375,28 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
   },
+  actionsCol: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginLeft: 8,
+  },
+  packageAddBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#FAF5EC',
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   trashBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#FAF5EC',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
   },
 });
