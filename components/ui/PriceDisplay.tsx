@@ -21,6 +21,7 @@ export interface PriceDisplayProps {
   containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   unitStyle?: StyleProp<TextStyle>;
+  tone?: 'default' | 'inverse';
 }
 
 export function formatPriceUnit(priceType?: string): string {
@@ -56,6 +57,7 @@ export function PriceDisplay({
   containerStyle,
   textStyle,
   unitStyle,
+  tone = 'default',
 }: PriceDisplayProps) {
   const numericPrice = typeof price === 'string' ? parseFloat(price.replace(/[^0-9.]/g, '')) : price;
   const isQuoteRequired = !numericPrice || isNaN(numericPrice) || numericPrice <= 0 || priceType === 'QUOTE_REQUIRED';
@@ -64,7 +66,14 @@ export function PriceDisplay({
   if (isQuoteRequired) {
     return (
       <View style={[styles.container, containerStyle]}>
-        <Text style={[styles.quoteRequiredText, size === 'large' && styles.quoteRequiredLarge, textStyle]}>
+        <Text
+          style={[
+            styles.quoteRequiredText,
+            size === 'large' && styles.quoteRequiredLarge,
+            tone === 'inverse' && styles.quoteRequiredInverse,
+            textStyle,
+          ]}
+        >
           Custom Quote on Request
         </Text>
       </View>
@@ -77,7 +86,14 @@ export function PriceDisplay({
   return (
     <View style={[styles.container, containerStyle]}>
       {isPrefix ? (
-        <Text style={[styles.prefixText, size === 'large' && styles.prefixLarge, unitStyle]}>
+        <Text
+          style={[
+            styles.prefixText,
+            size === 'large' && styles.prefixLarge,
+            tone === 'inverse' && styles.supportingTextInverse,
+            unitStyle,
+          ]}
+        >
           Starting from{' '}
         </Text>
       ) : null}
@@ -87,6 +103,7 @@ export function PriceDisplay({
           styles.amountText,
           size === 'small' && styles.amountSmall,
           size === 'large' && styles.amountLarge,
+          tone === 'inverse' && styles.amountInverse,
           textStyle,
         ]}
       >
@@ -94,7 +111,14 @@ export function PriceDisplay({
       </Text>
 
       {!isPrefix && unitLabel ? (
-        <Text style={[styles.unitText, size === 'large' && styles.unitLarge, unitStyle]}>
+        <Text
+          style={[
+            styles.unitText,
+            size === 'large' && styles.unitLarge,
+            tone === 'inverse' && styles.supportingTextInverse,
+            unitStyle,
+          ]}
+        >
           {' '}{unitLabel}
         </Text>
       ) : null}
@@ -107,6 +131,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     flexWrap: 'wrap',
+    minWidth: 0,
   },
   amountText: {
     color: '#641E3D',
@@ -117,7 +142,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   amountLarge: {
-    fontSize: 18,
+    fontSize: 22,
+    lineHeight: 27,
+  },
+  amountInverse: {
+    color: '#F4D58D',
   },
   prefixText: {
     color: '#786B70',
@@ -142,5 +171,11 @@ const styles = StyleSheet.create({
   },
   quoteRequiredLarge: {
     fontSize: 14,
+  },
+  supportingTextInverse: {
+    color: '#F4E8D6',
+  },
+  quoteRequiredInverse: {
+    color: '#F4D58D',
   },
 });

@@ -56,23 +56,11 @@ import { RatingDisplay } from '../../components/ui/RatingDisplay';
 import { EventInquiryModal } from '../../components/inquiry/EventInquiryModal';
 import { AddVendorToPlanModal } from '../../components/vendor/AddVendorToPlanModal';
 import { CalendarModal } from '../../components/ui/CalendarModal';
+import { VendorWorkHistory, VendorWorkItem } from '../../components/vendor/VendorWorkHistory';
 import { colors } from '../../constants/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PAGE_PADDING = 18;
-
-type PortfolioItem = {
-  imageUrl?: string;
-  image?: string;
-  title?: string;
-  venue?: string;
-  eventType?: string;
-  date?: string;
-  budget?: number | string;
-  city?: string;
-  guestCount?: string | number;
-  scope?: string;
-};
 
 type VendorServiceItem = {
   id?: string;
@@ -107,7 +95,7 @@ type NormalizedVendor = {
   status?: string;
   verified?: boolean;
   image?: string;
-  portfolio: PortfolioItem[];
+  portfolio: VendorWorkItem[];
   user?: { name?: string };
   createdAt?: string;
   yearsExperience?: number;
@@ -127,7 +115,7 @@ type NormalizedVendor = {
 };
 
 function normalizeVendor(raw: any): NormalizedVendor {
-  const portfolio: PortfolioItem[] = Array.isArray(raw?.portfolio) ? raw.portfolio : [];
+  const portfolio: VendorWorkItem[] = Array.isArray(raw?.portfolio) ? raw.portfolio : [];
   const services: VendorServiceItem[] = Array.isArray(raw?.services)
     ? raw.services
     : [
@@ -208,7 +196,7 @@ export default function VendorDetailsScreen() {
   const [vendor, setVendor] = useState<NormalizedVendor | null>(null);
   const [activePlan, setActivePlan] = useState<EventPlan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'About' | 'Services' | 'Packages' | 'Portfolio' | 'Reviews' | 'Policies'>('About');
+  const [activeTab, setActiveTab] = useState<'Previous Works' | 'About' | 'Services' | 'Packages' | 'Reviews' | 'Policies'>('Previous Works');
 
   // Modals state
   const [inquiryModalVisible, setInquiryModalVisible] = useState(false);
@@ -247,6 +235,7 @@ export default function VendorDetailsScreen() {
   };
 
   useEffect(() => {
+    setActiveTab('Previous Works');
     loadData();
   }, [vendorId]);
 
@@ -298,7 +287,15 @@ export default function VendorDetailsScreen() {
   const serviceMeta = getServiceMetadata(vendor.category);
   const CategoryIcon = serviceMeta.icon;
   const portfolioImages = vendor.portfolio
-    .map((p) => p.imageUrl || p.image)
+    .flatMap((p) => {
+      if (Array.isArray(p.images) && p.images.length > 0) {
+        return p.images.map((img: any) => (typeof img === 'string' ? img : img?.uri || img?.imageUrl));
+      }
+      if (Array.isArray(p.photos) && p.photos.length > 0) {
+        return p.photos.map((img: any) => (typeof img === 'string' ? img : img?.uri || img?.imageUrl));
+      }
+      return [p.imageUrl || p.image];
+    })
     .filter(Boolean) as string[];
 
   const heroImages = portfolioImages.length > 0 ? portfolioImages : vendor.image ? [vendor.image] : [];
@@ -466,6 +463,8 @@ export default function VendorDetailsScreen() {
                 price={vendor.basePrice}
                 priceType={vendor.priceType as VendorPriceType}
                 size="large"
+                tone="inverse"
+                containerStyle={styles.pricingValue}
               />
             </View>
             <Text style={styles.pricingDisclaimer}>
@@ -518,7 +517,7 @@ export default function VendorDetailsScreen() {
 
         {/* ──── 4. SECTION TABS ──── */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsBar}>
-          {(['About', 'Services', 'Packages', 'Portfolio', 'Reviews', 'Policies'] as const).map((tab) => {
+          {(['Previous Works', 'About', 'Services', 'Packages', 'Reviews', 'Policies'] as const).map((tab) => {
             const isActive = activeTab === tab;
             return (
               <VellureButton
@@ -536,6 +535,15 @@ export default function VendorDetailsScreen() {
 
         {/* ──── 5. TAB CONTENTS ──── */}
         <View style={styles.tabContentArea}>
+          {activeTab === 'Previous Works' && (
+            <VendorWorkHistory
+              items={vendor.portfolio}
+              vendorName={vendor.businessName}
+              vendorCategory={vendor.category}
+              vendorCity={vendor.city}
+            />
+          )}
+
           {/* ABOUT TAB */}
           {activeTab === 'About' && (
             <View style={styles.sectionBlock}>
@@ -633,45 +641,6 @@ export default function VendorDetailsScreen() {
                   </View>
                 </View>
               ))}
-            </View>
-          )}
-
-          {/* PORTFOLIO TAB */}
-          {activeTab === 'Portfolio' && (
-            <View style={styles.sectionBlock}>
-              <Text style={styles.sectionHeading}>Delivered Celebrations ({vendor.portfolio.length})</Text>
-              {vendor.portfolio.length > 0 ? (
-                vendor.portfolio.map((item, idx) => {
-                  const img = item.imageUrl || item.image;
-                  return (
-                    <View key={idx} style={styles.portfolioCard}>
-                      {img && <Image source={{ uri: img }} style={styles.portfolioImg} resizeMode="cover" />}
-                      <View style={styles.portfolioBody}>
-                        <Text style={styles.portfolioTitle}>{item.title || `${vendor.businessName} Showcase`}</Text>
-                        <View style={styles.portfolioMetaRow}>
-                          <View style={styles.portfolioMetaItem}>
-                            <MapPin size={11} color="#8A7A70" />
-                            <Text style={styles.portfolioMetaText}>{item.venue || item.city || vendor.city}</Text>
-                          </View>
-                          <View style={styles.portfolioMetaItem}>
-                            <Calendar size={11} color="#8A7A70" />
-                            <Text style={styles.portfolioMetaText}>{item.date || 'Recent Event'}</Text>
-                          </View>
-                        </View>
-                        {item.scope ? <Text style={styles.portfolioScope}>{item.scope}</Text> : null}
-                      </View>
-                    </View>
-                  );
-                })
-              ) : (
-                <View style={styles.emptyCard}>
-                  <Store size={28} color="#D2AD6B" />
-                  <Text style={styles.emptyCardTitle}>Portfolio samples on request</Text>
-                  <Text style={styles.emptyCardCopy}>
-                    This partner shares past deliverables and high-resolution video reels directly during consultation.
-                  </Text>
-                </View>
-              )}
             </View>
           )}
 
@@ -1045,26 +1014,30 @@ const styles = StyleSheet.create({
   },
   pricingPanel: {
     backgroundColor: '#2A121E',
-    borderRadius: 14,
-    padding: 12,
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#5B3042',
   },
   pricingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'flex-start',
+    gap: 6,
+    marginBottom: 7,
   },
   pricingHeading: {
-    color: '#E8DCC8',
-    fontSize: 11,
-    fontWeight: '800',
+    color: '#F4E8D6',
+    fontSize: 10,
+    fontWeight: '900',
     textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  pricingValue: {
+    width: '100%',
   },
   pricingDisclaimer: {
-    color: '#A08F95',
-    fontSize: 9,
-    lineHeight: 13,
-    fontStyle: 'italic',
+    color: '#CBBBC1',
+    fontSize: 9.5,
+    lineHeight: 14,
   },
   planMatchCard: {
     backgroundColor: '#FFFDF9',
