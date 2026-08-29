@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import {
+  VellureButton,
+  VellureSwitch } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  Switch,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -59,9 +62,9 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
               <Text style={styles.title}>Notification Settings</Text>
               <Text style={styles.subtitle}>Manage quotation alerts and updates</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {isLoading ? (
@@ -78,7 +81,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>Vendor Responses</Text>
                   <Text style={styles.rowDesc}>Immediate alerts when a partner replies to your enquiry</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.vendorResponses}
                   onValueChange={() => handleToggle('vendorResponses')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -91,7 +94,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>Quotation Updates</Text>
                   <Text style={styles.rowDesc}>Notifies when official quote sheets are ready</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.quoteUpdates}
                   onValueChange={() => handleToggle('quoteUpdates')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -104,7 +107,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>Event Milestones & Reminders</Text>
                   <Text style={styles.rowDesc}>Checklist reminders for booking key vendors on time</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.eventReminders}
                   onValueChange={() => handleToggle('eventReminders')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -120,7 +123,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>AI Planning Suggestions</Text>
                   <Text style={styles.rowDesc}>Personalized package breakdowns based on your city</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.planningRecommendations}
                   onValueChange={() => handleToggle('planningRecommendations')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -133,7 +136,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>Partner Benefits & Perks</Text>
                   <Text style={styles.rowDesc}>Seasonal upgrades and complimentary partner value-adds</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.partnerOffers}
                   onValueChange={() => handleToggle('partnerOffers')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -149,7 +152,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>Push Notifications</Text>
                   <Text style={styles.rowDesc}>In-app and mobile device banner notifications</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.pushEnabled}
                   onValueChange={() => handleToggle('pushEnabled')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -162,7 +165,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>SMS Enquiry Alerts</Text>
                   <Text style={styles.rowDesc}>Critical quotation alerts via verified SMS</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.smsMarketing}
                   onValueChange={() => handleToggle('smsMarketing')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}
@@ -175,7 +178,7 @@ export function NotificationsModal({ visible, onClose }: NotificationsModalProps
                   <Text style={styles.rowTitle}>Email Digests</Text>
                   <Text style={styles.rowDesc}>Weekly event blueprint status summaries</Text>
                 </View>
-                <Switch
+                <VellureSwitch
                   value={prefs.emailMarketing}
                   onValueChange={() => handleToggle('emailMarketing')}
                   trackColor={{ false: '#EFE3CF', true: '#641E3D' }}

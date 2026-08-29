@@ -1,9 +1,10 @@
-import React from 'react';
+import {
+  VellureButton,
+  VellureTextInput } from "@/components/ui/VellureControls";
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   TextInputProps,
   ViewStyle,
@@ -76,7 +77,7 @@ export function VellureInputField({
             {props.value || props.placeholder}
           </Text>
         ) : (
-          <TextInput
+          <VellureTextInput
             style={[
               styles.nativeInput,
               multiline && styles.nativeInputMultiline,
@@ -100,13 +101,13 @@ export function VellureInputField({
 
   if (onPress || isReadOnly) {
     return (
-      <TouchableOpacity
+      <VellureButton
         activeOpacity={0.75}
         onPress={onPress}
         style={[styles.touchableWrapper, containerStyle]}
       >
         {content}
-      </TouchableOpacity>
+      </VellureButton>
     );
   }
 
@@ -116,6 +117,7 @@ export function VellureInputField({
 export interface VellureSearchInputProps extends TextInputProps {
   onClear?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
+  size?: 'compact' | 'default' | 'large';
 }
 
 export function VellureSearchInput({
@@ -124,24 +126,55 @@ export function VellureSearchInput({
   onClear,
   placeholder = 'Search...',
   containerStyle,
+  size = 'default',
+  onFocus,
+  onBlur,
   ...props
 }: VellureSearchInputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
-    <View style={[styles.searchContainer, containerStyle]}>
-      <Search size={16} color="#D2AD6B" />
-      <TextInput
+    <View
+      style={[
+        styles.searchContainer,
+        size === 'compact' && styles.searchContainerCompact,
+        size === 'large' && styles.searchContainerLarge,
+        isFocused && styles.searchContainerFocused,
+        containerStyle,
+      ]}
+    >
+      <View style={[styles.searchIcon, isFocused && styles.searchIconFocused]}>
+        <Search size={16} color={isFocused ? '#FFFFFF' : '#641E3D'} strokeWidth={2.4} />
+      </View>
+      <VellureTextInput
         style={styles.searchInput}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#A08F7E"
         selectionColor="#D2AD6B"
+        accessibilityLabel={props.accessibilityLabel || placeholder}
+        returnKeyType={props.returnKeyType || 'search'}
+        onFocus={(event) => {
+          setIsFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setIsFocused(false);
+          onBlur?.(event);
+        }}
         {...props}
       />
       {value && onClear ? (
-        <TouchableOpacity onPress={onClear} style={styles.clearBtn} activeOpacity={0.7}>
-          <X size={14} color="#641E3D" />
-        </TouchableOpacity>
+        <VellureButton
+          onPress={onClear}
+          style={styles.clearBtn}
+          activeOpacity={0.7}
+          accessibilityLabel="Clear search"
+          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+        >
+          <X size={15} color="#641E3D" strokeWidth={2.5} />
+        </VellureButton>
       ) : null}
     </View>
   );
@@ -251,33 +284,67 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   searchContainer: {
-    flex: 1,
+    width: '100%',
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    height: 44,
+    borderRadius: 16,
+    paddingHorizontal: 7,
+    minHeight: 50,
     borderWidth: 1,
-    borderColor: '#EFE3CF',
+    borderColor: '#E8DCC8',
     shadowColor: '#641E3D',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.07,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  searchContainerCompact: {
+    minHeight: 42,
+    borderRadius: 13,
+  },
+  searchContainerLarge: {
+    minHeight: 56,
+    borderRadius: 18,
+  },
+  searchContainerFocused: {
+    borderColor: '#D2AD6B',
+    borderWidth: 1.5,
+    shadowOpacity: 0.13,
+  },
+  searchIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5EC',
+  },
+  searchIconFocused: {
+    backgroundColor: '#641E3D',
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
+    minWidth: 0,
+    height: '100%',
     color: '#2D2025',
     fontSize: 13,
     fontWeight: '600',
     padding: 0,
     margin: 0,
+    marginLeft: 10,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
     outlineStyle: 'none',
     outlineWidth: 0,
   } as any,
   clearBtn: {
-    padding: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5EC',
   },
 });

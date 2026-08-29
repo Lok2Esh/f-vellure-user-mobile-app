@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect,
+  useCallback } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
-  TextInput,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -186,9 +189,9 @@ export function PlanWorkspaceModal({
               </Text>
             </View>
 
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={20} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {/* Internal Workspace Tabs Bar */}
@@ -212,7 +215,7 @@ export function PlanWorkspaceModal({
             ).map((tab) => {
               const isActive = activeTab === tab.id;
               return (
-                <TouchableOpacity
+                <VellureButton
                   key={tab.id}
                   style={[styles.tabPill, isActive && styles.tabPillActive]}
                   onPress={() => setActiveTab(tab.id as WorkspaceTab)}
@@ -221,7 +224,7 @@ export function PlanWorkspaceModal({
                   <Text style={[styles.tabPillText, isActive && styles.tabPillTextActive]}>
                     {tab.label}
                   </Text>
-                </TouchableOpacity>
+                </VellureButton>
               );
             })}
           </ScrollView>
@@ -331,13 +334,13 @@ export function PlanWorkspaceModal({
                 <View style={styles.tabContent}>
                   <View style={styles.sectionHeaderRow}>
                     <Text style={styles.tabHeading}>Selected Services</Text>
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.addSrvTrigger}
                       onPress={() => setAddServiceOpen(true)}
                     >
                       <Plus size={14} color="#FFFFFF" strokeWidth={2.5} />
                       <Text style={styles.addSrvTriggerText}>Add Service</Text>
-                    </TouchableOpacity>
+                    </VellureButton>
                   </View>
 
                   {services.map((srv) => (
@@ -365,7 +368,7 @@ export function PlanWorkspaceModal({
 
                       {/* Actions */}
                       <View style={styles.srvActionsRow}>
-                        <TouchableOpacity
+                        <VellureButton
                           style={styles.findVendorsBtn}
                           onPress={() => {
                             onClose();
@@ -376,24 +379,24 @@ export function PlanWorkspaceModal({
                           }}
                         >
                           <Text style={styles.findVendorsBtnText}>Discover Partners</Text>
-                        </TouchableOpacity>
+                        </VellureButton>
 
                         {quotes.filter((q) => q.serviceId === srv.id).length > 1 && (
-                          <TouchableOpacity
+                          <VellureButton
                             style={styles.compareBtn}
                             onPress={() => setCompareQuotesOpen(true)}
                           >
                             <Text style={styles.compareBtnText}>Compare Quotes</Text>
-                          </TouchableOpacity>
+                          </VellureButton>
                         )}
 
                         {srv.requirement !== 'REQUIRED' && (
-                          <TouchableOpacity
+                          <VellureButton
                             style={styles.removeSrvBtn}
                             onPress={() => handleRemoveService(srv.id)}
                           >
                             <Trash2 size={14} color="#B63A4A" />
-                          </TouchableOpacity>
+                          </VellureButton>
                         )}
                       </View>
                     </View>
@@ -469,12 +472,12 @@ export function PlanWorkspaceModal({
                   <View style={styles.sectionHeaderRow}>
                     <Text style={styles.tabHeading}>Received Quotes</Text>
                     {quotes.length > 1 && (
-                      <TouchableOpacity
+                      <VellureButton
                         style={styles.compareTrigger}
                         onPress={() => setCompareQuotesOpen(true)}
                       >
                         <Text style={styles.compareTriggerText}>Compare Side-by-Side</Text>
-                      </TouchableOpacity>
+                      </VellureButton>
                     )}
                   </View>
 
@@ -503,7 +506,7 @@ export function PlanWorkspaceModal({
                           Includes: {q.includedItems.map((i) => i.title).join(', ')}
                         </Text>
 
-                        <TouchableOpacity
+                        <VellureButton
                           style={styles.selectPreferredBtn}
                           onPress={() => handleSelectPreferredQuote(q)}
                         >
@@ -512,7 +515,7 @@ export function PlanWorkspaceModal({
                               ? '✓ Selected as Preferred'
                               : 'Set as Preferred Choice'}
                           </Text>
-                        </TouchableOpacity>
+                        </VellureButton>
                       </View>
                     ))
                   )}
@@ -569,9 +572,9 @@ export function PlanWorkspaceModal({
                     placeholder="Add special family requirements, dietary preferences, ceremony sequences..."
                     containerStyle={{ marginTop: 10 }}
                   />
-                  <TouchableOpacity style={styles.saveNotesBtn} onPress={handleSaveNotes}>
+                  <VellureButton style={styles.saveNotesBtn} onPress={handleSaveNotes}>
                     <Text style={styles.saveNotesBtnText}>Save Private Notes</Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 </View>
               )}
 
@@ -580,7 +583,7 @@ export function PlanWorkspaceModal({
                 <View style={styles.tabContent}>
                   <Text style={styles.tabHeading}>Plan Settings & Management</Text>
                   <View style={styles.settingsMenu}>
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.settingRow}
                       onPress={() => onDuplicatePlan(plan.id)}
                     >
@@ -589,9 +592,9 @@ export function PlanWorkspaceModal({
                         <Text style={styles.settingTitle}>Duplicate Plan Blueprint</Text>
                       </View>
                       <ChevronRight size={15} color="#A08F7E" />
-                    </TouchableOpacity>
+                    </VellureButton>
 
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.settingRow}
                       onPress={() => onArchivePlan(plan.id)}
                     >
@@ -600,9 +603,9 @@ export function PlanWorkspaceModal({
                         <Text style={styles.settingTitle}>Archive Plan</Text>
                       </View>
                       <ChevronRight size={15} color="#A08F7E" />
-                    </TouchableOpacity>
+                    </VellureButton>
 
-                    <TouchableOpacity
+                    <VellureButton
                       style={[styles.settingRow, { borderBottomWidth: 0 }]}
                       onPress={() => onDeletePlan(plan.id)}
                     >
@@ -613,7 +616,7 @@ export function PlanWorkspaceModal({
                         </Text>
                       </View>
                       <ChevronRight size={15} color="#B63A4A" />
-                    </TouchableOpacity>
+                    </VellureButton>
                   </View>
                 </View>
               )}

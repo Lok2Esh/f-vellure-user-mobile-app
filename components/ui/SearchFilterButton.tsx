@@ -1,5 +1,6 @@
+import { VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { TouchableOpacity, Text, View, TouchableOpacityProps } from 'react-native';
+import { Text, View, TouchableOpacityProps } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 interface SearchFilterButtonProps extends TouchableOpacityProps {
@@ -8,7 +9,7 @@ interface SearchFilterButtonProps extends TouchableOpacityProps {
 
 export const SearchFilterButton = ({ title = "SEARCH & FILTER", style, ...props }: SearchFilterButtonProps) => {
   return (
-    <TouchableOpacity 
+    <VellureButton
       activeOpacity={0.8}
       className="w-full mb-2"
       style={[{
@@ -20,9 +21,9 @@ export const SearchFilterButton = ({ title = "SEARCH & FILTER", style, ...props 
       }, style]}
       {...props}
     >
-      <View style={{ 
-        position: 'relative', 
-        borderRadius: 999, 
+      <View style={{
+        position: 'relative',
+        borderRadius: 999,
         overflow: 'hidden',
         borderWidth: 1.5,
         borderColor: '#E8CA83'
@@ -39,7 +40,7 @@ export const SearchFilterButton = ({ title = "SEARCH & FILTER", style, ...props 
           </Defs>
           <Rect width="100%" height="100%" fill="url(#goldGrad)" />
         </Svg>
-        
+
         {/* Inner Highlight for 3D bevel effect */}
         <View style={{
           position: 'absolute',
@@ -51,17 +52,17 @@ export const SearchFilterButton = ({ title = "SEARCH & FILTER", style, ...props 
 
         {/* Content */}
         <View style={{ paddingVertical: 14, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ 
-            color: '#2A141A', 
-            fontSize: 14, 
-            fontWeight: '800', 
-            letterSpacing: 0.5 
+          <Text style={{
+            color: '#2A141A',
+            fontSize: 14,
+            fontWeight: '800',
+            letterSpacing: 0.5
           }}>
             {title}
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </VellureButton>
   );
 };
 

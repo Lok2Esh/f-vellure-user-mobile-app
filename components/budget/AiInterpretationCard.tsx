@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import {
   Sparkles,
   MapPin,
@@ -94,7 +99,7 @@ export function AiInterpretationCard({
         <Text style={styles.sectionLabel}>Identified Service Requirements ({plan.requiredServices.length})</Text>
         <View style={styles.servicesWrap}>
           {plan.requiredServices.map((srv, idx) => (
-            <TouchableOpacity
+            <VellureButton
               key={idx}
               style={styles.serviceChip}
               onPress={() => onServiceToggle && onServiceToggle(srv)}
@@ -102,7 +107,7 @@ export function AiInterpretationCard({
             >
               <CheckCircle2 size={11} color="#2F7D62" />
               <Text style={styles.serviceChipText}>{srv}</Text>
-            </TouchableOpacity>
+            </VellureButton>
           ))}
         </View>
       </View>
@@ -123,7 +128,7 @@ export function AiInterpretationCard({
       )}
 
       {/* Edit Trigger CTA */}
-      <TouchableOpacity
+      <VellureButton
         style={styles.editBar}
         onPress={onEditPress}
         activeOpacity={0.82}
@@ -138,7 +143,7 @@ export function AiInterpretationCard({
           <Text style={styles.editBtnPillText}>Edit Blueprint</Text>
           <ChevronRight size={12} color="#641E3D" />
         </View>
-      </TouchableOpacity>
+      </VellureButton>
     </View>
   );
 }

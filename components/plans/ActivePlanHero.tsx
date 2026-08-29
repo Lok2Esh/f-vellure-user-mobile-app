@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import {
   Sparkles,
   Calendar,
@@ -98,7 +103,7 @@ export function ActivePlanHero({
 
       {/* Quick Action Buttons Row 1: Secondary Utilities */}
       <View style={styles.secondaryActionsRow}>
-        <TouchableOpacity
+        <VellureButton
           style={styles.secUtilityBtn}
           onPress={() => router.push('/(tabs)/budget')}
           activeOpacity={0.8}
@@ -107,9 +112,9 @@ export function ActivePlanHero({
         >
           <Sliders size={13} color="#641E3D" />
           <Text style={styles.secUtilityBtnText}>Edit AI Budget</Text>
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.secUtilityBtn}
           onPress={() =>
             router.push({
@@ -123,12 +128,12 @@ export function ActivePlanHero({
         >
           <Store size={13} color="#641E3D" />
           <Text style={styles.secUtilityBtnText}>Find Vendors</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
 
       {/* Primary Action Buttons Row 2 */}
       <View style={styles.primaryActionsRow}>
-        <TouchableOpacity
+        <VellureButton
           style={styles.workspaceBtn}
           onPress={onViewDetailsPress}
           activeOpacity={0.8}
@@ -137,9 +142,9 @@ export function ActivePlanHero({
         >
           <FolderKanban size={14} color="#641E3D" />
           <Text style={styles.workspaceBtnText}>View Workspace</Text>
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.resumeBtn}
           onPress={onResumePress}
           activeOpacity={0.88}
@@ -148,7 +153,7 @@ export function ActivePlanHero({
         >
           <Text style={styles.resumeBtnText}>Resume Plan</Text>
           <ArrowRight size={13} color="#FFFFFF" />
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     </View>
   );

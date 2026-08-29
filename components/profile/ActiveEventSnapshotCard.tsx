@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { Sparkles, Calendar, Users, IndianRupee, ArrowRight, CheckCircle2, Wand2 } from 'lucide-react-native';
 import { ActiveEventPlan } from '../../services/api';
 import { colors } from '../../constants/theme';
@@ -27,7 +32,7 @@ export function ActiveEventSnapshotCard({
         <Text style={styles.emptySub}>
           Use our conversational AI planner to estimate budget and discover verified local partners.
         </Text>
-        <TouchableOpacity
+        <VellureButton
           style={styles.emptyActionBtn}
           onPress={onPlanNew}
           activeOpacity={0.88}
@@ -36,7 +41,7 @@ export function ActiveEventSnapshotCard({
         >
           <Wand2 size={14} color="#FFFFFF" />
           <Text style={styles.emptyActionBtnText}>Plan with AI</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     );
   }
@@ -91,7 +96,7 @@ export function ActiveEventSnapshotCard({
 
       {/* Action Buttons */}
       <View style={styles.actionsRow}>
-        <TouchableOpacity
+        <VellureButton
           style={styles.detailsBtn}
           onPress={onViewDetails}
           activeOpacity={0.8}
@@ -99,9 +104,9 @@ export function ActiveEventSnapshotCard({
           accessibilityLabel="View celebration details"
         >
           <Text style={styles.detailsBtnText}>View Details</Text>
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.resumeBtn}
           onPress={onResumePlan}
           activeOpacity={0.88}
@@ -110,7 +115,7 @@ export function ActiveEventSnapshotCard({
         >
           <Text style={styles.resumeBtnText}>Resume Plan</Text>
           <ArrowRight size={13} color="#FFFFFF" />
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     </View>
   );

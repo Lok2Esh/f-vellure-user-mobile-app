@@ -1,5 +1,12 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { BadgeCheck, MapPin, Scale, Star, X } from 'lucide-react-native';
 
 export type ComparableVendor = {
@@ -50,9 +57,9 @@ export function VendorComparisonModal({ visible, vendors, onClose, onRemove, onV
                 <Text style={styles.subtitle}>Compare compatible services side by side</Text>
               </View>
             </View>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close comparison" onPress={onClose} style={styles.closeButton}>
+            <VellureButton accessibilityRole="button" accessibilityLabel="Close comparison" onPress={onClose} style={styles.closeButton}>
               <X size={18} color="#641E3D" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cards}>
@@ -75,12 +82,12 @@ export function VendorComparisonModal({ visible, vendors, onClose, onRemove, onV
                 </View>
                 <Text style={styles.price}>{formatPrice(vendor)}</Text>
                 <Text style={styles.disclaimer}>Availability and final pricing require confirmation.</Text>
-                <TouchableOpacity onPress={() => onViewVendor(vendor.id)} style={styles.viewButton}>
+                <VellureButton onPress={() => onViewVendor(vendor.id)} style={styles.viewButton}>
                   <Text style={styles.viewText}>View details</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onRemove(vendor.id)} style={styles.removeButton}>
+                </VellureButton>
+                <VellureButton onPress={() => onRemove(vendor.id)} style={styles.removeButton}>
                   <Text style={styles.removeText}>Remove</Text>
-                </TouchableOpacity>
+                </VellureButton>
               </View>
             ))}
           </ScrollView>

@@ -1,5 +1,11 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  Modal,
+  StyleSheet,
+} from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { colors } from '../../constants/theme';
 
@@ -66,7 +72,7 @@ export function CalendarModal({
             style={styles.calendarStyle}
           />
 
-          <TouchableOpacity
+          <VellureButton
             style={styles.cancelBtn}
             onPress={onClose}
             activeOpacity={0.8}
@@ -74,7 +80,7 @@ export function CalendarModal({
             accessibilityLabel="Cancel date selection"
           >
             <Text style={styles.cancelBtnText}>Cancel</Text>
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       </View>
     </Modal>

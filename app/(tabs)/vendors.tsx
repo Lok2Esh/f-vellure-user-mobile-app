@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect,
+  useMemo,
+  useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   ActivityIndicator,
-  TouchableOpacity,
   FlatList,
   Alert,
   StyleSheet,
@@ -302,7 +307,7 @@ export default function VendorsScreen() {
             </Text>
           </View>
 
-          <TouchableOpacity
+          <VellureButton
             style={styles.locationPill}
             onPress={() => setShowCityPicker(true)}
             activeOpacity={0.8}
@@ -314,20 +319,22 @@ export default function VendorsScreen() {
               {currentCityLabel}
             </Text>
             <ChevronDown size={12} color="#641E3D" />
-          </TouchableOpacity>
+          </VellureButton>
         </View>
 
         {/* Search Bar */}
         <View style={styles.searchBarRow}>
-          <View style={styles.searchInputContainer}>
-            <VellureSearchInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder="Search venues, caterers, decorators, photographers…"
-            />
-          </View>
+          <VellureSearchInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search services, vendors, or locations"
+            accessibilityLabel="Search marketplace vendors"
+            containerStyle={styles.searchInputContainer}
+            size="large"
+          />
 
-          <TouchableOpacity
+          <VellureButton
             style={[styles.filterIconButton, activeFilterCount > 0 && styles.filterIconButtonActive]}
             onPress={() => setShowFilterModal(true)}
             activeOpacity={0.8}
@@ -340,7 +347,7 @@ export default function VendorsScreen() {
                 <Text style={styles.filterCountText}>{activeFilterCount}</Text>
               </View>
             )}
-          </TouchableOpacity>
+          </VellureButton>
         </View>
 
         {/* Quick Search Suggestions when Search is Active */}
@@ -351,7 +358,7 @@ export default function VendorsScreen() {
             contentContainerStyle={styles.suggestionChips}
           >
             {POPULAR_SEARCH_SUGGESTIONS.map((sug, i) => (
-              <TouchableOpacity
+              <VellureButton
                 key={i}
                 style={styles.suggestionChip}
                 onPress={() => setSearchQuery(sug)}
@@ -359,7 +366,7 @@ export default function VendorsScreen() {
               >
                 <Search size={10} color="#8A7A70" />
                 <Text style={styles.suggestionChipText}>{sug}</Text>
-              </TouchableOpacity>
+              </VellureButton>
             ))}
           </ScrollView>
         )}
@@ -373,7 +380,7 @@ export default function VendorsScreen() {
           {Object.entries(CATEGORY_MAP).map(([key, cat]) => {
             const isSelected = selectedCategory === key;
             return (
-              <TouchableOpacity
+              <VellureButton
                 key={key}
                 style={[styles.catChip, isSelected && styles.catChipActive]}
                 onPress={() => setSelectedCategory(key)}
@@ -382,7 +389,7 @@ export default function VendorsScreen() {
                 <Text style={[styles.catChipText, isSelected && styles.catChipTextActive]}>
                   {cat.label}
                 </Text>
-              </TouchableOpacity>
+              </VellureButton>
             );
           })}
         </ScrollView>
@@ -393,42 +400,42 @@ export default function VendorsScreen() {
             {filters.city !== 'all' && (
               <View style={styles.activeFilterChip}>
                 <Text style={styles.activeFilterChipText}>{filters.city}</Text>
-                <TouchableOpacity onPress={() => setFilters({ ...filters, city: 'all' })}>
+                <VellureButton onPress={() => setFilters({ ...filters, city: 'all' })}>
                   <X size={12} color="#641E3D" />
-                </TouchableOpacity>
+                </VellureButton>
               </View>
             )}
 
             {filters.verifiedOnly && (
               <View style={styles.activeFilterChip}>
                 <Text style={styles.activeFilterChipText}>Verified Only</Text>
-                <TouchableOpacity onPress={() => setFilters({ ...filters, verifiedOnly: false })}>
+                <VellureButton onPress={() => setFilters({ ...filters, verifiedOnly: false })}>
                   <X size={12} color="#641E3D" />
-                </TouchableOpacity>
+                </VellureButton>
               </View>
             )}
 
             {filters.minimumRating > 0 && (
               <View style={styles.activeFilterChip}>
                 <Text style={styles.activeFilterChipText}>{filters.minimumRating}+ Stars</Text>
-                <TouchableOpacity onPress={() => setFilters({ ...filters, minimumRating: 0 })}>
+                <VellureButton onPress={() => setFilters({ ...filters, minimumRating: 0 })}>
                   <X size={12} color="#641E3D" />
-                </TouchableOpacity>
+                </VellureButton>
               </View>
             )}
 
             {filters.sortBy !== 'recommended' && (
               <View style={styles.activeFilterChip}>
                 <Text style={styles.activeFilterChipText}>Sort: {filters.sortBy.replace('_', ' ')}</Text>
-                <TouchableOpacity onPress={() => setFilters({ ...filters, sortBy: 'recommended' })}>
+                <VellureButton onPress={() => setFilters({ ...filters, sortBy: 'recommended' })}>
                   <X size={12} color="#641E3D" />
-                </TouchableOpacity>
+                </VellureButton>
               </View>
             )}
 
-            <TouchableOpacity onPress={handleResetFilters} style={styles.resetAllBtn}>
+            <VellureButton onPress={handleResetFilters} style={styles.resetAllBtn}>
               <Text style={styles.resetAllText}>Reset All</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         )}
 
@@ -619,24 +626,29 @@ const styles = StyleSheet.create({
   },
   searchBarRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'stretch',
     paddingHorizontal: 20,
-    gap: 8,
-    marginBottom: 8,
+    gap: 10,
+    marginBottom: 10,
   },
   searchInputContainer: {
     flex: 1,
   },
   filterIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#FAF5EC',
+    width: 56,
+    minHeight: 56,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFE3CF',
+    borderColor: '#E8DCC8',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    shadowColor: '#641E3D',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.07,
+    shadowRadius: 12,
+    elevation: 3,
   },
   filterIconButtonActive: {
     backgroundColor: '#641E3D',

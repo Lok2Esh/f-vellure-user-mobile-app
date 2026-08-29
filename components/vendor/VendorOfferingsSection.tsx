@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Boxes, ChevronRight, PackageOpen } from 'lucide-react-native';
 
 export type VendorServiceOffering = {
@@ -49,10 +54,10 @@ export function VendorOfferingsSection({ mode, services = [], packages = [], onE
         <Text style={styles.emptyCopy}>
           Ask the partner for current inclusions, customization options, exclusions, and confirmed pricing.
         </Text>
-        <TouchableOpacity onPress={onEnquire} style={styles.enquireButton}>
+        <VellureButton onPress={onEnquire} style={styles.enquireButton}>
           <Text style={styles.enquireText}>Request {mode === 'services' ? 'service details' : 'package options'}</Text>
           <ChevronRight size={15} color="#FFFFFF" />
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     );
   }
@@ -76,7 +81,7 @@ export function VendorOfferingsSection({ mode, services = [], packages = [], onE
             ) : null}
             <View style={styles.footer}>
               <Text style={styles.price}>{priceLabel(item.startingPrice, item.priceType)}</Text>
-              <TouchableOpacity onPress={onEnquire} style={styles.smallButton}><Text style={styles.smallButtonText}>Enquire</Text></TouchableOpacity>
+              <VellureButton onPress={onEnquire} style={styles.smallButton}><Text style={styles.smallButtonText}>Enquire</Text></VellureButton>
             </View>
           </View>
         );

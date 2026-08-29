@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useEffect,
+  useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -6,7 +10,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
@@ -102,9 +105,9 @@ export default function PackageDetailsScreen() {
           />
           <View style={styles.heroShade} />
 
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back">
+          <VellureButton onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back">
             <ArrowLeft size={20} color="#FFFFFF" strokeWidth={2.4} />
-          </TouchableOpacity>
+          </VellureButton>
 
           <View style={styles.heroBadge}>
             <Package size={12} color="#D2AD6B" />
@@ -173,23 +176,23 @@ export default function PackageDetailsScreen() {
 
       {/* Sticky Bottom Actions */}
       <View style={styles.stickyBottomBar}>
-        <TouchableOpacity
+        <VellureButton
           style={styles.stickyPlanBtn}
           onPress={() => setPlanModalVisible(true)}
           activeOpacity={0.85}
         >
           <Briefcase size={15} color="#641E3D" />
           <Text style={styles.stickyPlanBtnText}>Add to Plan</Text>
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.stickyQuoteBtn}
           onPress={() => setInquiryModalVisible(true)}
           activeOpacity={0.88}
         >
           <Send size={15} color="#FFFFFF" />
           <Text style={styles.stickyQuoteBtnText}>Request Consultation</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     </View>
   );

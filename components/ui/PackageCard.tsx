@@ -1,5 +1,13 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View,
+  Text,
+  Image,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import { Sparkles, Send, CheckCircle2, ChevronRight } from 'lucide-react-native';
 
 export interface PackageCardProps {
@@ -43,7 +51,7 @@ export function PackageCard({
 
   if (variant === 'compact') {
     return (
-      <TouchableOpacity
+      <VellureButton
         activeOpacity={0.88}
         onPress={onPress || onInquire}
         style={[styles.compactCard, containerStyle]}
@@ -71,7 +79,7 @@ export function PackageCard({
             <Text style={styles.moreText}>+{services.length - 3} more</Text>
           )}
         </View>
-      </TouchableOpacity>
+      </VellureButton>
     );
   }
 
@@ -102,7 +110,7 @@ export function PackageCard({
         </View>
 
         {onInquire ? (
-          <TouchableOpacity
+          <VellureButton
             style={styles.inquireBtn}
             onPress={onInquire}
             activeOpacity={0.88}
@@ -111,7 +119,7 @@ export function PackageCard({
           >
             <Send size={13} color="#FFFFFF" />
             <Text style={styles.inquireBtnText}>Request Quotes for this Bundle</Text>
-          </TouchableOpacity>
+          </VellureButton>
         ) : null}
       </View>
     </View>

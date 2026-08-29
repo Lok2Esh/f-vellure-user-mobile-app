@@ -1,5 +1,12 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import { Calendar, Users, MapPin, IndianRupee, ChevronRight, Store, Package } from 'lucide-react-native';
 import { EventInquiry } from '../../services/api';
 import { colors } from '../../constants/theme';
@@ -94,7 +101,7 @@ export function InquiryCard({
         </View>
 
         {onPressTarget ? (
-          <TouchableOpacity
+          <VellureButton
             style={styles.ctaBtn}
             onPress={() => onPressTarget(inquiry)}
             activeOpacity={0.8}
@@ -105,7 +112,7 @@ export function InquiryCard({
               {ctaText || (inquiry.isPackage ? 'View Package' : 'View Partner')}
             </Text>
             <ChevronRight size={13} color="#641E3D" />
-          </TouchableOpacity>
+          </VellureButton>
         ) : null}
       </View>
     </View>

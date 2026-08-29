@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { FolderKanban, Send, Heart, FileCheck, ChevronRight } from 'lucide-react-native';
 import { colors } from '../../constants/theme';
 
@@ -62,7 +67,7 @@ export function ActivitySummaryGrid({
   return (
     <View style={styles.grid}>
       {items.map((item) => (
-        <TouchableOpacity
+        <VellureButton
           key={item.id}
           style={styles.card}
           onPress={item.onPress}
@@ -76,7 +81,7 @@ export function ActivitySummaryGrid({
           </View>
           <Text style={styles.countText}>{item.count}</Text>
           <Text style={styles.labelText}>{item.label}</Text>
-        </TouchableOpacity>
+        </VellureButton>
       ))}
     </View>
   );

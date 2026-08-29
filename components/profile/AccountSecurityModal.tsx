@@ -1,9 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   Alert,
@@ -64,9 +65,9 @@ export function AccountSecurityModal({
               <Text style={styles.title}>Account & Security</Text>
               <Text style={styles.subtitle}>Privacy, credentials, and data controls</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -102,7 +103,7 @@ export function AccountSecurityModal({
             {/* Security Actions */}
             <Text style={styles.sectionHeading}>Security Management</Text>
 
-            <TouchableOpacity style={styles.actionRow} onPress={handleChangePassword} activeOpacity={0.7}>
+            <VellureButton style={styles.actionRow} onPress={handleChangePassword} activeOpacity={0.7}>
               <View style={styles.actionLeft}>
                 <KeyRound size={16} color="#641E3D" />
                 <View>
@@ -111,9 +112,9 @@ export function AccountSecurityModal({
                 </View>
               </View>
               <ChevronRight size={16} color="#A08F7E" />
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity style={styles.actionRow} onPress={handleDownloadData} activeOpacity={0.7}>
+            <VellureButton style={styles.actionRow} onPress={handleDownloadData} activeOpacity={0.7}>
               <View style={styles.actionLeft}>
                 <Download size={16} color="#641E3D" />
                 <View>
@@ -122,9 +123,9 @@ export function AccountSecurityModal({
                 </View>
               </View>
               <ChevronRight size={16} color="#A08F7E" />
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity
+            <VellureButton
               style={[styles.actionRow, { borderBottomWidth: 0 }]}
               onPress={() => Alert.alert('Privacy Controls', 'Vellure maintains a strict privacy firewall. Your information is never provided to marketing brokers.')}
               activeOpacity={0.7}
@@ -137,7 +138,7 @@ export function AccountSecurityModal({
                 </View>
               </View>
               <ChevronRight size={16} color="#A08F7E" />
-            </TouchableOpacity>
+            </VellureButton>
           </ScrollView>
         </View>
       </View>

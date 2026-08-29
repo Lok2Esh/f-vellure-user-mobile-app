@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -129,9 +131,9 @@ export function EventPreferencesModal({
               <Text style={styles.title}>Event Planning Preferences</Text>
               <Text style={styles.subtitle}>Curates personalized vendor matches</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {/* Explanation Banner */}
@@ -149,7 +151,7 @@ export function EventPreferencesModal({
               {EVENT_TYPE_OPTIONS.map((item) => {
                 const isSelected = selectedEventTypes.includes(item);
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={item}
                     style={[styles.chip, isSelected && styles.chipActive]}
                     onPress={() => toggleArrayItem(selectedEventTypes, setSelectedEventTypes, item)}
@@ -158,7 +160,7 @@ export function EventPreferencesModal({
                     <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                       {item}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -169,7 +171,7 @@ export function EventPreferencesModal({
               {VENUE_STYLE_OPTIONS.map((item) => {
                 const isSelected = selectedVenueStyle === item;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={item}
                     style={[styles.chip, isSelected && styles.chipActive]}
                     onPress={() => setSelectedVenueStyle(item)}
@@ -178,7 +180,7 @@ export function EventPreferencesModal({
                     <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                       {item}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -189,7 +191,7 @@ export function EventPreferencesModal({
               {DIETARY_OPTIONS.map((item) => {
                 const isSelected = selectedDietary.includes(item);
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={item}
                     style={[styles.chip, isSelected && styles.chipActive]}
                     onPress={() => toggleArrayItem(selectedDietary, setSelectedDietary, item)}
@@ -198,7 +200,7 @@ export function EventPreferencesModal({
                     <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                       {item}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -209,7 +211,7 @@ export function EventPreferencesModal({
               {CEREMONY_OPTIONS.map((item) => {
                 const isSelected = selectedCeremonies.includes(item);
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={item}
                     style={[styles.chip, isSelected && styles.chipActive]}
                     onPress={() => toggleArrayItem(selectedCeremonies, setSelectedCeremonies, item)}
@@ -218,7 +220,7 @@ export function EventPreferencesModal({
                     <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                       {item}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -229,7 +231,7 @@ export function EventPreferencesModal({
               {SERVICE_PRIORITIES.map((item) => {
                 const isSelected = selectedServices.includes(item);
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={item}
                     style={[styles.chip, isSelected && styles.chipActive]}
                     onPress={() => toggleArrayItem(selectedServices, setSelectedServices, item)}
@@ -238,19 +240,19 @@ export function EventPreferencesModal({
                     <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                       {item}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
 
             {/* Footer Buttons */}
             <View style={styles.footerRow}>
-              <TouchableOpacity style={styles.resetBtn} onPress={handleReset} activeOpacity={0.75}>
+              <VellureButton style={styles.resetBtn} onPress={handleReset} activeOpacity={0.75}>
                 <RotateCcw size={13} color="#641E3D" />
                 <Text style={styles.resetBtnText}>Reset</Text>
-              </TouchableOpacity>
+              </VellureButton>
 
-              <TouchableOpacity
+              <VellureButton
                 style={styles.saveBtn}
                 onPress={handleSave}
                 disabled={isSaving}
@@ -261,7 +263,7 @@ export function EventPreferencesModal({
                 ) : (
                   <Text style={styles.saveBtnText}>Save Preferences</Text>
                 )}
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           </ScrollView>
         </View>

@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
+import {
+  VellureButton,
+  VellureFieldTrigger,
+} from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
+import { View,
+  Text,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-import { ChevronDown } from 'lucide-react-native';
 
 interface FormDropdownProps {
   label: string;
@@ -39,24 +48,22 @@ export function FormDropdown({ label, icon, width = '100%', value, options, onCh
           {label}
         </Text>
       </View>
-      
+
       {/* Dropdown Field */}
-      <TouchableOpacity 
-        className="flex-row items-center justify-between bg-white border border-[#E8DCC8] rounded-xl px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,0.02)] elevation-sm"
+      <VellureFieldTrigger
+        value={value}
+        placeholder={placeholder}
+        kind="dropdown"
         onPress={toggleDropdown}
         activeOpacity={0.7}
-      >
-        <Text className={value ? "text-[#333333] text-[13px]" : "text-[#C4B99A] text-[13px]"}>
-          {value || placeholder}
-        </Text>
-        <ChevronDown size={14} color="#9A8F65" strokeWidth={2.5} />
-      </TouchableOpacity>
+        accessibilityLabel={`${label}: ${value || placeholder}`}
+      />
 
       {/* Options List popover */}
       {open && (
         <View className="absolute top-[65px] left-0 right-0 bg-white border border-[#E8DCC8] rounded-xl overflow-hidden shadow-lg elevation-xl z-50">
           {options.map((opt, idx) => (
-            <TouchableOpacity 
+            <VellureButton
               key={opt}
               className={`px-4 py-3 ${idx !== options.length - 1 ? 'border-b border-[#F5F0E6]' : ''}`}
               onPress={() => handleSelect(opt)}
@@ -64,7 +71,7 @@ export function FormDropdown({ label, icon, width = '100%', value, options, onCh
               <Text className={`text-[13px] ${value === opt ? 'text-[#641E3D] font-bold tracking-wide' : 'text-[#555]'}`}>
                 {opt}
               </Text>
-            </TouchableOpacity>
+            </VellureButton>
           ))}
         </View>
       )}

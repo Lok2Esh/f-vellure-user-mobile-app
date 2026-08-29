@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { colors } from '../../constants/theme';
 
@@ -31,14 +36,14 @@ export function SectionHeader({
       </View>
 
       {onAction ? (
-        <TouchableOpacity
+        <VellureButton
           onPress={onAction}
           style={styles.actionBtn}
           activeOpacity={0.7}
         >
           <Text style={styles.actionText}>{actionText}</Text>
           <ChevronRight size={14} color={colors.wine} strokeWidth={2.5} />
-        </TouchableOpacity>
+        </VellureButton>
       ) : null}
     </View>
   );

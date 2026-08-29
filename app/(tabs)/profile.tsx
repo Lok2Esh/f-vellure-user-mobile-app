@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect,
+  useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -375,7 +379,7 @@ export default function ProfileScreen() {
 
           {/* ──── SECTION 10: ACCOUNT ACTIONS ──── */}
           <View style={styles.accountActionsWrap}>
-            <TouchableOpacity
+            <VellureButton
               style={styles.logoutBtn}
               onPress={handleLogout}
               activeOpacity={0.8}
@@ -384,9 +388,9 @@ export default function ProfileScreen() {
             >
               <LogOut size={16} color="#641E3D" />
               <Text style={styles.logoutBtnText}>Log Out of Account</Text>
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity
+            <VellureButton
               style={styles.deleteAccountBtn}
               onPress={() => setDeleteAccountOpen(true)}
               activeOpacity={0.7}
@@ -395,7 +399,7 @@ export default function ProfileScreen() {
             >
               <Trash2 size={14} color="#B63A4A" />
               <Text style={styles.deleteAccountBtnText}>Clear Saved Data / Delete Account</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
       </ScrollView>

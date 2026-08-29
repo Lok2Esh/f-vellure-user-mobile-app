@@ -1,12 +1,13 @@
+import {
+  VellureButton,
+  VellureTextInput,
+  VellureSwitch } from "@/components/ui/VellureControls";
 import React from 'react';
 import {
   Modal,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { Check, MapPin, RotateCcw, SlidersHorizontal, X } from 'lucide-react-native';
@@ -64,9 +65,9 @@ export function ExploreFilterModal({
                 <Text style={styles.subtitle}>Refine partners for your event</Text>
               </View>
             </View>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close filters" onPress={onClose} style={styles.iconButton}>
+            <VellureButton accessibilityRole="button" accessibilityLabel="Close filters" onPress={onClose} style={styles.iconButton}>
               <X size={19} color="#641E3D" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -75,7 +76,7 @@ export function ExploreFilterModal({
               {['all', ...cities].map((city) => {
                 const selected = filters.city.toLowerCase() === city.toLowerCase();
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={city}
                     onPress={() => update({ city })}
                     style={[styles.chip, selected && styles.chipSelected]}
@@ -86,7 +87,7 @@ export function ExploreFilterModal({
                     <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
                       {city === 'all' ? 'All cities' : city}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </ScrollView>
@@ -96,7 +97,7 @@ export function ExploreFilterModal({
                 <Text style={styles.switchTitle}>Verified partners only</Text>
                 <Text style={styles.switchDescription}>Only show profiles currently verified by Vellure</Text>
               </View>
-              <Switch
+              <VellureSwitch
                 value={filters.verifiedOnly}
                 onValueChange={(verifiedOnly) => update({ verifiedOnly })}
                 trackColor={{ false: '#D8CFC9', true: '#B77994' }}
@@ -109,7 +110,7 @@ export function ExploreFilterModal({
               {RATING_OPTIONS.map((rating) => {
                 const selected = filters.minimumRating === rating;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={rating}
                     onPress={() => update({ minimumRating: rating })}
                     style={[styles.chip, selected && styles.chipSelected]}
@@ -118,14 +119,14 @@ export function ExploreFilterModal({
                     <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
                       {rating === 0 ? 'Any rating' : `${rating}+`}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
 
             <Text style={styles.sectionLabel}>Starting-price range</Text>
             <View style={styles.priceRow}>
-              <TextInput
+              <VellureTextInput
                 value={filters.minimumPrice == null ? '' : String(filters.minimumPrice)}
                 onChangeText={(value) => update({ minimumPrice: value ? Number(value.replace(/\D/g, '')) : undefined })}
                 placeholder="Minimum ₹"
@@ -134,7 +135,7 @@ export function ExploreFilterModal({
                 placeholderTextColor="#9B8F93"
               />
               <Text style={styles.priceSeparator}>to</Text>
-              <TextInput
+              <VellureTextInput
                 value={filters.maximumPrice == null ? '' : String(filters.maximumPrice)}
                 onChangeText={(value) => update({ maximumPrice: value ? Number(value.replace(/\D/g, '')) : undefined })}
                 placeholder="Maximum ₹"
@@ -150,7 +151,7 @@ export function ExploreFilterModal({
               {SORT_OPTIONS.map((option) => {
                 const selected = filters.sortBy === option.value;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={option.value}
                     onPress={() => update({ sortBy: option.value })}
                     style={[styles.sortOption, selected && styles.sortOptionSelected]}
@@ -159,20 +160,20 @@ export function ExploreFilterModal({
                   >
                     <Text style={[styles.sortText, selected && styles.sortTextSelected]}>{option.label}</Text>
                     {selected && <Check size={16} color="#641E3D" />}
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
           </ScrollView>
 
           <View style={styles.footer}>
-            <TouchableOpacity onPress={onReset} style={styles.resetButton}>
+            <VellureButton onPress={onReset} style={styles.resetButton}>
               <RotateCcw size={15} color="#641E3D" />
               <Text style={styles.resetText}>Reset</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onApply} style={styles.applyButton}>
+            </VellureButton>
+            <VellureButton onPress={onApply} style={styles.applyButton}>
               <Text style={styles.applyText}>Apply filters</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
       </View>

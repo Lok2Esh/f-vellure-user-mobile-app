@@ -1,5 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useMemo } from 'react';
+import { View,
+  Text,
+  Modal,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { Search, X, MapPin } from 'lucide-react-native';
 import { theme } from '../../constants/theme';
 import { VellureSearchInput } from './VellureInputField';
@@ -22,7 +32,7 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
   // Group and filter cities
   const groupedCities = useMemo(() => {
     const term = searchQuery.toLowerCase().trim();
-    const filtered = term 
+    const filtered = term
       ? cities.filter(c => c.city.toLowerCase().includes(term) || c.state.toLowerCase().includes(term))
       : cities;
 
@@ -31,7 +41,7 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
       if (!grouped[c.state]) grouped[c.state] = [];
       grouped[c.state].push(c.city);
     }
-    
+
     // Sort states alphabetically
     return Object.keys(grouped).sort().map(state => ({
       state,
@@ -41,13 +51,13 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1 justify-end"
         style={{ backgroundColor: theme.colors.background.modalOverlay }}
       >
         <View className="h-[80%] rounded-t-[32px] overflow-hidden shadow-2xl elevation-xl" style={{ backgroundColor: theme.colors.background.primary }}>
-          
+
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 py-5 border-b" style={{ borderColor: theme.colors.border.light }}>
             <View className="flex-row items-center">
@@ -56,9 +66,9 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
                 Select City
               </Text>
             </View>
-            <TouchableOpacity onPress={onClose} className="p-2 -mr-2 rounded-full" style={{ backgroundColor: theme.colors.background.iconContainer }}>
+            <VellureButton onPress={onClose} className="p-2 -mr-2 rounded-full" style={{ backgroundColor: theme.colors.background.iconContainer }}>
               <X size={18} color={theme.colors.brand.burgundyLight || theme.colors.brand.goldDark} strokeWidth={2} />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {/* Search Bar */}
@@ -86,7 +96,7 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
                     </Text>
                   </View>
                   {group.cities.map(city => (
-                    <TouchableOpacity 
+                    <VellureButton
                       key={city}
                       className="px-6 py-4 border-b ml-6"
                       style={{ borderColor: theme.colors.border.light }}
@@ -96,7 +106,7 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
                       <Text className="text-[15px] font-medium" style={{ color: theme.colors.text.secondary }}>
                         {city}
                       </Text>
-                    </TouchableOpacity>
+                    </VellureButton>
                   ))}
                 </View>
               ))

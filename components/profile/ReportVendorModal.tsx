@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
   StyleSheet,
   Alert,
@@ -73,9 +74,9 @@ export function ReportVendorModal({ visible, onClose }: ReportVendorModalProps) 
               <ShieldAlert size={18} color="#B63A4A" />
               <Text style={styles.title}>Report a Vendor or Listing</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {/* Safety Notice */}
@@ -99,7 +100,7 @@ export function ReportVendorModal({ visible, onClose }: ReportVendorModalProps) 
               {ISSUE_CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={cat}
                     style={[styles.catOption, isSelected && styles.catOptionActive]}
                     onPress={() => setSelectedCategory(cat)}
@@ -108,7 +109,7 @@ export function ReportVendorModal({ visible, onClose }: ReportVendorModalProps) 
                       {cat}
                     </Text>
                     {isSelected && <Check size={14} color="#641E3D" />}
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -122,14 +123,14 @@ export function ReportVendorModal({ visible, onClose }: ReportVendorModalProps) 
               placeholder="Please describe what occurred, including dates and specific quotes or interactions..."
             />
 
-            <TouchableOpacity
+            <VellureButton
               style={styles.submitBtn}
               onPress={handleSubmit}
               disabled={isSubmitting}
               activeOpacity={0.88}
             >
               <Text style={styles.submitBtnText}>Review & Submit Report</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </ScrollView>
         </View>
       </View>

@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { MapPin, SearchX, SlidersHorizontal, Sparkles } from 'lucide-react-native';
 
 type Props = {
@@ -37,14 +42,14 @@ export function ExploreEmptyState({
       </Text>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity onPress={onClear} style={styles.primaryButton}>
+        <VellureButton onPress={onClear} style={styles.primaryButton}>
           <SlidersHorizontal size={14} color="#FFFFFF" />
           <Text style={styles.primaryText}>Clear filters</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onChangeLocation} style={styles.secondaryButton}>
+        </VellureButton>
+        <VellureButton onPress={onChangeLocation} style={styles.secondaryButton}>
           <MapPin size={14} color="#641E3D" />
           <Text style={styles.secondaryText}>Change city</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
 
       {suggestions.length > 0 && (
@@ -52,18 +57,18 @@ export function ExploreEmptyState({
           <Text style={styles.suggestionLabel}>Try another related service</Text>
           <View style={styles.chips}>
             {suggestions.slice(0, 3).map((item) => (
-              <TouchableOpacity key={item.key} onPress={() => onChooseCategory(item.key)} style={styles.chip}>
+              <VellureButton key={item.key} onPress={() => onChooseCategory(item.key)} style={styles.chip}>
                 <Text style={styles.chipText}>{item.label}</Text>
-              </TouchableOpacity>
+              </VellureButton>
             ))}
           </View>
         </View>
       )}
 
-      <TouchableOpacity onPress={onCustomRequest} style={styles.customButton}>
+      <VellureButton onPress={onCustomRequest} style={styles.customButton}>
         <Sparkles size={15} color="#8A6A23" />
         <Text style={styles.customText}>Plan a custom request with AI</Text>
-      </TouchableOpacity>
+      </VellureButton>
     </View>
   );
 }

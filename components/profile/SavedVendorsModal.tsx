@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   Image,
   ScrollView,
   StyleSheet,
@@ -71,9 +72,9 @@ export function SavedVendorsModal({
               <Text style={styles.title}>Saved Vendors Wishlist</Text>
               <Text style={styles.subtitle}>{savedVendors.length} Shortlisted Partners</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {/* Search bar */}
@@ -93,7 +94,7 @@ export function SavedVendorsModal({
               contentContainerStyle={styles.catScroll}
             >
               {categories.map((c) => (
-                <TouchableOpacity
+                <VellureButton
                   key={c}
                   style={[styles.catChip, selectedCategory === c && styles.catChipActive]}
                   onPress={() => setSelectedCategory(c)}
@@ -101,7 +102,7 @@ export function SavedVendorsModal({
                   <Text style={[styles.catChipText, selectedCategory === c && styles.catChipTextActive]}>
                     {c}
                   </Text>
-                </TouchableOpacity>
+                </VellureButton>
               ))}
             </ScrollView>
           )}
@@ -130,7 +131,7 @@ export function SavedVendorsModal({
                   'https://images.unsplash.com/photo-1519741497674-611481863552?w=600';
                 return (
                   <View key={vendor.id} style={styles.card}>
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.cardLeft}
                       onPress={() => handleOpenVendor(vendor.id)}
                       activeOpacity={0.85}
@@ -154,9 +155,9 @@ export function SavedVendorsModal({
                             : 'Quote on Request'}
                         </Text>
                       </View>
-                    </TouchableOpacity>
+                    </VellureButton>
 
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.trashBtn}
                       onPress={() => handleRemove(vendor.id, vendor.businessName || vendor.name)}
                       activeOpacity={0.7}
@@ -164,7 +165,7 @@ export function SavedVendorsModal({
                       accessibilityLabel="Remove from wishlist"
                     >
                       <Trash2 size={16} color="#B63A4A" />
-                    </TouchableOpacity>
+                    </VellureButton>
                   </View>
                 );
               })

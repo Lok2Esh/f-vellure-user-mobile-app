@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -92,9 +94,9 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
               <Text style={styles.title}>Saved Locations & Cities</Text>
               <Text style={styles.subtitle}>Preferred hosting cities and venues</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {isLoading ? (
@@ -125,13 +127,13 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
                       {loc.city}, {loc.state}
                     </Text>
                   </View>
-                  <TouchableOpacity
+                  <VellureButton
                     style={styles.deleteBtn}
                     onPress={() => handleRemoveLocation(loc.id)}
                     activeOpacity={0.7}
                   >
                     <Trash2 size={15} color="#B63A4A" />
-                  </TouchableOpacity>
+                  </VellureButton>
                 </View>
               ))}
 
@@ -162,14 +164,14 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
                   />
 
                   <View style={styles.addActionsRow}>
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.cancelBtn}
                       onPress={() => setShowAddForm(false)}
                     >
                       <Text style={styles.cancelBtnText}>Cancel</Text>
-                    </TouchableOpacity>
+                    </VellureButton>
 
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.confirmAddBtn}
                       onPress={handleAddLocation}
                       disabled={isAdding}
@@ -179,18 +181,18 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
                       ) : (
                         <Text style={styles.confirmAddBtnText}>Save Location</Text>
                       )}
-                    </TouchableOpacity>
+                    </VellureButton>
                   </View>
                 </View>
               ) : (
-                <TouchableOpacity
+                <VellureButton
                   style={styles.addNewTriggerBtn}
                   onPress={() => setShowAddForm(true)}
                   activeOpacity={0.8}
                 >
                   <Plus size={16} color="#641E3D" />
                   <Text style={styles.addNewTriggerText}>Add Another Event Location</Text>
-                </TouchableOpacity>
+                </VellureButton>
               )}
             </ScrollView>
           )}

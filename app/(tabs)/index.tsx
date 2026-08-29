@@ -1,9 +1,13 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useEffect,
+  useState,
+  useMemo } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   Image,
   StyleSheet,
   ActivityIndicator,
@@ -377,7 +381,7 @@ export default function HomeScreen() {
         <View style={styles.headerBar}>
           <View style={styles.headerLeft}>
             <Text style={styles.greetingText}>{greeting}, {userName || 'Host'}</Text>
-            <TouchableOpacity
+            <VellureButton
               style={styles.locationPill}
               onPress={() => setCityPickerVisible(true)}
               activeOpacity={0.75}
@@ -387,11 +391,11 @@ export default function HomeScreen() {
               <MapPin size={13} color={colors.gold} strokeWidth={2.5} />
               <Text style={styles.locationCity}>{currentCity}</Text>
               <ChevronRight size={12} color="#786B70" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <View style={styles.headerRight}>
-            <TouchableOpacity
+            <VellureButton
               style={styles.headerIconBtn}
               onPress={() => router.push('/(tabs)/profile')}
               activeOpacity={0.75}
@@ -404,9 +408,9 @@ export default function HomeScreen() {
                   <Text style={styles.badgeCountText}>{savedCount}</Text>
                 </View>
               )}
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity
+            <VellureButton
               style={styles.headerIconBtn}
               onPress={() => Alert.alert('Notifications', 'No new alerts. Your vendor quotes will appear here.')}
               activeOpacity={0.75}
@@ -414,7 +418,7 @@ export default function HomeScreen() {
               accessibilityLabel="Notifications"
             >
               <Bell size={18} color={colors.primary} />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
 
@@ -449,14 +453,14 @@ export default function HomeScreen() {
               <CheckCircle2 size={13} color="#2F7D62" />
               <Text style={styles.nextActionText}>Next: Review Photography & Makeup artists</Text>
             </View>
-            <TouchableOpacity
+            <VellureButton
               style={styles.continueActionBtn}
               onPress={() => router.push('/(tabs)/budget')}
               activeOpacity={0.85}
             >
               <Text style={styles.continueActionBtnText}>Resume Plan</Text>
               <ArrowRight size={13} color="#FFFFFF" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
 
@@ -475,7 +479,7 @@ export default function HomeScreen() {
           {EVENT_CATEGORIES.map((cat) => {
             const IconComponent = cat.icon;
             return (
-              <TouchableOpacity
+              <VellureButton
                 key={cat.id}
                 style={styles.catCard}
                 onPress={() => handleCategoryPress(cat)}
@@ -494,7 +498,7 @@ export default function HomeScreen() {
                     {cat.tagline}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </VellureButton>
             );
           })}
         </ScrollView>
@@ -551,7 +555,7 @@ export default function HomeScreen() {
                 },
               ]
           ).map((pack) => (
-            <TouchableOpacity
+            <VellureButton
               key={pack.id}
               style={styles.packCard}
               onPress={() => handlePackPress(pack)}
@@ -593,7 +597,7 @@ export default function HomeScreen() {
                   </View>
                 </View>
               </View>
-            </TouchableOpacity>
+            </VellureButton>
           ))}
         </ScrollView>
 
@@ -630,7 +634,7 @@ export default function HomeScreen() {
                 : 'Custom Quote';
 
               return (
-                <TouchableOpacity
+                <VellureButton
                   key={vendor.id}
                   style={styles.vendorCard}
                   onPress={() => router.push(`/vendor/${vendor.id}`)}
@@ -663,7 +667,7 @@ export default function HomeScreen() {
                       </View>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </VellureButton>
               );
             })}
           </ScrollView>

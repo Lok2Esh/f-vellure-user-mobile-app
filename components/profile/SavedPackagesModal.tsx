@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   Image,
   ScrollView,
   StyleSheet,
@@ -85,9 +87,9 @@ export function SavedPackagesModal({
               <Text style={styles.title}>Saved Curated Packages</Text>
               <Text style={styles.subtitle}>Bundled celebrations with transparent benchmarks</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>

@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
+import { View,
+  Text,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import {
   Calendar,
   Users,
@@ -62,7 +69,7 @@ export function PlanCard({
           <Text style={styles.typeText}>• {plan.eventType}</Text>
         </View>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.moreBtn}
           onPress={() => setMenuOpen(!menuOpen)}
           activeOpacity={0.7}
@@ -70,13 +77,13 @@ export function PlanCard({
           accessibilityLabel="More plan actions"
         >
           <MoreVertical size={16} color="#8A7A70" />
-        </TouchableOpacity>
+        </VellureButton>
       </View>
 
       {/* Overflow Menu */}
       {menuOpen && (
         <View style={styles.menuDropdown}>
-          <TouchableOpacity
+          <VellureButton
             style={styles.menuItem}
             onPress={() => {
               setMenuOpen(false);
@@ -85,10 +92,10 @@ export function PlanCard({
           >
             <Copy size={13} color="#641E3D" />
             <Text style={styles.menuItemText}>Duplicate Plan Structure</Text>
-          </TouchableOpacity>
+          </VellureButton>
 
           {plan.status !== 'ARCHIVED' && (
-            <TouchableOpacity
+            <VellureButton
               style={styles.menuItem}
               onPress={() => {
                 setMenuOpen(false);
@@ -97,16 +104,16 @@ export function PlanCard({
             >
               <Archive size={13} color="#641E3D" />
               <Text style={styles.menuItemText}>Archive Plan</Text>
-            </TouchableOpacity>
+            </VellureButton>
           )}
 
-          <TouchableOpacity
+          <VellureButton
             style={[styles.menuItem, { borderBottomWidth: 0 }]}
             onPress={handleConfirmDelete}
           >
             <Trash2 size={13} color="#B63A4A" />
             <Text style={[styles.menuItemText, { color: '#B63A4A' }]}>Delete Plan</Text>
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       )}
 
@@ -140,7 +147,7 @@ export function PlanCard({
 
       {/* Bottom CTA Buttons Row */}
       <View style={styles.cardActionsRow}>
-        <TouchableOpacity
+        <VellureButton
           style={styles.findVendorsBtn}
           onPress={() =>
             router.push({
@@ -154,9 +161,9 @@ export function PlanCard({
         >
           <Store size={12} color="#641E3D" />
           <Text style={styles.findVendorsBtnText}>Find Partners</Text>
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.openBtn}
           onPress={onOpenPlan}
           activeOpacity={0.85}
@@ -166,7 +173,7 @@ export function PlanCard({
           <FolderKanban size={13} color="#641E3D" />
           <Text style={styles.openBtnText}>Open Workspace</Text>
           <ArrowRight size={12} color="#641E3D" />
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     </View>
   );

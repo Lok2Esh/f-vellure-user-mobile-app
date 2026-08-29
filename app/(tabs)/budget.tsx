@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect,
+  useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
   Alert,
@@ -75,6 +79,8 @@ export default function BudgetScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
+  const [aiProvider, setAiProvider] = useState<'ollama' | 'local-planner'>('local-planner');
+  const [aiModel, setAiModel] = useState('vellure-rules-v1');
   const [reasoning, setReasoning] = useState('');
   const [citiesData, setCitiesData] = useState<CityEntry[]>([]);
 
@@ -102,6 +108,8 @@ export default function BudgetScreen() {
         setCategories(result.categories);
         if (result.matchedVendors) setMatchedVendors(result.matchedVendors);
         if (result.aiGenerated !== undefined) setAiGenerated(result.aiGenerated);
+        if (result.provider) setAiProvider(result.provider);
+        if (result.model) setAiModel(result.model);
         if (result.reasoning) setReasoning(result.reasoning);
       } else {
         // Fallback calculation matching Indian market standards
@@ -114,6 +122,9 @@ export default function BudgetScreen() {
           { id: '5', name: 'Miscellaneous & Rituals', amount: Math.round(b * 0.05), color: '#A08F7E' },
         ]);
         setReasoning(`Optimized allocation matrix for ${plan.eventType} in ${plan.city}`);
+        setAiGenerated(false);
+        setAiProvider('local-planner');
+        setAiModel('vellure-rules-v1');
       }
     } catch (err) {
       console.error('Budget generation error:', err);
@@ -126,6 +137,9 @@ export default function BudgetScreen() {
         { id: '5', name: 'Miscellaneous & Rituals', amount: Math.round(b * 0.05), color: '#A08F7E' },
       ]);
       setReasoning(`Benchmark distribution applied for ${plan.eventType}`);
+      setAiGenerated(false);
+      setAiProvider('local-planner');
+      setAiModel('vellure-rules-v1');
     } finally {
       setIsGenerating(false);
     }
@@ -133,19 +147,10 @@ export default function BudgetScreen() {
 
   // Initial Load & Route Param Parsing
   useEffect(() => {
-    const loadInitial = async () => {
+    const loadInitial = () => {
       try {
-        const [citiesResp, prefsResp] = await Promise.all([
-          fetchCitiesData().catch(() => ({ cities: [] })),
-          fetchUserPreferences().catch(() => null),
-        ]);
-
-        setCitiesData(citiesResp?.cities || []);
-
         let promptToUse = DEFAULT_PROMPT;
-        let defaultCity = 'Patiala';
-
-        if (prefsResp?.city) defaultCity = prefsResp.city;
+        const defaultCity = params.city || 'Patiala';
 
         if (params.prompt) {
           promptToUse = params.prompt;
@@ -170,10 +175,18 @@ export default function BudgetScreen() {
         if (params.theme) parsed.theme = params.theme;
 
         setParsedPlan(parsed);
-        await runAiOptimization(parsed);
+        setIsLoading(false);
+        void runAiOptimization(parsed);
+
+        // Optional backend data must never block the free local planner UI.
+        void Promise.all([
+          fetchCitiesData().catch(() => ({ cities: [] })),
+          fetchUserPreferences().catch(() => null),
+        ]).then(([citiesResp]) => {
+          setCitiesData(citiesResp?.cities || []);
+        });
       } catch (e) {
         console.error('Error loading AI planner:', e);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -327,6 +340,8 @@ export default function BudgetScreen() {
           categories={categories}
           reasoning={reasoning}
           aiGenerated={aiGenerated}
+          provider={aiProvider}
+          model={aiModel}
         />
 
         {/* ──── 5. AI MATCHED LOCAL VENDORS ──── */}
@@ -352,7 +367,7 @@ export default function BudgetScreen() {
             <Text style={styles.hubTitle}>Save or Execute This Blueprint</Text>
           </View>
 
-          <TouchableOpacity
+          <VellureButton
             style={styles.saveBlueprintBtn}
             onPress={handleSaveAsBlueprint}
             activeOpacity={0.88}
@@ -361,10 +376,10 @@ export default function BudgetScreen() {
           >
             <FolderKanban size={16} color="#FFFFFF" />
             <Text style={styles.saveBlueprintBtnText}>Save as Active Event Blueprint</Text>
-          </TouchableOpacity>
+          </VellureButton>
 
           <View style={styles.secondaryActionsRow}>
-            <TouchableOpacity
+            <VellureButton
               style={styles.secBtn}
               onPress={() => {
                 setInquiryTarget({
@@ -381,9 +396,9 @@ export default function BudgetScreen() {
             >
               <Send size={13} color="#641E3D" />
               <Text style={styles.secBtnText}>Consult Specialist Team</Text>
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity
+            <VellureButton
               style={styles.secBtn}
               onPress={() =>
                 router.push({
@@ -397,7 +412,7 @@ export default function BudgetScreen() {
             >
               <Store size={13} color="#641E3D" />
               <Text style={styles.secBtnText}>Explore Directory</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
       </ScrollView>

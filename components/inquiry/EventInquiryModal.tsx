@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useEffect,
+  useState } from 'react';
 import {
   Modal,
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -189,13 +191,13 @@ export function EventInquiryModal({
               </Text>
               <Text style={styles.targetCategory}>{targetCategory} • Availability enquiry</Text>
             </View>
-            <TouchableOpacity
+            <VellureButton
               onPress={handleClose}
               style={styles.closeBtn}
               activeOpacity={0.7}
             >
               <X size={18} color="#641E3D" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {submittedInquiryId ? (
@@ -240,14 +242,14 @@ export function EventInquiryModal({
                 </Text>
               </View>
 
-              <TouchableOpacity
+              <VellureButton
                 style={styles.primaryBtn}
                 onPress={handleClose}
                 activeOpacity={0.88}
               >
                 <Text style={styles.primaryBtnText}>Done & View My Inquiries</Text>
                 <ArrowRight size={16} color="#FFFFFF" />
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           ) : (
             /* Inquiry Form */
@@ -266,7 +268,7 @@ export function EventInquiryModal({
                 {EVENT_TYPES.map((type) => {
                   const isSelected = eventType === type;
                   return (
-                    <TouchableOpacity
+                    <VellureButton
                       key={type}
                       onPress={() => setEventType(type)}
                       style={[styles.chip, isSelected && styles.chipActive]}
@@ -275,7 +277,7 @@ export function EventInquiryModal({
                       <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                         {type}
                       </Text>
-                    </TouchableOpacity>
+                    </VellureButton>
                   );
                 })}
               </ScrollView>
@@ -378,9 +380,9 @@ export function EventInquiryModal({
                       <Text style={styles.reviewTitle}>Review your enquiry</Text>
                       <Text style={styles.reviewSubtitle}>Confirm these details before sending.</Text>
                     </View>
-                    <TouchableOpacity onPress={() => setIsReviewing(false)} style={styles.editButton}>
+                    <VellureButton onPress={() => setIsReviewing(false)} style={styles.editButton}>
                       <Text style={styles.editText}>Edit</Text>
-                    </TouchableOpacity>
+                    </VellureButton>
                   </View>
                   <Text style={styles.reviewLine}>{eventType} · {eventDate || 'Flexible date'}</Text>
                   <Text style={styles.reviewLine}>{city} · {guestCount || 'Guest count not shared'} guests</Text>
@@ -404,7 +406,7 @@ export function EventInquiryModal({
               ) : null}
 
               {/* Submit CTA */}
-              <TouchableOpacity
+              <VellureButton
                 style={styles.primaryBtn}
                 onPress={isReviewing ? handleSubmit : handleReview}
                 disabled={isSubmitting}
@@ -420,7 +422,7 @@ export function EventInquiryModal({
                     <ArrowRight size={17} color="#FFFFFF" />
                   </>
                 )}
-              </TouchableOpacity>
+              </VellureButton>
             </ScrollView>
           )}
         </View>

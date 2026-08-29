@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   StyleSheet,
   Alert,
   ActivityIndicator,
@@ -50,9 +51,9 @@ export function DeleteAccountModal({
             <View style={styles.iconWrap}>
               <AlertTriangle size={20} color="#B63A4A" />
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <Text style={styles.title}>Delete Vellure Account?</Text>
@@ -70,11 +71,11 @@ export function DeleteAccountModal({
           />
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onClose} activeOpacity={0.8}>
+            <VellureButton style={styles.cancelBtn} onPress={onClose} activeOpacity={0.8}>
               <Text style={styles.cancelBtnText}>Keep Account</Text>
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity
+            <VellureButton
               style={[
                 styles.deleteBtn,
                 confirmText.trim().toUpperCase() !== 'DELETE' && styles.deleteBtnDisabled,
@@ -91,7 +92,7 @@ export function DeleteAccountModal({
                   <Text style={styles.deleteBtnText}>Delete Permanently</Text>
                 </>
               )}
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
       </View>

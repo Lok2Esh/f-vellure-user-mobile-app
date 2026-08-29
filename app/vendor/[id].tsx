@@ -1,4 +1,9 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useEffect,
+  useState,
+  useMemo } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -7,7 +12,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   Alert,
 } from 'react-native';
@@ -280,12 +284,12 @@ export default function VendorDetailsScreen() {
           The requested specialist listing may have been updated, relocated, or temporarily unlisted.
         </Text>
         <View style={styles.errorBtnRow}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.secondaryBtn}>
+          <VellureButton onPress={() => router.back()} style={styles.secondaryBtn}>
             <Text style={styles.secondaryBtnText}>Return to Explore</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={loadData} style={styles.primaryBtn}>
+          </VellureButton>
+          <VellureButton onPress={loadData} style={styles.primaryBtn}>
             <Text style={styles.primaryBtnText}>Retry</Text>
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       </View>
     );
@@ -343,9 +347,9 @@ export default function VendorDetailsScreen() {
       {fullscreenImage && (
         <Modal visible={true} transparent animationType="fade" onRequestClose={() => setFullscreenImage(null)}>
           <View style={styles.fullscreenModal}>
-            <TouchableOpacity style={styles.closeFullscreenBtn} onPress={() => setFullscreenImage(null)}>
+            <VellureButton style={styles.closeFullscreenBtn} onPress={() => setFullscreenImage(null)}>
               <X size={24} color="#FFFFFF" />
-            </TouchableOpacity>
+            </VellureButton>
             <Image source={{ uri: fullscreenImage }} style={styles.fullscreenImg} resizeMode="contain" />
           </View>
         </Modal>
@@ -358,9 +362,9 @@ export default function VendorDetailsScreen() {
           {heroImages.length > 0 ? (
             <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.heroScroll}>
               {heroImages.map((uri, idx) => (
-                <TouchableOpacity key={idx} activeOpacity={0.95} onPress={() => setFullscreenImage(uri)}>
+                <VellureButton key={idx} activeOpacity={0.95} onPress={() => setFullscreenImage(uri)}>
                   <Image source={{ uri }} style={styles.heroImage} resizeMode="cover" />
-                </TouchableOpacity>
+                </VellureButton>
               ))}
             </ScrollView>
           ) : (
@@ -375,12 +379,12 @@ export default function VendorDetailsScreen() {
           <View style={styles.heroShade} />
 
           {/* Navigation Bar Over Hero */}
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back">
+          <VellureButton onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back">
             <ArrowLeft size={20} color="#FFFFFF" strokeWidth={2.4} />
-          </TouchableOpacity>
+          </VellureButton>
 
           <View style={styles.topRightActions}>
-            <TouchableOpacity
+            <VellureButton
               style={[styles.actionRoundBtn, isComparing && styles.actionRoundBtnActive]}
               onPress={handleToggleCompare}
               activeOpacity={0.8}
@@ -388,9 +392,9 @@ export default function VendorDetailsScreen() {
               accessibilityLabel="Compare partner"
             >
               <Scale size={16} color={isComparing ? '#641E3D' : '#FFFFFF'} strokeWidth={2.2} />
-            </TouchableOpacity>
+            </VellureButton>
 
-            <TouchableOpacity
+            <VellureButton
               style={[styles.actionRoundBtn, isSaved && styles.actionRoundBtnSaved]}
               onPress={handleToggleFavorite}
               activeOpacity={0.8}
@@ -403,7 +407,7 @@ export default function VendorDetailsScreen() {
                 fill={isSaved ? '#E11D48' : 'transparent'}
                 strokeWidth={2.2}
               />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {heroImages.length > 1 && (
@@ -501,14 +505,14 @@ export default function VendorDetailsScreen() {
               </View>
             </View>
 
-            <TouchableOpacity
+            <VellureButton
               style={styles.addPlanQuickBtn}
               onPress={() => setPlanModalVisible(true)}
               activeOpacity={0.82}
             >
               <Briefcase size={13} color="#641E3D" />
               <Text style={styles.addPlanQuickText}>Add to "{activePlan.name}"</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         )}
 
@@ -517,7 +521,7 @@ export default function VendorDetailsScreen() {
           {(['About', 'Services', 'Packages', 'Portfolio', 'Reviews', 'Policies'] as const).map((tab) => {
             const isActive = activeTab === tab;
             return (
-              <TouchableOpacity
+              <VellureButton
                 key={tab}
                 onPress={() => setActiveTab(tab)}
                 style={[styles.tabBtn, isActive && styles.tabBtnActive]}
@@ -525,7 +529,7 @@ export default function VendorDetailsScreen() {
                 accessibilityState={{ selected: isActive }}
               >
                 <Text style={[styles.tabBtnText, isActive && styles.tabBtnTextActive]}>{tab}</Text>
-              </TouchableOpacity>
+              </VellureButton>
             );
           })}
         </ScrollView>
@@ -570,14 +574,14 @@ export default function VendorDetailsScreen() {
                     <PriceDisplay price={srv.price} priceType={srv.priceType} size="medium" />
                   </View>
                   {srv.description ? <Text style={styles.itemDesc}>{srv.description}</Text> : null}
-                  <TouchableOpacity
+                  <VellureButton
                     style={styles.itemEnquireBtn}
                     onPress={() => setInquiryModalVisible(true)}
                     activeOpacity={0.8}
                   >
                     <Send size={11} color="#641E3D" />
                     <Text style={styles.itemEnquireText}>Enquire on this Service</Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 </View>
               ))}
             </View>
@@ -609,23 +613,23 @@ export default function VendorDetailsScreen() {
                   )}
 
                   <View style={styles.pkgActions}>
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.pkgAddBtn}
                       onPress={() => setPlanModalVisible(true)}
                       activeOpacity={0.8}
                     >
                       <Briefcase size={12} color="#641E3D" />
                       <Text style={styles.pkgAddText}>Add Package to Plan</Text>
-                    </TouchableOpacity>
+                    </VellureButton>
 
-                    <TouchableOpacity
+                    <VellureButton
                       style={styles.pkgQuoteBtn}
                       onPress={() => setInquiryModalVisible(true)}
                       activeOpacity={0.88}
                     >
                       <Send size={12} color="#FFFFFF" />
                       <Text style={styles.pkgQuoteText}>Request Quote</Text>
-                    </TouchableOpacity>
+                    </VellureButton>
                   </View>
                 </View>
               ))}
@@ -760,7 +764,7 @@ export default function VendorDetailsScreen() {
             Select your celebration date to verify partner calendar availability with no obligations.
           </Text>
 
-          <TouchableOpacity
+          <VellureButton
             style={styles.availDateBtn}
             onPress={() => setCalendarModalVisible(true)}
             activeOpacity={0.85}
@@ -770,37 +774,37 @@ export default function VendorDetailsScreen() {
               {selectedInquiryDate ? `Date: ${selectedInquiryDate}` : 'Select Celebration Date'}
             </Text>
             <ChevronRight size={14} color="#641E3D" />
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       </ScrollView>
 
       {/* ──── 7. STICKY MOBILE BOTTOM ACTION BAR ──── */}
       <View style={styles.stickyBottomBar}>
-        <TouchableOpacity
+        <VellureButton
           style={[styles.stickyHeartBtn, isSaved && styles.stickyHeartBtnActive]}
           onPress={handleToggleFavorite}
           activeOpacity={0.8}
         >
           <Heart size={18} color={isSaved ? '#E11D48' : '#641E3D'} fill={isSaved ? '#E11D48' : 'transparent'} />
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.stickyPlanBtn}
           onPress={() => setPlanModalVisible(true)}
           activeOpacity={0.85}
         >
           <Briefcase size={15} color="#641E3D" />
           <Text style={styles.stickyPlanBtnText}>Add to Plan</Text>
-        </TouchableOpacity>
+        </VellureButton>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.stickyQuoteBtn}
           onPress={() => setInquiryModalVisible(true)}
           activeOpacity={0.88}
         >
           <Send size={15} color="#FFFFFF" />
           <Text style={styles.stickyQuoteBtnText}>Request Quote</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
     </View>
   );

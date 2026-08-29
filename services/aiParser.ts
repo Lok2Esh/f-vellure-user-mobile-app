@@ -151,7 +151,9 @@ export function parseNaturalLanguagePrompt(
     detectedTheme = 'Grand & Royal Heritage';
   } else if (text.includes('traditional') || text.includes('vedic') || text.includes('spiritual')) {
     detectedTheme = 'Spiritual & Traditional';
-  } else if (text.includes('modern') || text.includes('chic') || text.includes('minimalist')) {
+  } else if (text.includes('intimate') || text.includes('simple') || text.includes('minimal')) {
+    detectedTheme = 'Intimate & Minimal';
+  } else if (text.includes('modern') || text.includes('chic')) {
     detectedTheme = 'Modern Minimalist Chic';
   } else if (text.includes('punjabi') || text.includes('folk') || text.includes('vibrant')) {
     detectedTheme = 'Vibrant Cultural & Folk';

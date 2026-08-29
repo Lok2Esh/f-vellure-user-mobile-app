@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
 } from 'react-native';
@@ -71,9 +73,9 @@ export function EnquiriesModal({ visible, inquiries, onClose }: EnquiriesModalPr
               <Text style={styles.title}>Enquiries & Quotations</Text>
               <Text style={styles.subtitle}>Track your partner quotation requests</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {/* Status Tabs */}
@@ -91,7 +93,7 @@ export function EnquiriesModal({ visible, inquiries, onClose }: EnquiriesModalPr
                   : inquiries.filter((i) => i.status === s).length;
               const isActive = selectedStatus === s;
               return (
-                <TouchableOpacity
+                <VellureButton
                   key={s}
                   style={[styles.statusTab, isActive && styles.statusTabActive]}
                   onPress={() => setSelectedStatus(s)}
@@ -99,7 +101,7 @@ export function EnquiriesModal({ visible, inquiries, onClose }: EnquiriesModalPr
                   <Text style={[styles.statusTabText, isActive && styles.statusTabTextActive]}>
                     {s} ({count})
                   </Text>
-                </TouchableOpacity>
+                </VellureButton>
               );
             })}
           </ScrollView>

@@ -1,9 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   Alert,
@@ -63,9 +64,9 @@ export function QuoteComparisonModal({
               <Text style={styles.title}>Quotation Comparison</Text>
               <Text style={styles.subtitle}>Side-by-side benchmark & inclusion review</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView
@@ -141,7 +142,7 @@ export function QuoteComparisonModal({
                   </View>
 
                   {/* Accept Button */}
-                  <TouchableOpacity
+                  <VellureButton
                     style={[styles.selectBtn, isAccepted && styles.selectBtnAccepted]}
                     onPress={() => handleSelect(q)}
                     activeOpacity={0.85}
@@ -149,7 +150,7 @@ export function QuoteComparisonModal({
                     <Text style={[styles.selectBtnText, isAccepted && styles.selectBtnTextAccepted]}>
                       {isAccepted ? 'Currently Preferred' : 'Select as Preferred'}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 </View>
               );
             })}

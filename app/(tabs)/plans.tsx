@@ -1,9 +1,14 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect,
+  useCallback,
+  useMemo } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
@@ -280,7 +285,7 @@ export default function MyPlansScreen() {
           {filterTabs.map((tab) => {
             const isSelected = selectedFilter === tab.id;
             return (
-              <TouchableOpacity
+              <VellureButton
                 key={tab.id}
                 style={[styles.filterChip, isSelected && styles.filterChipActive]}
                 onPress={() => setSelectedFilter(tab.id as StatusFilter)}
@@ -296,7 +301,7 @@ export default function MyPlansScreen() {
                 >
                   {tab.label}
                 </Text>
-              </TouchableOpacity>
+              </VellureButton>
             );
           })}
         </ScrollView>
@@ -348,14 +353,14 @@ export default function MyPlansScreen() {
               <Text style={styles.emptyInquiryDesc}>
                 When you consult with vendors or request curated packages, your tracking timeline will appear here.
               </Text>
-              <TouchableOpacity
+              <VellureButton
                 style={styles.emptyInquiryBtn}
                 onPress={() => router.push('/(tabs)/vendors')}
                 activeOpacity={0.85}
               >
                 <Store size={14} color="#FFFFFF" />
                 <Text style={styles.emptyInquiryBtnText}>Explore Partner Directory</Text>
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           ) : (
             inquiries.map((inq) => (

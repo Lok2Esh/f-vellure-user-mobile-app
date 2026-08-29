@@ -1,5 +1,11 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+  Image,
+} from 'react-native';
 import { Store, Star, BadgeCheck, MapPin, IndianRupee, ChevronRight, Send, Sparkles } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { colors } from '../../constants/theme';
@@ -47,7 +53,7 @@ export function AiVendorRecommendations({
           <Text style={styles.heading}>Verified Local Specialists</Text>
         </View>
 
-        <TouchableOpacity
+        <VellureButton
           onPress={() =>
             router.push({
               pathname: '/(tabs)/vendors',
@@ -57,7 +63,7 @@ export function AiVendorRecommendations({
           activeOpacity={0.8}
         >
           <Text style={styles.viewAllText}>View All ({hostCity})</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
 
       <Text style={styles.disclaimerText}>
@@ -112,7 +118,7 @@ export function AiVendorRecommendations({
 
             {/* Actions */}
             <View style={styles.actionsRow}>
-              <TouchableOpacity
+              <VellureButton
                 style={styles.profileBtn}
                 onPress={() => router.push(`/vendor/${topVendor.id}`)}
                 activeOpacity={0.8}
@@ -120,9 +126,9 @@ export function AiVendorRecommendations({
                 accessibilityLabel={`View portfolio for ${topVendor.name}`}
               >
                 <Text style={styles.profileBtnText}>View Portfolio</Text>
-              </TouchableOpacity>
+              </VellureButton>
 
-              <TouchableOpacity
+              <VellureButton
                 style={styles.inquireBtn}
                 onPress={() => onInquireVendor && onInquireVendor(topVendor)}
                 activeOpacity={0.88}
@@ -131,7 +137,7 @@ export function AiVendorRecommendations({
               >
                 <Send size={12} color="#FFFFFF" />
                 <Text style={styles.inquireBtnText}>Request Consultation</Text>
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           </View>
         );

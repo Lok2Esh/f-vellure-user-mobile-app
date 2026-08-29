@@ -1,5 +1,9 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View,
+  Text,
+} from 'react-native';
 import { BadgeCheck, MapPin } from 'lucide-react-native';
 import { getServiceMetadata } from '../../constants/services';
 
@@ -13,16 +17,16 @@ interface VendorServiceCardProps {
   guestCount?: number;
 }
 
-export function VendorServiceCard({ 
-  category, 
-  amount, 
-  priceStr, 
-  vendorName, 
-  onActionPress, 
+export function VendorServiceCard({
+  category,
+  amount,
+  priceStr,
+  vendorName,
+  onActionPress,
   variant = 'grid',
   guestCount = 1
 }: VendorServiceCardProps) {
-  
+
   const metadata = getServiceMetadata(category);
   const Icon = metadata.icon;
 
@@ -31,13 +35,13 @@ export function VendorServiceCard({
     if (amount !== undefined) {
       return `₹${amount.toLocaleString('en-IN')}`;
     }
-    
+
     if (priceStr && priceStr.includes('/plate')) {
       const perPlate = parseInt(priceStr.replace(/[^0-9]/g, ''), 10);
       const total = perPlate * guestCount;
       return `₹${total.toLocaleString('en-IN')}`;
     }
-    
+
     return priceStr || '₹0';
   };
 
@@ -54,7 +58,7 @@ export function VendorServiceCard({
   if (variant === 'list') {
     return (
       <View className="flex-row items-center border border-[#F1E8DB] bg-white rounded-2xl px-4 py-4 mb-3 shadow-[0_4px_10px_rgba(0,0,0,0.02)]">
-        <View 
+        <View
           className="w-10 h-10 rounded-full items-center justify-center mr-4"
           style={{ backgroundColor: `${metadata.color}10` }} // 10% opacity
         >
@@ -82,7 +86,7 @@ export function VendorServiceCard({
   return (
     <View className="w-[48%] bg-white rounded-2xl p-4 mb-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] elevation-sm">
       <View className="flex-row justify-between items-start mb-3">
-        <View 
+        <View
           className="p-2 rounded-xl"
           style={{ backgroundColor: `${metadata.color}15` }}
         >
@@ -109,12 +113,12 @@ export function VendorServiceCard({
         </View>
       )}
 
-      <TouchableOpacity 
+      <VellureButton
         onPress={onActionPress}
         className="bg-[#78123C] py-2 rounded-lg items-center justify-center active:opacity-80"
       >
         <Text className="text-white text-[11px] font-bold tracking-wide">Change Vendor</Text>
-      </TouchableOpacity>
+      </VellureButton>
     </View>
   );
 }

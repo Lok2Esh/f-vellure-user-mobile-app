@@ -1,9 +1,14 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useEffect,
+  useState,
+  useRef,
+  useCallback } from 'react';
 import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   ScrollView,
   Dimensions,
   StyleSheet,
@@ -157,7 +162,7 @@ export function VendorCard({
 
           <View style={styles.mediaActionIcons}>
             {onToggleCompare && (
-              <TouchableOpacity
+              <VellureButton
                 style={[styles.iconButton, isComparing && styles.iconButtonActive]}
                 onPress={() => onToggleCompare(id)}
                 activeOpacity={0.8}
@@ -165,11 +170,11 @@ export function VendorCard({
                 accessibilityLabel="Compare this vendor"
               >
                 <Scale size={14} color={isComparing ? '#641E3D' : '#FFFFFF'} />
-              </TouchableOpacity>
+              </VellureButton>
             )}
 
             {onToggleSave && (
-              <TouchableOpacity
+              <VellureButton
                 style={[styles.iconButton, isSaved && styles.iconButtonSaved]}
                 onPress={() => onToggleSave(id)}
                 activeOpacity={0.8}
@@ -181,7 +186,7 @@ export function VendorCard({
                   color={isSaved ? '#E11D48' : '#FFFFFF'}
                   fill={isSaved ? '#E11D48' : 'transparent'}
                 />
-              </TouchableOpacity>
+              </VellureButton>
             )}
           </View>
         </View>
@@ -200,7 +205,7 @@ export function VendorCard({
       </View>
 
       {/* ──── CONTENT BODY ──── */}
-      <TouchableOpacity
+      <VellureButton
         style={styles.body}
         onPress={handleCardPress}
         activeOpacity={0.92}
@@ -246,7 +251,7 @@ export function VendorCard({
           </View>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity
+            <VellureButton
               style={styles.detailsBtn}
               onPress={handleCardPress}
               activeOpacity={0.8}
@@ -255,10 +260,10 @@ export function VendorCard({
             >
               <Text style={styles.detailsBtnText}>View Details</Text>
               <ChevronRight size={12} color="#641E3D" />
-            </TouchableOpacity>
+            </VellureButton>
 
             {onEnquire && (
-              <TouchableOpacity
+              <VellureButton
                 style={styles.enquireBtn}
                 onPress={() => onEnquire(id)}
                 activeOpacity={0.88}
@@ -267,11 +272,11 @@ export function VendorCard({
               >
                 <Send size={11} color="#FFFFFF" />
                 <Text style={styles.enquireBtnText}>Request Quote</Text>
-              </TouchableOpacity>
+              </VellureButton>
             )}
           </View>
         </View>
-      </TouchableOpacity>
+      </VellureButton>
     </View>
   );
 }

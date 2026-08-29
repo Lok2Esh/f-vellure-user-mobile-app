@@ -6,6 +6,14 @@ module.exports = {
     "./components/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
+  // Tailwind's browser preflight resets every <button> background to
+  // transparent. React Native Web applies TouchableOpacity colors through
+  // atomic classes with the same specificity, so the reset can win and make
+  // otherwise valid actions invisible. Native components already provide
+  // their own base styles, so keep preflight disabled on the shared build.
+  corePlugins: {
+    preflight: false,
+  },
   theme: {
     extend: {
       colors: {

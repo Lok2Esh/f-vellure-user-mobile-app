@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { colors } from '../../constants/theme';
 
 interface EmptyStateCardProps {
@@ -23,13 +28,13 @@ export function EmptyStateCard({
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       {actionText && onAction ? (
-        <TouchableOpacity
+        <VellureButton
           style={styles.actionBtn}
           onPress={onAction}
           activeOpacity={0.85}
         >
           <Text style={styles.actionBtnText}>{actionText}</Text>
-        </TouchableOpacity>
+        </VellureButton>
       ) : null}
     </View>
   );

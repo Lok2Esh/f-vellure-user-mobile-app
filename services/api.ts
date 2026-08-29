@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { createLocalBudgetPlan, BudgetPlannerInput } from './localBudgetPlanner';
 
 // ============================================================
 // API Service — Strict Database & Plans Workspace Store Mode
@@ -10,9 +11,9 @@ const host = debuggerHost?.split(':').shift() || 'localhost';
 const BASE_URL = `http://${host}:3000/api`;
 const TIMEOUT_MS = 30000;
 
-async function fetchWithTimeout(url: string, options?: RequestInit): Promise<Response> {
+async function fetchWithTimeout(url: string, options?: RequestInit, timeoutMs = TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
@@ -1124,27 +1125,19 @@ export const saveUserPreferences = async (payload: any) => {
   }
 };
 
-export const generateBudgetMatch = async (payload: {
-  totalBudget: number;
-  guestCount: number;
-  city: string;
-  vibe: string;
-  eventType?: string;
-  date?: string;
-  description?: string;
-}) => {
+export const generateBudgetMatch = async (payload: BudgetPlannerInput) => {
   try {
     const response = await fetchWithTimeout(`${BASE_URL}/budget/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-    });
+    }, 8000);
 
     if (response.ok) return await response.json();
     throw new Error(`API error: ${response.status}`);
   } catch (err) {
-    console.error('Budget generation failed:', err);
-    throw err;
+    console.warn('AI backend unavailable; using the free local planner.', err);
+    return createLocalBudgetPlan(payload);
   }
 };
 

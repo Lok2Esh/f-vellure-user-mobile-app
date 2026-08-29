@@ -1,5 +1,11 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  Image,
+  StyleSheet,
+} from 'react-native';
 import { Sparkles, Edit3, Bell, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react-native';
 import { CustomerProfile } from '../../services/api';
 import { colors } from '../../constants/theme';
@@ -86,7 +92,7 @@ export function ProfileHeader({
 
         {/* Action Buttons */}
         <View style={styles.actionsCol}>
-          <TouchableOpacity
+          <VellureButton
             style={styles.actionBtn}
             onPress={onNotificationsPress}
             activeOpacity={0.75}
@@ -99,9 +105,9 @@ export function ProfileHeader({
                 <Text style={styles.unreadDotText}>{unreadNotificationsCount}</Text>
               </View>
             )}
-          </TouchableOpacity>
+          </VellureButton>
 
-          <TouchableOpacity
+          <VellureButton
             style={styles.actionBtn}
             onPress={isGuest && onSignInPress ? onSignInPress : onEditPress}
             activeOpacity={0.75}
@@ -109,7 +115,7 @@ export function ProfileHeader({
             accessibilityLabel={isGuest ? 'Sign in to account' : 'Edit profile'}
           >
             <Edit3 size={17} color={colors.primary} />
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       </View>
 
@@ -117,13 +123,13 @@ export function ProfileHeader({
       {isGuest ? (
         <View style={styles.guestBanner}>
           <Text style={styles.guestTitle}>Sign in to save plans & sync across devices</Text>
-          <TouchableOpacity
+          <VellureButton
             style={styles.guestSignInBtn}
             onPress={onSignInPress}
             activeOpacity={0.85}
           >
             <Text style={styles.guestSignInText}>Sign In / Register</Text>
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       ) : (
         <View style={styles.contactBar}>

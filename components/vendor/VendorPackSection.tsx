@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect } from 'react';
+import { View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { Sparkles, ChevronRight, LayoutList } from 'lucide-react-native';
 import { fetchVendorPacks } from '../../services/api';
 import { VendorPackCard } from './VendorPackCard';
@@ -64,23 +72,23 @@ export function VendorPackSection({ budget, guestCount }: VendorPackSectionProps
             Curated Vendor Packs
           </Text>
         </View>
-        <TouchableOpacity className="flex-row items-center">
+        <VellureButton className="flex-row items-center">
           <Text className="text-[#9A8F65] text-[10px] font-bold uppercase mr-1">View All</Text>
           <ChevronRight size={10} color="#9A8F65" strokeWidth={3} />
-        </TouchableOpacity>
+        </VellureButton>
       </View>
 
       <View className="px-1">
         {packs.map((pack) => (
-          <VendorPackCard 
-            key={pack.id} 
-            pack={pack} 
-            onPress={() => handlePackPress(pack)} 
+          <VendorPackCard
+            key={pack.id}
+            pack={pack}
+            onPress={() => handlePackPress(pack)}
           />
         ))}
       </View>
 
-      <VendorPackDetailModal 
+      <VendorPackDetailModal
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         pack={selectedPack}

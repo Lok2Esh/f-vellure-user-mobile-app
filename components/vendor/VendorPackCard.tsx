@@ -1,5 +1,9 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View,
+  Text,
+} from 'react-native';
 import { ChevronRight, Sparkles, CheckCircle2 } from 'lucide-react-native';
 
 interface VendorPackCardProps {
@@ -16,13 +20,13 @@ interface VendorPackCardProps {
 
 export function VendorPackCard({ pack, onPress }: VendorPackCardProps) {
   return (
-    <TouchableOpacity 
+    <VellureButton
       activeOpacity={0.9}
       onPress={onPress}
       className="bg-white rounded-3xl p-5 mb-4 shadow-[0_10px_30px_rgba(0,0,0,0.06)] overflow-hidden"
     >
       {/* Decorative Gradient Background Element */}
-      <View 
+      <View
         className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-5"
         style={{ backgroundColor: '#D2AD6B' }}
       />
@@ -58,6 +62,6 @@ export function VendorPackCard({ pack, onPress }: VendorPackCardProps) {
           <ChevronRight size={18} color="#D2AD6B" />
         </View>
       </View>
-    </TouchableOpacity>
+    </VellureButton>
   );
 }

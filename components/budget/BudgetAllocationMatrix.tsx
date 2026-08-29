@@ -17,6 +17,8 @@ export interface BudgetAllocationMatrixProps {
   categories: BudgetCategoryItem[];
   reasoning?: string;
   aiGenerated?: boolean;
+  provider?: 'ollama' | 'local-planner';
+  model?: string;
 }
 
 export function BudgetAllocationMatrix({
@@ -25,6 +27,8 @@ export function BudgetAllocationMatrix({
   categories,
   reasoning,
   aiGenerated,
+  provider,
+  model,
 }: BudgetAllocationMatrixProps) {
   const perGuest = Math.round(totalBudget / (guestCount || 1));
   const size = 180;
@@ -61,6 +65,17 @@ export function BudgetAllocationMatrix({
         <View style={styles.perGuestPill}>
           <Text style={styles.perGuestText}>₹{perGuest.toLocaleString('en-IN')} / Guest</Text>
         </View>
+      </View>
+
+      <View style={[styles.enginePill, aiGenerated ? styles.engineAi : styles.engineLocal]}>
+        <CheckCircle2 size={11} color={aiGenerated ? '#166534' : '#8A5A12'} />
+        <Text style={[styles.engineText, aiGenerated ? styles.engineAiText : styles.engineLocalText]}>
+          {aiGenerated
+            ? `Free local AI · ${model || 'Ollama'}`
+            : provider === 'local-planner'
+              ? 'Offline smart planner · always available'
+              : 'Smart planner'}
+        </Text>
       </View>
 
       <Text style={styles.totalBudgetHeading}>
@@ -180,6 +195,31 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     marginBottom: 2,
   },
+  enginePill: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    marginBottom: 10,
+  },
+  engineAi: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#BBF7D0',
+  },
+  engineLocal: {
+    backgroundColor: '#FFFBEB',
+    borderColor: '#FDE68A',
+  },
+  engineText: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  engineAiText: { color: '#166534' },
+  engineLocalText: { color: '#8A5A12' },
   subHeading: {
     color: '#786B70',
     fontSize: 11,

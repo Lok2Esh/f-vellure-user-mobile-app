@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton,
+  VellureTextInput } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   Alert,
@@ -156,7 +158,6 @@ export function ConversationalAiInput({
     }
     onSubmit({
       prompt: trimmed,
-      city: currentCity,
     });
   };
 
@@ -175,7 +176,7 @@ export function ConversationalAiInput({
 
       {/* Main Input Box */}
       <View style={styles.inputContainer}>
-        <TextInput
+        <VellureTextInput
           value={prompt}
           onChangeText={setPrompt}
           placeholder="Tell Vellure about your event, budget, guests, and city…"
@@ -186,7 +187,7 @@ export function ConversationalAiInput({
         />
 
         <View style={styles.inputBottomBar}>
-          <TouchableOpacity
+          <VellureButton
             style={styles.micBtn}
             onPress={handleVoicePress}
             activeOpacity={0.7}
@@ -194,9 +195,9 @@ export function ConversationalAiInput({
             accessibilityLabel="Use voice input"
           >
             <Mic size={16} color="#641E3D" />
-          </TouchableOpacity>
+          </VellureButton>
 
-          <TouchableOpacity
+          <VellureButton
             style={styles.submitBtn}
             onPress={handleSubmit}
             activeOpacity={0.88}
@@ -205,7 +206,7 @@ export function ConversationalAiInput({
           >
             <Text style={styles.submitBtnText}>Plan My Event</Text>
             <Wand2 size={15} color="#FFFFFF" />
-          </TouchableOpacity>
+          </VellureButton>
         </View>
       </View>
 
@@ -217,7 +218,7 @@ export function ConversationalAiInput({
         contentContainerStyle={styles.chipsRow}
       >
         {QUICK_SUGGESTIONS.map((item) => (
-          <TouchableOpacity
+          <VellureButton
             key={item.id}
             style={styles.chip}
             onPress={() => handleChipPress(item)}
@@ -229,7 +230,7 @@ export function ConversationalAiInput({
             <Text style={styles.chipText} numberOfLines={1}>
               {item.title}
             </Text>
-          </TouchableOpacity>
+          </VellureButton>
         ))}
       </ScrollView>
     </View>

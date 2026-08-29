@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { colors } from '../../constants/theme';
 
@@ -43,7 +48,7 @@ export function ProfileMenuItem({
   accessibilityLabel,
 }: ProfileMenuItemProps) {
   return (
-    <TouchableOpacity
+    <VellureButton
       style={[styles.menuItem, !isLast && styles.menuItemBorder]}
       onPress={onPress}
       activeOpacity={0.7}
@@ -86,7 +91,7 @@ export function ProfileMenuItem({
         color={destructive ? '#B63A4A' : '#A08F7E'}
         style={{ marginLeft: 6 }}
       />
-    </TouchableOpacity>
+    </VellureButton>
   );
 }
 

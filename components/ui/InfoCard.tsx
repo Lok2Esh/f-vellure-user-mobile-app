@@ -1,5 +1,11 @@
+import {
+  VellureButton,
+  VellureTextInput } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import { theme } from '../../constants/theme';
 import { LucideIcon } from 'lucide-react-native';
 
@@ -31,7 +37,7 @@ export function InfoCard({
   const CardContent = (
     <>
       {onIconPress && !onCardPress ? (
-        <TouchableOpacity 
+        <VellureButton
           className="bg-[#FEF6EA] p-3 rounded-2xl mb-3"
           onPress={onIconPress}
           activeOpacity={0.7}
@@ -41,7 +47,7 @@ export function InfoCard({
           ) : (
             <Icon size={20} strokeWidth={1.5} color={iconColor} />
           )}
-        </TouchableOpacity>
+        </VellureButton>
       ) : (
         <View className="bg-[#FEF6EA] p-3 rounded-2xl mb-3">
           {isIconLoading ? (
@@ -61,7 +67,7 @@ export function InfoCard({
           {value}
         </Text>
       ) : (
-        <TextInput 
+        <VellureTextInput
           className="text-[#1A1A1A] text-[13px] font-semibold text-center tracking-wide w-full p-0 m-0"
           style={{ outline: 'none' } as any}
           value={value}
@@ -75,13 +81,13 @@ export function InfoCard({
 
   if (onCardPress) {
     return (
-      <TouchableOpacity 
+      <VellureButton
         activeOpacity={0.7}
         onPress={onCardPress}
         className="w-[48%] bg-white rounded-2xl py-5 px-3 mb-4 items-center shadow-[0_8px_30px_rgba(0,0,0,0.04)] elevation-sm"
       >
         {CardContent}
-      </TouchableOpacity>
+      </VellureButton>
     );
   }
 

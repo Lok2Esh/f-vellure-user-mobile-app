@@ -1,5 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useEffect,
+  useState } from 'react';
+import { ActivityIndicator,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { CalendarDays, CheckCircle2, ChevronRight, FolderHeart, MapPin, X } from 'lucide-react-native';
 import {
   addPlanService,
@@ -92,9 +102,9 @@ export function AddVendorToPlanModal({
                 <Text style={styles.subtitle} numberOfLines={1}>{vendorName}</Text>
               </View>
             </View>
-            <TouchableOpacity accessibilityLabel="Close plan selector" onPress={onClose} style={styles.closeButton}>
+            <VellureButton accessibilityLabel="Close plan selector" onPress={onClose} style={styles.closeButton}>
               <X size={18} color="#641E3D" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {loading ? (
@@ -109,7 +119,7 @@ export function AddVendorToPlanModal({
               {plans.map((plan) => {
                 const added = addedPlanId === plan.id;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={plan.id}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${vendorName} to ${plan.name}`}
@@ -128,7 +138,7 @@ export function AddVendorToPlanModal({
                       <Text style={styles.eventType}>{plan.eventType}</Text>
                     </View>
                     {addingPlanId === plan.id ? <ActivityIndicator color="#641E3D" size="small" /> : added ? <CheckCircle2 size={22} color="#2F7D62" /> : <ChevronRight size={19} color="#641E3D" />}
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
               {error ? <Text style={styles.error}>{error}</Text> : null}

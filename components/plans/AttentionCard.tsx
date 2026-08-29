@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { AlertCircle, Clock, ArrowRight, ShieldAlert, Sparkles } from 'lucide-react-native';
 import { AttentionItem } from '../../services/api';
 import { colors } from '../../constants/theme';
@@ -61,7 +66,7 @@ export function AttentionCard({ items, onActionPress }: AttentionCardProps) {
                 <View />
               )}
 
-              <TouchableOpacity
+              <VellureButton
                 style={[styles.actionBtn, isUrgent && styles.actionBtnUrgent]}
                 onPress={() => onActionPress(item)}
                 activeOpacity={0.85}
@@ -70,7 +75,7 @@ export function AttentionCard({ items, onActionPress }: AttentionCardProps) {
               >
                 <Text style={styles.actionBtnText}>{item.actionText}</Text>
                 <ArrowRight size={12} color="#FFFFFF" />
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           </View>
         );

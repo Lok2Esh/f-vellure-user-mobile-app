@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Scale, X } from 'lucide-react-native';
 
 type Props = {
@@ -25,17 +30,17 @@ export function VendorCompareTray({ count, category, onCompare, onClear }: Props
           </Text>
         </View>
       </View>
-      <TouchableOpacity accessibilityLabel="Clear comparison" onPress={onClear} style={styles.clearButton}>
+      <VellureButton accessibilityLabel="Clear comparison" onPress={onClear} style={styles.clearButton}>
         <X size={16} color="#786B70" />
-      </TouchableOpacity>
-      <TouchableOpacity
+      </VellureButton>
+      <VellureButton
         accessibilityRole="button"
         disabled={count < 2}
         onPress={onCompare}
         style={[styles.compareButton, count < 2 && styles.compareButtonDisabled]}
       >
         <Text style={styles.compareText}>{count < 2 ? 'Add one more' : 'Compare'}</Text>
-      </TouchableOpacity>
+      </VellureButton>
     </View>
   );
 }

@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
+import { View,
+  Text,
+  Modal,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { X, Sparkles, CheckCircle2, MapPin, Award, ArrowRight } from 'lucide-react-native';
 import { VendorServiceCard } from './VendorServiceCard';
 import { EventInquiryModal } from '../inquiry/EventInquiryModal';
@@ -54,12 +62,12 @@ export function VendorPackDetailModal({ visible, onClose, pack, guestCount }: Ve
                 </View>
                 <Text className="text-[#1A1A1A] text-[24px] font-serif font-bold">{pack.name}</Text>
               </View>
-              <TouchableOpacity 
+              <VellureButton
                 onPress={onClose}
                 className="bg-[#F1E8DB] w-10 h-10 rounded-full items-center justify-center"
               >
                 <X size={20} color="#641E3D" />
-              </TouchableOpacity>
+              </VellureButton>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} className="mb-6">
@@ -93,14 +101,14 @@ export function VendorPackDetailModal({ visible, onClose, pack, guestCount }: Ve
             </ScrollView>
 
             {/* Action Button */}
-            <TouchableOpacity 
+            <VellureButton
               className="bg-[#78123C] w-full py-3.5 rounded-2xl flex-row items-center justify-center shadow-[0_12px_30px_rgba(120,18,60,0.25)] border-t border-white/10"
               onPress={() => setInquiryVisible(true)}
               activeOpacity={0.88}
             >
               <Text className="text-white text-[15px] font-bold tracking-[0.8px] uppercase mr-2">Inquire This Package</Text>
               <ArrowRight size={16} color="#FFFFFF" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
         </View>
       </Modal>

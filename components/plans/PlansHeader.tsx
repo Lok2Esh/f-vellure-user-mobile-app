@@ -1,5 +1,10 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { Plus, SlidersHorizontal } from 'lucide-react-native';
 import { colors } from '../../constants/theme';
 import { VellureSearchInput } from '../ui/VellureInputField';
@@ -25,7 +30,7 @@ export function PlansHeader({
           <Text style={styles.title}>My Event Plans</Text>
         </View>
 
-        <TouchableOpacity
+        <VellureButton
           style={styles.newPlanBtn}
           onPress={onNewPlanPress}
           activeOpacity={0.88}
@@ -34,7 +39,7 @@ export function PlansHeader({
         >
           <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
           <Text style={styles.newPlanBtnText}>New Plan</Text>
-        </TouchableOpacity>
+        </VellureButton>
       </View>
 
       <Text style={styles.description}>
@@ -51,7 +56,7 @@ export function PlansHeader({
         />
 
         {onFilterPress && (
-          <TouchableOpacity
+          <VellureButton
             style={styles.filterBtn}
             onPress={onFilterPress}
             activeOpacity={0.8}
@@ -59,7 +64,7 @@ export function PlansHeader({
             accessibilityLabel="Filter plans"
           >
             <SlidersHorizontal size={16} color="#641E3D" />
-          </TouchableOpacity>
+          </VellureButton>
         )}
       </View>
     </View>

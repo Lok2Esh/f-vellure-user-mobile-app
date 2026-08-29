@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -75,14 +76,14 @@ export function EditProfileModal({
         <View style={styles.sheet}>
           <View style={styles.header}>
             <Text style={styles.title}>Edit Customer Profile</Text>
-            <TouchableOpacity
+            <VellureButton
               onPress={onClose}
               style={styles.closeBtn}
               accessibilityRole="button"
               accessibilityLabel="Close modal"
             >
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -151,7 +152,7 @@ export function EditProfileModal({
               placeholder="English / Hindi / Punjabi"
             />
 
-            <TouchableOpacity
+            <VellureButton
               style={styles.saveBtn}
               onPress={handleSave}
               disabled={isSaving}
@@ -164,7 +165,7 @@ export function EditProfileModal({
               ) : (
                 <Text style={styles.saveBtnText}>Save Profile</Text>
               )}
-            </TouchableOpacity>
+            </VellureButton>
           </ScrollView>
         </View>
       </View>

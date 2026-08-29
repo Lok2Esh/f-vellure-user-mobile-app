@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -67,9 +68,9 @@ export function ConciergeModal({ visible, onClose }: ConciergeModalProps) {
                 <Text style={styles.subtitle}>Bespoke advice & vendor coordination</Text>
               </View>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -104,14 +105,14 @@ export function ConciergeModal({ visible, onClose }: ConciergeModalProps) {
             </View>
 
             {/* Direct Helpline Action */}
-            <TouchableOpacity
+            <VellureButton
               style={styles.callBtn}
               onPress={() => Alert.alert('Helpline Call', 'Connecting to Vellure Advisory Desk at +91 1800 200 4500 (Toll Free)')}
               activeOpacity={0.85}
             >
               <Phone size={16} color="#FFFFFF" />
               <Text style={styles.callBtnText}>Call Concierge Desk: 1800 200 4500</Text>
-            </TouchableOpacity>
+            </VellureButton>
 
             {/* Request Advisor Consultation Form */}
             <View style={styles.formCard}>
@@ -120,7 +121,7 @@ export function ConciergeModal({ visible, onClose }: ConciergeModalProps) {
               <Text style={styles.inputLabel}>Assistance Area</Text>
               <View style={styles.typePillsRow}>
                 {['Vendor Discovery', 'Multi-Day Itinerary', 'Quote Review'].map((t) => (
-                  <TouchableOpacity
+                  <VellureButton
                     key={t}
                     style={[styles.typePill, requestType === t && styles.typePillActive]}
                     onPress={() => setRequestType(t)}
@@ -128,7 +129,7 @@ export function ConciergeModal({ visible, onClose }: ConciergeModalProps) {
                     <Text style={[styles.typePillText, requestType === t && styles.typePillTextActive]}>
                       {t}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 ))}
               </View>
 
@@ -149,7 +150,7 @@ export function ConciergeModal({ visible, onClose }: ConciergeModalProps) {
                 placeholder="e.g. Planning a 3-day royal wedding in Patiala in November with 300 guests. Need verified recommendations for live musicians and drone cinema."
               />
 
-              <TouchableOpacity
+              <VellureButton
                 style={styles.submitBtn}
                 onPress={handleSubmitCallback}
                 disabled={isSubmitting}
@@ -163,7 +164,7 @@ export function ConciergeModal({ visible, onClose }: ConciergeModalProps) {
                     <Text style={styles.submitBtnText}>Submit Consultation Request</Text>
                   </>
                 )}
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           </ScrollView>
         </View>

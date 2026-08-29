@@ -1,5 +1,11 @@
+import {
+  VellureButton } from "@/components/ui/VellureControls";
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View,
+  Text,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import { BadgeCheck, ShieldAlert, ShieldCheck } from 'lucide-react-native';
 
 export type VerificationStatus = 'VERIFIED' | 'UNDER_REVIEW' | 'PENDING' | 'SUSPENDED';
@@ -36,7 +42,7 @@ export function VerifiedBadge({
 
   if (verified) {
     return (
-      <TouchableOpacity
+      <VellureButton
         style={[styles.badgeVerified, size === 'medium' && styles.badgeMedium]}
         onPress={handlePress}
         activeOpacity={0.8}
@@ -47,12 +53,12 @@ export function VerifiedBadge({
         <Text style={[styles.textVerified, size === 'medium' && styles.textMedium]}>
           Verified Partner
         </Text>
-      </TouchableOpacity>
+      </VellureButton>
     );
   }
 
   return (
-    <TouchableOpacity
+    <VellureButton
       style={[styles.badgeReview, size === 'medium' && styles.badgeMedium]}
       onPress={handlePress}
       activeOpacity={0.8}
@@ -63,7 +69,7 @@ export function VerifiedBadge({
       <Text style={[styles.textReview, size === 'medium' && styles.textMedium]}>
         Under Review
       </Text>
-    </TouchableOpacity>
+    </VellureButton>
   );
 }
 

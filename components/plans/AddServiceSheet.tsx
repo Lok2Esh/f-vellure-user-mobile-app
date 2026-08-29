@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
   StyleSheet,
   Alert,
@@ -82,9 +83,9 @@ export function AddServiceSheet({ visible, onClose, onAddService }: AddServiceSh
               <Text style={styles.title}>Add Service to Plan</Text>
               <Text style={styles.subtitle}>Select celebration service & allocate budget</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -103,7 +104,7 @@ export function AddServiceSheet({ visible, onClose, onAddService }: AddServiceSh
               {filteredCategories.map((c) => {
                 const isSelected = selectedCategory.key === c.key;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={c.key}
                     style={[styles.catChip, isSelected && styles.catChipActive]}
                     onPress={() => {
@@ -114,7 +115,7 @@ export function AddServiceSheet({ visible, onClose, onAddService }: AddServiceSh
                     <Text style={[styles.catChipText, isSelected && styles.catChipTextActive]}>
                       {c.name}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -136,7 +137,7 @@ export function AddServiceSheet({ visible, onClose, onAddService }: AddServiceSh
               {(['REQUIRED', 'RECOMMENDED', 'OPTIONAL'] as const).map((r) => {
                 const isSelected = requirement === r;
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={r}
                     style={[styles.reqPill, isSelected && styles.reqPillActive]}
                     onPress={() => setRequirement(r)}
@@ -144,7 +145,7 @@ export function AddServiceSheet({ visible, onClose, onAddService }: AddServiceSh
                     <Text style={[styles.reqPillText, isSelected && styles.reqPillTextActive]}>
                       {r}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
@@ -168,10 +169,10 @@ export function AddServiceSheet({ visible, onClose, onAddService }: AddServiceSh
               placeholder="e.g. Needs pure vegetarian setup, outdoor lawn coverage..."
             />
 
-            <TouchableOpacity style={styles.addBtn} onPress={handleConfirm} activeOpacity={0.88}>
+            <VellureButton style={styles.addBtn} onPress={handleConfirm} activeOpacity={0.88}>
               <Plus size={15} color="#FFFFFF" strokeWidth={2.5} />
               <Text style={styles.addBtnText}>Add Service to Plan</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </ScrollView>
         </View>
       </View>

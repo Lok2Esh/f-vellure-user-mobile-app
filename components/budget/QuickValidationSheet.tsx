@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState,
+  useEffect } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
 } from 'react-native';
@@ -114,9 +117,9 @@ export function QuickValidationSheet({
               <Text style={styles.title}>Adjust AI Blueprint</Text>
               <Text style={styles.subtitle}>Fine-tune celebration parameters & re-optimize</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -128,7 +131,7 @@ export function QuickValidationSheet({
               contentContainerStyle={styles.typeScroll}
             >
               {EVENT_TYPE_OPTIONS.map((t) => (
-                <TouchableOpacity
+                <VellureButton
                   key={t}
                   style={[styles.typeChip, eventType === t && styles.typeChipActive]}
                   onPress={() => setEventType(t)}
@@ -136,7 +139,7 @@ export function QuickValidationSheet({
                   <Text style={[styles.typeChipText, eventType === t && styles.typeChipTextActive]}>
                     {t}
                   </Text>
-                </TouchableOpacity>
+                </VellureButton>
               ))}
             </ScrollView>
 
@@ -204,7 +207,7 @@ export function QuickValidationSheet({
               {ALL_SERVICES.map((srv) => {
                 const isSelected = services.includes(srv);
                 return (
-                  <TouchableOpacity
+                  <VellureButton
                     key={srv}
                     style={[styles.serviceTogglePill, isSelected && styles.serviceTogglePillActive]}
                     onPress={() => toggleService(srv)}
@@ -219,15 +222,15 @@ export function QuickValidationSheet({
                     >
                       {srv}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 );
               })}
             </View>
 
-            <TouchableOpacity style={styles.applyBtn} onPress={handleConfirm} activeOpacity={0.88}>
+            <VellureButton style={styles.applyBtn} onPress={handleConfirm} activeOpacity={0.88}>
               <Sparkles size={15} color="#FFFFFF" />
               <Text style={styles.applyBtnText}>Apply & Re-Calculate Blueprint</Text>
-            </TouchableOpacity>
+            </VellureButton>
           </ScrollView>
         </View>
       </View>

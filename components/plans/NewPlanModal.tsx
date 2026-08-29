@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import {
+  VellureButton } from "@/components/ui/VellureControls";
+import React,
+  { useState } from 'react';
 import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
-  TextInput,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -114,15 +115,15 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                   : 'Enter celebration details to initialize your workspace'}
               </Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <VellureButton onPress={onClose} style={styles.closeBtn}>
               <X size={18} color="#2D2025" />
-            </TouchableOpacity>
+            </VellureButton>
           </View>
 
           {mode === 'choice' ? (
             <View style={styles.choiceBody}>
               {/* Option 1: AI Planner */}
-              <TouchableOpacity
+              <VellureButton
                 style={styles.choiceCard}
                 onPress={handlePlanWithAi}
                 activeOpacity={0.85}
@@ -140,10 +141,10 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                   </Text>
                 </View>
                 <ChevronRight size={18} color="#641E3D" />
-              </TouchableOpacity>
+              </VellureButton>
 
               {/* Option 2: Manual Setup */}
-              <TouchableOpacity
+              <VellureButton
                 style={styles.choiceCard}
                 onPress={() => setMode('manual')}
                 activeOpacity={0.85}
@@ -158,7 +159,7 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                   </Text>
                 </View>
                 <ChevronRight size={18} color="#641E3D" />
-              </TouchableOpacity>
+              </VellureButton>
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -176,7 +177,7 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                 contentContainerStyle={styles.typeScroll}
               >
                 {EVENT_TYPE_OPTIONS.map((t) => (
-                  <TouchableOpacity
+                  <VellureButton
                     key={t}
                     style={[styles.typeChip, eventType === t && styles.typeChipActive]}
                     onPress={() => setEventType(t)}
@@ -184,7 +185,7 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                     <Text style={[styles.typeChipText, eventType === t && styles.typeChipTextActive]}>
                       {t}
                     </Text>
-                  </TouchableOpacity>
+                  </VellureButton>
                 ))}
               </ScrollView>
 
@@ -247,15 +248,15 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
               />
 
               <View style={styles.manualActionsRow}>
-                <TouchableOpacity
+                <VellureButton
                   style={styles.backBtn}
                   onPress={() => setMode('choice')}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.backBtnText}>Back</Text>
-                </TouchableOpacity>
+                </VellureButton>
 
-                <TouchableOpacity
+                <VellureButton
                   style={styles.createBtn}
                   onPress={handleCreateManual}
                   disabled={isCreating}
@@ -269,7 +270,7 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                       <Text style={styles.createBtnText}>Initialize Plan Workspace</Text>
                     </>
                   )}
-                </TouchableOpacity>
+                </VellureButton>
               </View>
             </ScrollView>
           )}
