@@ -39,6 +39,7 @@ import {
   Store,
   Briefcase,
   Share2,
+  Package,
 } from 'lucide-react-native';
 import {
   fetchPublicVendorById,
@@ -49,6 +50,13 @@ import {
   fetchCustomerPlans,
   EventPlan,
 } from '../../services/api';
+import {
+  isVendorInCustomPackage,
+  toggleVendorInCustomPackage,
+  subscribeCustomPackage,
+  getCustomPackage,
+  CustomPackage,
+} from '../../services/customPackageStore';
 import { getServiceMetadata } from '../../constants/services';
 import { PriceDisplay, VendorPriceType } from '../../components/ui/PriceDisplay';
 import { VerifiedBadge } from '../../components/ui/VerifiedBadge';
@@ -207,6 +215,20 @@ export default function VendorDetailsScreen() {
 
   const [isSaved, setIsSaved] = useState(false);
   const [isComparing, setIsComparing] = useState(false);
+  const [customPackage, setCustomPackage] = useState<CustomPackage>(getCustomPackage());
+  const [inCustomPackage, setInCustomPackage] = useState(
+    vendorId ? isVendorInCustomPackage(String(vendorId)) : false
+  );
+
+  useEffect(() => {
+    const unsubscribe = subscribeCustomPackage((pkg) => {
+      setCustomPackage(pkg);
+      if (vendorId) {
+        setInCustomPackage(pkg.vendors.some((v) => String(v.vendorId) === String(vendorId)));
+      }
+    });
+    return unsubscribe;
+  }, [vendorId]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -225,6 +247,7 @@ export default function VendorDetailsScreen() {
       if (vendorId) {
         setIsSaved((savedIds as string[]).includes(String(vendorId)));
         setIsComparing((comparedIds as string[]).includes(String(vendorId)));
+        setInCustomPackage(isVendorInCustomPackage(String(vendorId)));
       }
     } catch (e) {
       console.error('Error fetching vendor details:', e);
@@ -243,6 +266,23 @@ export default function VendorDetailsScreen() {
     if (!vendor) return;
     const nowSaved = await toggleSaveVendorId(vendor.id);
     setIsSaved(nowSaved);
+  };
+
+  const handleToggleCustomPackage = () => {
+    if (!vendor) return;
+    const res = toggleVendorInCustomPackage({
+      id: vendor.id,
+      businessName: vendor.businessName,
+      category: vendor.category,
+      city: vendor.city,
+      locality: vendor.locality,
+      basePrice: vendor.basePrice,
+      priceType: vendor.priceType,
+      rating: vendor.rating,
+      reviewsCount: vendor.reviewsCount,
+      image: vendor.image,
+    });
+    setInCustomPackage(res.added);
   };
 
   const handleToggleCompare = async () => {
@@ -470,6 +510,42 @@ export default function VendorDetailsScreen() {
             <Text style={styles.pricingDisclaimer}>
               * Listed rate is a starting benchmark. Final quotation and calendar availability require direct partner confirmation.
             </Text>
+          </View>
+
+          {/* Custom Package CTA Bar */}
+          <View style={styles.packageCTAContainer}>
+            <VellureButton
+              style={[styles.customPackageHeroBtn, inCustomPackage && styles.customPackageHeroBtnActive]}
+              onPress={handleToggleCustomPackage}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={inCustomPackage ? "In custom package" : "Add to custom package"}
+            >
+              {inCustomPackage ? (
+                <CheckCircle2 size={16} color="#287857" strokeWidth={2.4} />
+              ) : (
+                <Package size={16} color="#641E3D" />
+              )}
+              <View style={styles.customPackageHeroCopy}>
+                <Text style={[styles.customPackageHeroTitle, inCustomPackage && styles.customPackageHeroTitleActive]}>
+                  {inCustomPackage ? 'In Your Custom Package ✓' : '+ Add to Custom Package Builder'}
+                </Text>
+                <Text style={styles.customPackageHeroSub}>
+                  {inCustomPackage ? 'Dynamic rate credited • Tap to remove' : 'Calculates amount live in your bespoke celebration bundle'}
+                </Text>
+              </View>
+              {inCustomPackage && (
+                <VellureButton
+                  onPress={(e) => {
+                    e?.stopPropagation?.();
+                    router.push('/custom-package');
+                  }}
+                  style={styles.customPackageViewBtn}
+                >
+                  <Text style={styles.customPackageViewText}>View →</Text>
+                </VellureButton>
+              )}
+            </VellureButton>
           </View>
         </View>
 
@@ -747,6 +823,30 @@ export default function VendorDetailsScreen() {
         </View>
       </ScrollView>
 
+      {/* ──── FLOATING CUSTOM PACKAGE BAR ──── */}
+      {customPackage.vendors.length > 0 && (
+        <VellureButton
+          style={styles.floatingVendorPackageBar}
+          onPress={() => router.push('/custom-package')}
+          activeOpacity={0.92}
+          accessibilityRole="button"
+          accessibilityLabel={`View custom package with ${customPackage.vendors.length} vendors`}
+        >
+          <View style={styles.floatingVendorPackageIcon}>
+            <Package size={15} color="#F4D58D" />
+          </View>
+          <View style={styles.floatingVendorPackageCopy}>
+            <Text style={styles.floatingVendorPackageTitle}>Custom Package Active</Text>
+            <Text style={styles.floatingVendorPackageSubtitle}>
+              {customPackage.vendors.length} {customPackage.vendors.length === 1 ? 'Specialist' : 'Specialists'} • ₹{customPackage.totalPrice.toLocaleString('en-IN')}
+            </Text>
+          </View>
+          <View style={styles.floatingVendorPackageAction}>
+            <Text style={styles.floatingVendorPackageActionText}>Builder →</Text>
+          </View>
+        </VellureButton>
+      )}
+
       {/* ──── 7. STICKY MOBILE BOTTOM ACTION BAR ──── */}
       <View style={styles.stickyBottomBar}>
         <VellureButton
@@ -758,12 +858,23 @@ export default function VendorDetailsScreen() {
         </VellureButton>
 
         <VellureButton
+          style={[styles.stickyPackageBtn, inCustomPackage && styles.stickyPackageBtnActive]}
+          onPress={handleToggleCustomPackage}
+          activeOpacity={0.85}
+        >
+          {inCustomPackage ? <CheckCircle2 size={15} color="#287857" strokeWidth={2.4} /> : <Package size={15} color="#641E3D" />}
+          <Text style={[styles.stickyPackageBtnText, inCustomPackage && styles.stickyPackageBtnTextActive]}>
+            {inCustomPackage ? 'In Package' : '+ Package'}
+          </Text>
+        </VellureButton>
+
+        <VellureButton
           style={styles.stickyPlanBtn}
           onPress={() => setPlanModalVisible(true)}
           activeOpacity={0.85}
         >
-          <Briefcase size={15} color="#641E3D" />
-          <Text style={styles.stickyPlanBtnText}>Add to Plan</Text>
+          <Briefcase size={14} color="#641E3D" />
+          <Text style={styles.stickyPlanBtnText}>Plan</Text>
         </VellureButton>
 
         <VellureButton
@@ -771,7 +882,7 @@ export default function VendorDetailsScreen() {
           onPress={() => setInquiryModalVisible(true)}
           activeOpacity={0.88}
         >
-          <Send size={15} color="#FFFFFF" />
+          <Send size={14} color="#FFFFFF" />
           <Text style={styles.stickyQuoteBtnText}>Request Quote</Text>
         </VellureButton>
       </View>
@@ -1555,6 +1666,72 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
   },
+  packageCTAContainer: {
+    marginTop: 12,
+  },
+  customPackageHeroBtn: {
+    backgroundColor: '#FAF5EC',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1.5,
+    borderColor: '#D2AD6B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  customPackageHeroBtnActive: {
+    backgroundColor: '#ECF8F1',
+    borderColor: '#A5CDBE',
+  },
+  customPackageHeroCopy: { flex: 1 },
+  customPackageHeroTitle: { color: '#641E3D', fontSize: 12.5, fontWeight: '900' },
+  customPackageHeroTitleActive: { color: '#287857' },
+  customPackageHeroSub: { color: '#786B70', fontSize: 9.5, marginTop: 2, fontWeight: '600' },
+  customPackageViewBtn: {
+    backgroundColor: '#287857',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  customPackageViewText: { color: '#FFFFFF', fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
+  floatingVendorPackageBar: {
+    position: 'absolute',
+    bottom: 80,
+    left: 18,
+    right: 18,
+    backgroundColor: '#641E3D',
+    borderRadius: 18,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#641E3D',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 213, 141, 0.3)',
+    zIndex: 99,
+  },
+  floatingVendorPackageIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingVendorPackageCopy: { flex: 1 },
+  floatingVendorPackageTitle: { color: '#F4D58D', fontSize: 9.5, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.4 },
+  floatingVendorPackageSubtitle: { color: '#FFFFFF', fontSize: 11.5, fontWeight: '800', marginTop: 1 },
+  floatingVendorPackageAction: {
+    backgroundColor: '#F4D58D',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  floatingVendorPackageActionText: { color: '#2A121E', fontSize: 9.5, fontWeight: '900', textTransform: 'uppercase' },
   stickyHeartBtn: {
     width: 44,
     height: 44,
@@ -1569,21 +1746,45 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF0F3',
     borderColor: '#FECDD3',
   },
-  stickyPlanBtn: {
-    flex: 1,
+  stickyPackageBtn: {
+    flex: 1.1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FAF5EC',
     height: 44,
     borderRadius: 12,
-    gap: 5,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#D2AD6B',
+  },
+  stickyPackageBtnActive: {
+    backgroundColor: '#ECF8F1',
+    borderColor: '#BFE6CF',
+  },
+  stickyPackageBtnText: {
+    color: '#641E3D',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  stickyPackageBtnTextActive: {
+    color: '#287857',
+  },
+  stickyPlanBtn: {
+    flex: 0.9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5EC',
+    height: 44,
+    borderRadius: 12,
+    gap: 4,
     borderWidth: 1,
     borderColor: '#EFE3CF',
   },
   stickyPlanBtnText: {
     color: '#641E3D',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
   },
   stickyQuoteBtn: {
@@ -1598,7 +1799,7 @@ const styles = StyleSheet.create({
   },
   stickyQuoteBtnText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '800',
   },
   fullscreenModal: {

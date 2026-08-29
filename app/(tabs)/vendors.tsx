@@ -27,6 +27,7 @@ import {
   Search,
   ChevronDown,
   Store,
+  Package,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
@@ -37,6 +38,11 @@ import {
   toggleSaveVendorId,
   fetchCitiesData,
 } from '../../services/api';
+import {
+  subscribeCustomPackage,
+  getCustomPackage,
+  CustomPackage,
+} from '../../services/customPackageStore';
 import VendorCard from '../../components/vendor/VendorCard';
 import { VellureSearchInput } from '../../components/ui/VellureInputField';
 import {
@@ -129,6 +135,14 @@ export default function VendorsScreen() {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [inquiryVendor, setInquiryVendor] = useState<MarketplaceVendor | null>(null);
+  const [customPackage, setCustomPackage] = useState<CustomPackage>(getCustomPackage());
+
+  useEffect(() => {
+    const unsubscribe = subscribeCustomPackage((pkg) => {
+      setCustomPackage(pkg);
+    });
+    return unsubscribe;
+  }, []);
 
   const [allData, setAllData] = useState<Record<string, MarketplaceVendor[]>>({});
   const [citiesData, setCitiesData] = useState<CityEntry[]>([]);
@@ -521,6 +535,30 @@ export default function VendorsScreen() {
         />
       )}
 
+      {/* ──── FLOATING CUSTOM PACKAGE BAR ──── */}
+      {customPackage.vendors.length > 0 && (
+        <VellureButton
+          style={styles.floatingPackageBar}
+          onPress={() => router.push('/custom-package')}
+          activeOpacity={0.92}
+          accessibilityRole="button"
+          accessibilityLabel={`View custom package with ${customPackage.vendors.length} vendors`}
+        >
+          <View style={styles.floatingPackageIcon}>
+            <Package size={16} color="#F4D58D" />
+          </View>
+          <View style={styles.floatingPackageCopy}>
+            <Text style={styles.floatingPackageTitle}>Custom Package Active</Text>
+            <Text style={styles.floatingPackageSubtitle}>
+              {customPackage.vendors.length} {customPackage.vendors.length === 1 ? 'Specialist' : 'Specialists'} • ₹{customPackage.totalPrice.toLocaleString('en-IN')}
+            </Text>
+          </View>
+          <View style={styles.floatingPackageAction}>
+            <Text style={styles.floatingPackageActionText}>View Package →</Text>
+          </View>
+        </VellureButton>
+      )}
+
       {/* ──── COMPARE TRAY & MODALS ──── */}
       <VendorCompareTray
         count={compareIds.length}
@@ -787,4 +825,42 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
+  floatingPackageBar: {
+    position: 'absolute',
+    bottom: 80,
+    left: 18,
+    right: 18,
+    backgroundColor: '#641E3D',
+    borderRadius: 18,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#641E3D',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 213, 141, 0.3)',
+    zIndex: 99,
+  },
+  floatingPackageIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingPackageCopy: { flex: 1 },
+  floatingPackageTitle: { color: '#F4D58D', fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.4 },
+  floatingPackageSubtitle: { color: '#FFFFFF', fontSize: 12, fontWeight: '800', marginTop: 1 },
+  floatingPackageAction: {
+    backgroundColor: '#F4D58D',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  floatingPackageActionText: { color: '#2A121E', fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
 });

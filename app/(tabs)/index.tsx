@@ -38,6 +38,7 @@ import {
   CalendarDays,
   Headphones,
   CheckCircle2,
+  Package,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import {
@@ -517,6 +518,34 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.packsRow}
         >
+          {/* 🌟 Custom Package Builder Highlight Card */}
+          <VellureButton
+            style={styles.customPackBuilderCard}
+            onPress={() => router.push('/custom-package')}
+            activeOpacity={0.88}
+          >
+            <View style={styles.customPackHeader}>
+              <View style={styles.customPackBadge}>
+                <Sparkles size={11} color="#F4D58D" />
+                <Text style={styles.customPackBadgeText}>Bespoke Suite</Text>
+              </View>
+              <Package size={22} color="#F4D58D" />
+            </View>
+            <Text style={styles.customPackTitle}>Build Your Custom Package</Text>
+            <Text style={styles.customPackDesc}>
+              Handpick your venue, catering, photographer, and decor. Live price reflects instantly with selections!
+            </Text>
+            <View style={styles.customPackFooter}>
+              <View style={styles.customPackFeaturePills}>
+                <Text style={styles.customPackFeature}>★ Live Rates</Text>
+                <Text style={styles.customPackFeature}>★ 1-Click Quote</Text>
+              </View>
+              <View style={styles.customPackCta}>
+                <Text style={styles.customPackCtaText}>Start Building →</Text>
+              </View>
+            </View>
+          </VellureButton>
+
           {(vendorPacks.length > 0
             ? vendorPacks
             : [
@@ -1013,6 +1042,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 14,
     paddingBottom: 24,
+  },
+  customPackBuilderCard: {
+    width: 290,
+    backgroundColor: '#641E3D',
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#D2AD6B',
+    justifyContent: 'space-between',
+    shadowColor: '#641E3D',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 5,
+  },
+  customPackHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  customPackBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  customPackBadgeText: {
+    color: '#F4D58D',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  customPackTitle: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '900',
+    marginBottom: 6,
+  },
+  customPackDesc: {
+    color: '#E0D4DC',
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '500',
+    marginBottom: 16,
+  },
+  customPackFooter: {
+    gap: 10,
+  },
+  customPackFeaturePills: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  customPackFeature: {
+    color: '#F4D58D',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  customPackCta: {
+    backgroundColor: '#F4D58D',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customPackCtaText: {
+    color: '#2A121E',
+    fontSize: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
   },
   packCard: {
     width: 280,

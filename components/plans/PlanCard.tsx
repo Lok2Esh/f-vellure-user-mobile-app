@@ -1,12 +1,5 @@
-import {
-  VellureButton } from "@/components/ui/VellureControls";
-import React,
-  { useState } from 'react';
-import { View,
-  Text,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import {
   Calendar,
   Users,
@@ -24,6 +17,8 @@ import {
 import { router } from 'expo-router';
 import { EventPlan, formatPlanStatus } from '../../services/api';
 import { colors } from '../../constants/theme';
+import { VellureButton } from '@/components/ui/VellureControls';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
 interface PlanCardProps {
   plan: EventPlan;
@@ -41,19 +36,13 @@ export function PlanCard({
   onDeletePlan,
 }: PlanCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const statusBadge = formatPlanStatus(plan.status);
   const budgetFormatted = `₹${(plan.budgetMin / 100000).toFixed(1)}L – ₹${(plan.budgetMax / 100000).toFixed(1)}L`;
 
   const handleConfirmDelete = () => {
     setMenuOpen(false);
-    Alert.alert(
-      'Delete Plan Draft',
-      `Are you sure you want to delete "${plan.name}"? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: onDeletePlan },
-      ]
-    );
+    setConfirmDeleteOpen(true);
   };
 
   return (
@@ -175,6 +164,19 @@ export function PlanCard({
           <ArrowRight size={12} color="#641E3D" />
         </VellureButton>
       </View>
+
+      {/* ⚠️ Reusable Confirmation Dialog */}
+      <ConfirmationModal
+        visible={confirmDeleteOpen}
+        title="Delete Plan Draft"
+        message={`Are you sure you want to permanently delete "${plan.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        icon="trash"
+        onConfirm={onDeletePlan}
+        onClose={() => setConfirmDeleteOpen(false)}
+      />
     </View>
   );
 }

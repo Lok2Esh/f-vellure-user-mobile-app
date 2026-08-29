@@ -22,9 +22,9 @@ import {
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { toggleSaveVendorId } from '../../services/api';
-import { colors } from '../../constants/theme';
 import { EmptyStateCard } from '../ui/EmptyStateCard';
 import { VellureSearchInput } from '../ui/VellureInputField';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 interface SavedVendorsModalProps {
   visible: boolean;
@@ -41,6 +41,7 @@ export function SavedVendorsModal({
 }: SavedVendorsModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
 
   const categories = ['All', ...Array.from(new Set(savedVendors.map((v) => v.category || 'Vendor')))];
 
@@ -53,9 +54,11 @@ export function SavedVendorsModal({
     return matchesCat && matchesSearch;
   });
 
-  const handleRemove = async (vendorId: string, vendorName: string) => {
-    await toggleSaveVendorId(vendorId);
-    onVendorRemoved(vendorId);
+  const handleConfirmRemove = async () => {
+    if (!removeTarget) return;
+    await toggleSaveVendorId(removeTarget.id);
+    onVendorRemoved(removeTarget.id);
+    setRemoveTarget(null);
   };
 
   const handleOpenVendor = (vendorId: string) => {
@@ -159,7 +162,12 @@ export function SavedVendorsModal({
 
                     <VellureButton
                       style={styles.trashBtn}
-                      onPress={() => handleRemove(vendor.id, vendor.businessName || vendor.name)}
+                      onPress={() =>
+                        setRemoveTarget({
+                          id: vendor.id,
+                          name: vendor.businessName || vendor.name || 'this specialist',
+                        })
+                      }
                       activeOpacity={0.7}
                       accessibilityRole="button"
                       accessibilityLabel="Remove from wishlist"
@@ -173,6 +181,19 @@ export function SavedVendorsModal({
           </ScrollView>
         </View>
       </View>
+
+      {/* ⚠️ Reusable Confirmation Dialog */}
+      <ConfirmationModal
+        visible={removeTarget !== null}
+        title="Remove Saved Specialist"
+        message={`Are you sure you want to remove "${removeTarget?.name}" from your saved wishlist?`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        isDestructive={true}
+        icon="trash"
+        onConfirm={handleConfirmRemove}
+        onClose={() => setRemoveTarget(null)}
+      />
     </Modal>
   );
 }

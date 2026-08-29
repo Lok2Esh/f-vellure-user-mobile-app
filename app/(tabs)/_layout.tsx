@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
-import { Sparkles, Wand2, Compass, CalendarDays, UserCircle } from 'lucide-react-native';
+import { Sparkles, Wand2, Compass, Package, UserCircle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const colors = {
@@ -67,8 +67,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="plans"
         options={{
-          title: 'My Plans',
-          tabBarIcon: ({ color, size }) => <CalendarDays size={size - 2} color={color} />,
+          title: 'My Packages',
+          tabBarIcon: ({ color, size }) => <Package size={size - 2} color={color} />,
         }}
       />
       <Tabs.Screen

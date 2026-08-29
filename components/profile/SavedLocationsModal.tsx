@@ -1,8 +1,4 @@
-import {
-  VellureButton } from "@/components/ui/VellureControls";
-import React,
-  { useState,
-  useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +12,8 @@ import { X, MapPin, Plus, Trash2, Home, Building2, Navigation } from 'lucide-rea
 import { SavedLocationItem, fetchSavedLocations, addSavedLocation, removeSavedLocation } from '../../services/api';
 import { colors } from '../../constants/theme';
 import { VellureInputField } from '../ui/VellureInputField';
+import { VellureButton } from "@/components/ui/VellureControls";
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 interface SavedLocationsModalProps {
   visible: boolean;
@@ -31,6 +29,7 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
   const [newState, setNewState] = useState('');
   const [newTag, setNewTag] = useState<'Primary' | 'Venue' | 'Family'>('Venue');
   const [isAdding, setIsAdding] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<SavedLocationItem | null>(null);
 
   const loadLocations = async () => {
     setIsLoading(true);
@@ -76,12 +75,15 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
     }
   };
 
-  const handleRemoveLocation = async (id: string) => {
+  const handleConfirmRemoveLocation = async () => {
+    if (!deleteTarget) return;
     try {
-      const updated = await removeSavedLocation(id);
+      const updated = await removeSavedLocation(deleteTarget.id);
       setLocations(updated);
     } catch (e) {
       Alert.alert('Error', 'Could not remove location.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -129,8 +131,9 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
                   </View>
                   <VellureButton
                     style={styles.deleteBtn}
-                    onPress={() => handleRemoveLocation(loc.id)}
+                    onPress={() => setDeleteTarget(loc)}
                     activeOpacity={0.7}
+                    accessibilityLabel={`Remove location ${loc.name}`}
                   >
                     <Trash2 size={15} color="#B63A4A" />
                   </VellureButton>
@@ -198,6 +201,19 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
           )}
         </View>
       </View>
+
+      {/* ⚠️ Reusable Confirmation Dialog */}
+      <ConfirmationModal
+        visible={deleteTarget !== null}
+        title="Remove Saved Location"
+        message={`Are you sure you want to remove "${deleteTarget?.name || 'this location'}" from your saved locations?`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        isDestructive={true}
+        icon="trash"
+        onConfirm={handleConfirmRemoveLocation}
+        onClose={() => setDeleteTarget(null)}
+      />
     </Modal>
   );
 }

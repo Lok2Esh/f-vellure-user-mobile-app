@@ -67,6 +67,7 @@ import { DeleteAccountModal } from '../../components/profile/DeleteAccountModal'
 import { EnquiriesModal } from '../../components/profile/EnquiriesModal';
 import { SavedVendorsModal } from '../../components/profile/SavedVendorsModal';
 import { SavedPackagesModal } from '../../components/profile/SavedPackagesModal';
+import { ConfirmationModal } from '../../components/ui/ConfirmationModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -101,6 +102,23 @@ export default function ProfileScreen() {
   const [enquiriesOpen, setEnquiriesOpen] = useState(false);
   const [savedVendorsOpen, setSavedVendorsOpen] = useState(false);
   const [savedPackagesOpen, setSavedPackagesOpen] = useState(false);
+
+  // Reusable Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    isDestructive?: boolean;
+    icon?: 'trash' | 'alert' | 'logout' | 'help' | 'info' | 'sparkles';
+    onConfirm: () => void;
+  }>({
+    visible: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   const loadData = useCallback(async () => {
     try {
@@ -139,29 +157,26 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Log Out of Vellure',
-      'Are you sure you want to log out? Local preferences will be reset, while cloud data remains safe.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: () => {
-            setProfile({
-              id: 'guest_user',
-              fullName: 'Guest Host',
-              displayName: 'Guest',
-              primaryCity: 'Patiala',
-              emailVerified: false,
-              phoneVerified: false,
-              isAuthenticated: false,
-            });
-            Alert.alert('Logged Out', 'You are now browsing in Guest Mode.');
-          },
-        },
-      ]
-    );
+    setConfirmModal({
+      visible: true,
+      title: 'Log Out of Vellure',
+      message: 'Are you sure you want to log out? Local preferences will be reset, while cloud data remains safe.',
+      confirmText: 'Log Out',
+      cancelText: 'Cancel',
+      isDestructive: true,
+      icon: 'logout',
+      onConfirm: () => {
+        setProfile({
+          id: 'guest_user',
+          fullName: 'Guest Host',
+          displayName: 'Guest',
+          primaryCity: 'Patiala',
+          emailVerified: false,
+          phoneVerified: false,
+          isAuthenticated: false,
+        });
+      },
+    });
   };
 
   const quotesReceivedCount = inquiries.filter(
@@ -477,6 +492,19 @@ export default function ProfileScreen() {
       <SavedPackagesModal
         visible={savedPackagesOpen}
         onClose={() => setSavedPackagesOpen(false)}
+      />
+
+      {/* ⚠️ Reusable Confirmation Dialog */}
+      <ConfirmationModal
+        visible={confirmModal.visible}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || 'Confirm'}
+        cancelText={confirmModal.cancelText || 'Cancel'}
+        isDestructive={confirmModal.isDestructive ?? true}
+        icon={confirmModal.icon || 'logout'}
+        onConfirm={confirmModal.onConfirm}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, visible: false }))}
       />
     </View>
   );

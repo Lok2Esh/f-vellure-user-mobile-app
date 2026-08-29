@@ -24,12 +24,19 @@ import {
   Users,
   Eye,
   Store,
+  Package,
+  CheckCircle2,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { getServiceMetadata } from '../../constants/services';
 import { PriceDisplay, VendorPriceType } from '../ui/PriceDisplay';
 import { VerifiedBadge } from '../ui/VerifiedBadge';
 import { RatingDisplay } from '../ui/RatingDisplay';
+import {
+  isVendorInCustomPackage,
+  toggleVendorInCustomPackage,
+  subscribeCustomPackage,
+} from '../../services/customPackageStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_HORIZONTAL_MARGIN = 20;
@@ -95,7 +102,15 @@ export function VendorCard({
   onEnquire,
 }: VendorCardProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [inCustomPackage, setInCustomPackage] = useState(isVendorInCustomPackage(id));
   const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const unsubscribe = subscribeCustomPackage((pkg) => {
+      setInCustomPackage(pkg.vendors.some((v) => String(v.vendorId) === String(id)));
+    });
+    return unsubscribe;
+  }, [id]);
 
   const images = (portfolio || [])
     .map((p) => p.imageUrl || p.image)
@@ -116,6 +131,22 @@ export function VendorCard({
 
   const handleCardPress = () => {
     router.push(`/vendor/${id}`);
+  };
+
+  const handleTogglePackage = () => {
+    const res = toggleVendorInCustomPackage({
+      id,
+      businessName,
+      category,
+      city,
+      locality,
+      basePrice,
+      priceType,
+      rating,
+      reviewsCount,
+      image: displayImages[0],
+    });
+    setInCustomPackage(res.added);
   };
 
   const isVenue = category?.toLowerCase().includes('venue');
@@ -252,14 +283,31 @@ export function VendorCard({
 
           <View style={styles.actionsRow}>
             <VellureButton
+              style={[styles.packageBtn, inCustomPackage && styles.packageBtnActive]}
+              onPress={handleTogglePackage}
+              activeOpacity={0.84}
+              accessibilityRole="button"
+              accessibilityLabel={inCustomPackage ? `In custom package` : `Add ${businessName} to custom package`}
+            >
+              {inCustomPackage ? (
+                <CheckCircle2 size={11} color="#287857" strokeWidth={2.4} />
+              ) : (
+                <Package size={11} color="#641E3D" />
+              )}
+              <Text style={[styles.packageBtnText, inCustomPackage && styles.packageBtnTextActive]}>
+                {inCustomPackage ? 'In Package' : '+ Package'}
+              </Text>
+            </VellureButton>
+
+            <VellureButton
               style={styles.detailsBtn}
               onPress={handleCardPress}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={`View details for ${businessName}`}
             >
-              <Text style={styles.detailsBtnText}>View Details</Text>
-              <ChevronRight size={12} color="#641E3D" />
+              <Text style={styles.detailsBtnText}>Details</Text>
+              <ChevronRight size={11} color="#641E3D" />
             </VellureButton>
 
             {onEnquire && (
@@ -271,7 +319,7 @@ export function VendorCard({
                 accessibilityLabel={`Request quote from ${businessName}`}
               >
                 <Send size={11} color="#FFFFFF" />
-                <Text style={styles.enquireBtnText}>Request Quote</Text>
+                <Text style={styles.enquireBtnText}>Quote</Text>
               </VellureButton>
             )}
           </View>
@@ -466,6 +514,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  packageBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF5EC',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 3,
+    borderWidth: 1,
+    borderColor: '#D2AD6B',
+  },
+  packageBtnActive: {
+    backgroundColor: '#ECF8F1',
+    borderColor: '#BFE6CF',
+  },
+  packageBtnText: {
+    color: '#641E3D',
+    fontSize: 9.5,
+    fontWeight: '800',
+  },
+  packageBtnTextActive: {
+    color: '#287857',
   },
   detailsBtn: {
     flexDirection: 'row',
