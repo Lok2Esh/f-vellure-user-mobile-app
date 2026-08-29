@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================================
+   Remove Outlines, Focus Rings, and Browser Highlights Everywhere
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+input,
+textarea,
+select,
+button,
+[tabindex],
+[role="textbox"],
+[role="button"],
+[role="tab"],
+[data-focusable="true"] {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+button:focus,
+button:focus-visible,
+[tabindex]:focus,
+[tabindex]:focus-visible,
+[role="textbox"]:focus,
+[role="textbox"]:focus-visible,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+[data-focusable="true"]:focus,
+[data-focusable="true"]:focus-visible {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  box-shadow: none !important;
+}

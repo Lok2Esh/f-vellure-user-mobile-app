@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Search, X, MapPin } from 'lucide-react-native';
 import { theme } from '../../constants/theme';
+import { VellureSearchInput } from './VellureInputField';
 
 export interface CityEntry {
   city: string;
@@ -61,25 +62,13 @@ export function CityPickerModal({ visible, onClose, onSelect, cities }: CityPick
           </View>
 
           {/* Search Bar */}
-          <View className="px-5 py-4 border-b" style={{ borderColor: theme.colors.border.light, backgroundColor: '#FFFFFF' }}>
-            <View className="flex-row items-center rounded-xl px-4 py-3 border" style={{ backgroundColor: theme.colors.background.primary, borderColor: theme.colors.border.medium }}>
-              <Search size={18} color={theme.colors.text.tertiary} strokeWidth={2} />
-              <TextInput
-                className="flex-1 ml-3 text-[15px] p-0"
-                style={{ color: theme.colors.text.primary, outline: 'none' } as any}
-                placeholder="Search city or state..."
-                placeholderTextColor={theme.colors.text.disabled}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoFocus={false}
-                selectionColor={theme.colors.brand.gold}
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <X size={16} color={theme.colors.text.tertiary} />
-                </TouchableOpacity>
-              )}
-            </View>
+          <View className="px-5 py-3 border-b" style={{ borderColor: theme.colors.border.light, backgroundColor: '#FFFFFF' }}>
+            <VellureSearchInput
+              placeholder="Search city or state..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+            />
           </View>
 
           {/* List */}

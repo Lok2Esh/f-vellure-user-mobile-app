@@ -1,74 +1,133 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { theme } from '../../constants/theme';
+import { colors } from '../../constants/theme';
 
 interface CalendarModalProps {
   visible: boolean;
-  currentDate: string;
+  currentDate?: string;
   onClose: () => void;
   onDateSelect: (dateString: string, formattedDate: string) => void;
 }
 
-export function CalendarModal({ visible, currentDate, onClose, onDateSelect }: CalendarModalProps) {
+export function CalendarModal({
+  visible,
+  currentDate = new Date().toISOString().split('T')[0],
+  onClose,
+  onDateSelect,
+}: CalendarModalProps) {
+  const safeDate = currentDate || new Date().toISOString().split('T')[0];
+
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 justify-center items-center px-5" style={{ backgroundColor: theme.colors.background.modalOverlay }}>
-        <View className="w-full p-5 rounded-[24px] shadow-2xl elevation-xl border" 
-              style={{ backgroundColor: theme.colors.background.primary, borderColor: theme.colors.border.medium }}>
-          
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={styles.overlay}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>Select Event Date</Text>
           <Calendar
-            current={currentDate}
+            current={safeDate}
+            minDate={new Date().toISOString().split('T')[0]}
             onDayPress={(day: any) => {
+              if (!day?.timestamp) return;
               const d = new Date(day.timestamp);
               const formattedDate = d.toLocaleDateString('en-GB', {
                 day: '2-digit',
                 month: 'short',
-                year: 'numeric'
+                year: 'numeric',
               });
               onDateSelect(day.dateString, formattedDate);
             }}
             theme={{
-              backgroundColor: theme.colors.background.primary,
-              calendarBackground: theme.colors.background.primary,
-              textSectionTitleColor: theme.colors.text.disabled,
-              selectedDayBackgroundColor: theme.colors.brand.burgundyLight,
-              selectedDayTextColor: theme.colors.text.inverse,
-              todayTextColor: theme.colors.brand.goldDark,
-              dayTextColor: theme.colors.text.secondary,
-              textDisabledColor: '#D9e1e8',
-              arrowColor: theme.colors.brand.burgundyLight,
-              monthTextColor: theme.colors.brand.burgundyDark,
-              indicatorColor: theme.colors.brand.burgundyLight,
-              textDayFontWeight: '500',
-              textMonthFontWeight: 'bold',
-              textDayHeaderFontWeight: 'bold',
+              backgroundColor: '#FDFBF7',
+              calendarBackground: '#FDFBF7',
+              textSectionTitleColor: '#8C7B73',
+              selectedDayBackgroundColor: colors?.wine || '#78123C',
+              selectedDayTextColor: '#FFFFFF',
+              todayTextColor: colors?.gold || '#D2AD6B',
+              dayTextColor: colors?.textPrimary || '#2D2025',
+              textDisabledColor: '#D9D1C5',
+              arrowColor: colors?.primary || '#641E3D',
+              monthTextColor: colors?.primary || '#641E3D',
+              indicatorColor: colors?.primary || '#641E3D',
+              textDayFontWeight: '600',
+              textMonthFontWeight: '800',
+              textDayHeaderFontWeight: '700',
               textDayFontSize: 14,
-              textMonthFontSize: 18,
-              textDayHeaderFontSize: 11
+              textMonthFontSize: 17,
+              textDayHeaderFontSize: 11,
             }}
             markedDates={{
-              [currentDate]: { 
-                selected: true, 
-                disableTouchEvent: true, 
-                selectedColor: theme.colors.brand.burgundyLight, 
-                selectedTextColor: theme.colors.text.inverse 
-              }
+              [safeDate]: {
+                selected: true,
+                disableTouchEvent: true,
+                selectedColor: colors?.wine || '#78123C',
+                selectedTextColor: '#FFFFFF',
+              },
             }}
-            style={{ borderRadius: 16, paddingBottom: 10 }}
+            style={styles.calendarStyle}
           />
-          
-          <TouchableOpacity 
-            className="mt-3 py-3.5 rounded-xl border items-center"
-            style={{ backgroundColor: theme.colors.background.cancelBtn, borderColor: theme.colors.border.goldSoft }}
+
+          <TouchableOpacity
+            style={styles.cancelBtn}
             onPress={onClose}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel date selection"
           >
-            <Text className="font-bold text-[14px] tracking-wide" style={{ color: theme.colors.brand.burgundyDark }}>
-              Cancel
-            </Text>
+            <Text style={styles.cancelBtnText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(20, 10, 15, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FDFBF7',
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
+    elevation: 10,
+  },
+  modalTitle: {
+    color: '#641E3D',
+    fontSize: 16,
+    fontWeight: '900',
+    textAlign: 'center',
+    marginBottom: 12,
+    letterSpacing: -0.2,
+  },
+  calendarStyle: {
+    borderRadius: 16,
+    paddingBottom: 8,
+    backgroundColor: '#FDFBF7',
+  },
+  cancelBtn: {
+    marginTop: 10,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: '#FAF1E3',
+    borderWidth: 1,
+    borderColor: '#ECD8B5',
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    color: '#641E3D',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+});

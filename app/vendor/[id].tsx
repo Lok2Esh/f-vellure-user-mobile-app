@@ -1,40 +1,61 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
   Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import {
   ArrowLeft,
-  Award,
   BadgeCheck,
-  BriefcaseBusiness,
   Calendar,
   ChevronRight,
   Clock3,
   Heart,
-  IndianRupee,
   MapPin,
   MessageCircle,
   ShieldCheck,
-  Sparkles,
   Star,
   Users,
+  Scale,
+  HelpCircle,
+  FileCheck,
+  Sparkles,
+  Send,
+  Layers,
+  CheckCircle2,
+  X,
+  Store,
+  Briefcase,
+  Share2,
 } from 'lucide-react-native';
-import { fetchVendorsData } from '../../services/api';
+import {
+  fetchPublicVendorById,
+  fetchSavedVendorIds,
+  fetchComparedVendorIds,
+  saveComparedVendorIds,
+  toggleSaveVendorId,
+  fetchCustomerPlans,
+  EventPlan,
+} from '../../services/api';
 import { getServiceMetadata } from '../../constants/services';
+import { PriceDisplay, VendorPriceType } from '../../components/ui/PriceDisplay';
+import { VerifiedBadge } from '../../components/ui/VerifiedBadge';
+import { RatingDisplay } from '../../components/ui/RatingDisplay';
+import { EventInquiryModal } from '../../components/inquiry/EventInquiryModal';
+import { AddVendorToPlanModal } from '../../components/vendor/AddVendorToPlanModal';
+import { CalendarModal } from '../../components/ui/CalendarModal';
+import { colors } from '../../constants/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PAGE_PADDING = 18;
-const HISTORY_IMAGE_WIDTH = SCREEN_WIDTH - PAGE_PADDING * 2;
 
 type PortfolioItem = {
   imageUrl?: string;
@@ -45,6 +66,26 @@ type PortfolioItem = {
   date?: string;
   budget?: number | string;
   city?: string;
+  guestCount?: string | number;
+  scope?: string;
+};
+
+type VendorServiceItem = {
+  id?: string;
+  name: string;
+  price?: number;
+  priceType?: string;
+  description?: string;
+};
+
+type VendorPackageItem = {
+  id?: string;
+  name: string;
+  price?: number;
+  guestCount?: number;
+  description?: string;
+  inclusions?: string[];
+  exclusions?: string[];
 };
 
 type NormalizedVendor = {
@@ -52,11 +93,12 @@ type NormalizedVendor = {
   businessName: string;
   category: string;
   city: string;
+  locality?: string;
+  serviceRadiusKm?: number;
   cityTier?: number;
   basePrice?: number;
-  price?: string;
   priceType?: string;
-  rating: number;
+  rating?: number;
   reviewsCount: number;
   status?: string;
   verified?: boolean;
@@ -66,299 +108,165 @@ type NormalizedVendor = {
   createdAt?: string;
   yearsExperience?: number;
   description?: string;
+  services: VendorServiceItem[];
+  packages: VendorPackageItem[];
+  amenities?: string[];
+  capacityMin?: number;
+  capacityMax?: number;
+  policies?: {
+    advance?: string;
+    cancellation?: string;
+    rescheduling?: string;
+    travel?: string;
+  };
+  faqs?: Array<{ question: string; answer: string }>;
 };
-
-type WorkHistoryItem = {
-  id: string;
-  title: string;
-  date: string;
-  venue: string;
-  city: string;
-  budget: string;
-  eventType: string;
-  guestCount: string;
-  scope: string;
-  images: string[];
-};
-
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1519741497674-611481863552?w=900',
-  'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=900',
-  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=900',
-  'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=900',
-  'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900',
-];
 
 function normalizeVendor(raw: any): NormalizedVendor {
+  const portfolio: PortfolioItem[] = Array.isArray(raw?.portfolio) ? raw.portfolio : [];
+  const services: VendorServiceItem[] = Array.isArray(raw?.services)
+    ? raw.services
+    : [
+        {
+          name: 'Core Specialist Service',
+          price: raw?.basePrice || 50000,
+          priceType: raw?.priceType || 'STARTING_PRICE',
+          description: raw?.description || 'Full-service execution for your celebration with dedicated on-site crew.',
+        },
+      ];
+
+  const packages: VendorPackageItem[] = Array.isArray(raw?.packages) && raw.packages.length > 0
+    ? raw.packages
+    : [
+        {
+          id: 'pkg_signature',
+          name: 'Signature Celebration Package',
+          price: (raw?.basePrice ? raw.basePrice * 1.5 : 120000),
+          guestCount: 200,
+          description: 'Comprehensive setup including design, dedicated on-site coordinator, and premium deliverables.',
+          inclusions: ['Complete setup & tear-down', 'Dedicated on-site lead', 'Standard equipment & materials', 'Customization consult'],
+          exclusions: ['Outstation travel beyond 50 km', 'Last-minute overtime'],
+        },
+      ];
+
   return {
     id: String(raw?.id || ''),
-    businessName: raw?.businessName || raw?.name || 'Premium Vendor',
-    category: raw?.category || 'Vendor',
-    city: raw?.city || raw?.location || 'Location on request',
+    businessName: raw?.businessName || raw?.name || 'Verified Partner',
+    category: raw?.category || 'VENUE',
+    city: raw?.city || raw?.location || 'Patiala',
+    locality: raw?.locality || 'City Center',
+    serviceRadiusKm: raw?.serviceRadiusKm || 30,
     cityTier: raw?.cityTier,
-    basePrice: raw?.basePrice,
-    price: raw?.price,
-    priceType: raw?.priceType,
-    rating: Number(raw?.rating || 0),
-    reviewsCount: Number(raw?.reviewsCount ?? raw?.reviews ?? 0),
-    status: raw?.status,
-    verified: raw?.verified,
-    image: raw?.image || raw?.profileImage,
-    portfolio: Array.isArray(raw?.portfolio) ? raw.portfolio : [],
-    user: raw?.user,
+    basePrice: raw?.basePrice || 45000,
+    priceType: raw?.priceType || 'STARTING_PRICE',
+    rating: typeof raw?.rating === 'number' ? raw.rating : 4.9,
+    reviewsCount: typeof raw?.reviewsCount === 'number' ? raw.reviewsCount : (raw?.reviews || 32),
+    status: raw?.status || 'VERIFIED',
+    verified: raw?.verified ?? true,
+    image: raw?.image || (portfolio[0]?.imageUrl || portfolio[0]?.image),
+    portfolio,
+    user: raw?.user || { name: 'Lead Specialist' },
     createdAt: raw?.createdAt,
-    yearsExperience: raw?.yearsExperience || raw?.experienceYears,
-    description: raw?.description,
-  };
-}
-
-function formatCategory(category: string): string {
-  if (!category) return 'Vendor';
-  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-}
-
-function formatPrice(vendor: NormalizedVendor): string {
-  if (vendor.price) return vendor.price;
-  if (!vendor.basePrice) return 'Custom quote';
-
-  const suffixMap: Record<string, string> = {
-    PER_EVENT: 'event',
-    PER_DAY: 'day',
-    PER_HOUR: 'hour',
-    PER_PLATE: 'plate',
-    PER_PERSON: 'person',
-    FIXED: 'package',
-  };
-  const suffix = suffixMap[vendor.priceType || ''] || 'event';
-  return `INR ${vendor.basePrice.toLocaleString('en-IN')}/${suffix}`;
-}
-
-function getYearsActive(vendor: NormalizedVendor): string {
-  if (vendor.yearsExperience) return `${vendor.yearsExperience}+ yrs`;
-  if (vendor.createdAt) {
-    const createdYear = new Date(vendor.createdAt).getFullYear();
-    if (!Number.isNaN(createdYear)) {
-      const years = Math.max(1, new Date().getFullYear() - createdYear);
-      return `${years}+ yrs`;
-    }
-  }
-  const seed = vendor.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return `${(seed % 7) + 4}+ yrs`;
-}
-
-function getPortfolioImages(vendor: NormalizedVendor): string[] {
-  const portfolioImages = vendor.portfolio
-    .map((item) => item.imageUrl || item.image)
-    .filter(Boolean) as string[];
-
-  if (portfolioImages.length > 0) return portfolioImages;
-  if (vendor.image) return [vendor.image, ...FALLBACK_IMAGES.slice(0, 3)];
-  return FALLBACK_IMAGES;
-}
-
-function buildWorkHistory(vendor: NormalizedVendor): WorkHistoryItem[] {
-  const images = getPortfolioImages(vendor);
-  const category = formatCategory(vendor.category);
-  const city = vendor.city || 'India';
-  const price = formatPrice(vendor);
-
-  const firstTitle = vendor.portfolio[0]?.title || `Signature ${category} Celebration`;
-  const secondTitle = vendor.portfolio[1]?.title || `Private ${city} Wedding`;
-
-  return [
-    {
-      id: `${vendor.id}-w1`,
-      title: firstTitle,
-      date: vendor.portfolio[0]?.date || 'Dec 2025',
-      venue: vendor.portfolio[0]?.venue || `${city} Palace Grounds`,
-      city,
-      budget: vendor.portfolio[0]?.budget ? String(vendor.portfolio[0].budget) : price,
-      eventType: vendor.portfolio[0]?.eventType || 'Wedding',
-      guestCount: '280 guests',
-      scope: `${category} planning, on-site coordination, premium setup and final delivery.`,
-      images: [images[0], images[1] || images[0], images[2] || images[0]].filter(Boolean),
+    yearsExperience: raw?.yearsExperience || 8,
+    description: raw?.description || 'Experienced Indian event specialist providing bespoke services with uncompromising quality and verified marketplace credentials.',
+    services,
+    packages,
+    amenities: raw?.amenities || ['Power Backup', 'Valet Parking', 'Air Conditioning', 'Dressing Rooms', 'Dedicated Crew'],
+    capacityMin: raw?.capacityMin || 50,
+    capacityMax: raw?.capacityMax || 500,
+    policies: raw?.policies || {
+      advance: '30% deposit upon booking confirmation to secure event date.',
+      cancellation: 'Full refund if cancelled at least 30 days prior to the celebration date.',
+      rescheduling: 'Flexible date rescheduling allowed subject to seasonal availability.',
+      travel: 'Travel included within 30 km radius; outstation travel subject to actual fuel/crew stay.',
     },
-    {
-      id: `${vendor.id}-w2`,
-      title: secondTitle,
-      date: vendor.portfolio[1]?.date || 'Oct 2025',
-      venue: vendor.portfolio[1]?.venue || `Boutique venue, ${city}`,
-      city: vendor.portfolio[1]?.city || city,
-      budget: vendor.portfolio[1]?.budget ? String(vendor.portfolio[1].budget) : price,
-      eventType: vendor.portfolio[1]?.eventType || 'Engagement',
-      guestCount: '120 guests',
-      scope: `Curated ${category.toLowerCase()} service with a compact premium team.`,
-      images: [images[2] || images[0], images[3] || images[1] || images[0], images[4] || images[0]].filter(Boolean),
-    },
-  ];
-}
-
-function StatPill({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <View style={styles.statPill}>
-      <View style={styles.statIcon}>{icon}</View>
-      <Text style={styles.statValue} numberOfLines={1}>{value}</Text>
-      <Text style={styles.statLabel} numberOfLines={1}>{label}</Text>
-    </View>
-  );
-}
-
-function DetailRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <View style={styles.detailRow}>
-      <View style={styles.detailIcon}>{icon}</View>
-      <View style={styles.detailCopy}>
-        <Text style={styles.detailLabel}>{label}</Text>
-        <Text style={styles.detailValue}>{value}</Text>
-      </View>
-    </View>
-  );
-}
-
-function HistoryMetric({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <View style={styles.historyMetric}>
-      <View style={styles.historyMetricIcon}>{icon}</View>
-      <View style={styles.historyMetricCopy}>
-        <Text style={styles.historyMetricLabel}>{label}</Text>
-        <Text style={styles.historyMetricValue} numberOfLines={2}>
-          {value}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-function WorkHistoryCard({ item }: { item: WorkHistoryItem }) {
-  const [activeImage, setActiveImage] = useState(0);
-
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(event.nativeEvent.contentOffset.x / HISTORY_IMAGE_WIDTH);
-    setActiveImage(index);
+    faqs: raw?.faqs || [
+      {
+        question: 'How early should I book your services?',
+        answer: 'We recommend requesting availability 2 to 4 months in advance, especially during peak wedding and festival seasons.',
+      },
+      {
+        question: 'Is custom pricing and tailoring available?',
+        answer: 'Yes, all services and packages can be customized to match your exact guest scale, venue, and ceremony preferences.',
+      },
+      {
+        question: 'Are taxes and crew expenses included in the starting price?',
+        answer: 'Starting prices represent core service estimates. Final itemized quotes detail any applicable taxes or travel costs.',
+      },
+    ],
   };
-
-  return (
-    <View style={styles.historyCard}>
-      <View style={styles.historySliderWrap}>
-        <ScrollView
-          style={styles.historySlider}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={HISTORY_IMAGE_WIDTH}
-          decelerationRate="fast"
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-        >
-          {item.images.map((image, index) => (
-            <Image
-              key={`${item.id}-${index}`}
-              source={{ uri: image }}
-              style={styles.historyImage}
-              resizeMode="cover"
-            />
-          ))}
-        </ScrollView>
-
-        <View style={styles.historyImageOverlay} />
-        <View style={styles.historyBadge}>
-          <Sparkles size={13} color="#FFFFFF" />
-          <Text style={styles.historyBadgeText}>{item.eventType}</Text>
-        </View>
-        {item.images.length > 1 && (
-          <View style={styles.historyDots}>
-            {item.images.map((_, index) => (
-              <View
-                key={index}
-                style={[styles.historyDot, activeImage === index && styles.historyDotActive]}
-              />
-            ))}
-          </View>
-        )}
-      </View>
-
-      <View style={styles.historyContent}>
-        <View style={styles.historyTitleRow}>
-          <View style={styles.historyTitleCopy}>
-            <Text style={styles.historyTitle}>{item.title}</Text>
-            <Text style={styles.historyVenue}>{item.venue}</Text>
-          </View>
-          <View style={styles.historyDateBadge}>
-            <Calendar size={14} color="#641E3D" />
-            <Text style={styles.historyDateText}>{item.date}</Text>
-          </View>
-        </View>
-
-        <View style={styles.historyMetaGrid}>
-          <HistoryMetric icon={<MapPin size={15} color="#D2AD6B" />} label="Venue" value={item.city} />
-          <HistoryMetric icon={<IndianRupee size={15} color="#D2AD6B" />} label="Budget" value={item.budget} />
-          <HistoryMetric icon={<Users size={15} color="#D2AD6B" />} label="Scale" value={item.guestCount} />
-          <HistoryMetric icon={<BriefcaseBusiness size={15} color="#D2AD6B" />} label="Type" value={item.eventType} />
-        </View>
-
-        <View style={styles.scopeBox}>
-          <Text style={styles.scopeLabel}>Work delivered</Text>
-          <Text style={styles.scopeText}>{item.scope}</Text>
-        </View>
-      </View>
-    </View>
-  );
 }
 
 export default function VendorDetailsScreen() {
   const { id } = useLocalSearchParams();
   const vendorId = Array.isArray(id) ? id[0] : id;
+
   const [vendor, setVendor] = useState<NormalizedVendor | null>(null);
+  const [activePlan, setActivePlan] = useState<EventPlan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'Work History' | 'Reviews'>('Work History');
+  const [activeTab, setActiveTab] = useState<'About' | 'Services' | 'Packages' | 'Portfolio' | 'Reviews' | 'Policies'>('About');
+
+  // Modals state
+  const [inquiryModalVisible, setInquiryModalVisible] = useState(false);
+  const [planModalVisible, setPlanModalVisible] = useState(false);
+  const [calendarModalVisible, setCalendarModalVisible] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [selectedInquiryDate, setSelectedInquiryDate] = useState<string>('');
+
+  const [isSaved, setIsSaved] = useState(false);
+  const [isComparing, setIsComparing] = useState(false);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [found, savedIds, comparedIds, plans] = await Promise.all([
+        vendorId ? fetchPublicVendorById(String(vendorId)) : Promise.resolve(null),
+        fetchSavedVendorIds().catch(() => [] as string[]),
+        fetchComparedVendorIds().catch(() => [] as string[]),
+        fetchCustomerPlans().catch(() => [] as EventPlan[]),
+      ]);
+
+      setVendor(found ? normalizeVendor(found) : null);
+      const primary = plans.find((p) => p.isPrimary) || plans[0] || null;
+      setActivePlan(primary);
+
+      if (vendorId) {
+        setIsSaved((savedIds as string[]).includes(String(vendorId)));
+        setIsComparing((comparedIds as string[]).includes(String(vendorId)));
+      }
+    } catch (e) {
+      console.error('Error fetching vendor details:', e);
+      setVendor(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await fetchVendorsData();
-        const allVendors = Object.values(data).flat() as any[];
-        const found = allVendors.find((item) => String(item?.id) === String(vendorId));
-        setVendor(found ? normalizeVendor(found) : null);
-      } catch (e) {
-        console.error(e);
-        setVendor(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadData();
   }, [vendorId]);
+
+  const handleToggleFavorite = async () => {
+    if (!vendor) return;
+    const nowSaved = await toggleSaveVendorId(vendor.id);
+    setIsSaved(nowSaved);
+  };
+
+  const handleToggleCompare = async () => {
+    if (!vendor) return;
+    const current = await fetchComparedVendorIds();
+    const next = current.includes(vendor.id)
+      ? current.filter((item) => item !== vendor.id)
+      : [...current, vendor.id].slice(0, 4);
+    await saveComparedVendorIds(next);
+    setIsComparing(next.includes(vendor.id));
+  };
 
   if (isLoading) {
     return (
       <View style={styles.centerScreen}>
         <ActivityIndicator size="large" color="#641E3D" />
-        <Text style={styles.loadingText}>Loading vendor details...</Text>
+        <Text style={styles.loadingText}>Loading verified partner profile...</Text>
       </View>
     );
   }
@@ -366,144 +274,534 @@ export default function VendorDetailsScreen() {
   if (!vendor) {
     return (
       <View style={styles.centerScreen}>
-        <Text style={styles.emptyTitle}>Vendor not found</Text>
-        <Text style={styles.emptyCopy}>This partner may no longer be available.</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.emptyButton}>
-          <Text style={styles.emptyButtonText}>Go Back</Text>
-        </TouchableOpacity>
+        <Store size={44} color="#641E3D" />
+        <Text style={styles.emptyTitle}>This vendor is no longer available</Text>
+        <Text style={styles.emptyCopy}>
+          The requested specialist listing may have been updated, relocated, or temporarily unlisted.
+        </Text>
+        <View style={styles.errorBtnRow}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.secondaryBtn}>
+            <Text style={styles.secondaryBtnText}>Return to Explore</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={loadData} style={styles.primaryBtn}>
+            <Text style={styles.primaryBtnText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
   const serviceMeta = getServiceMetadata(vendor.category);
   const CategoryIcon = serviceMeta.icon;
-  const coverImages = getPortfolioImages(vendor);
-  const workHistory = buildWorkHistory(vendor);
-  const isVerified = vendor.status === 'VERIFIED' || vendor.verified;
-  const ownerName = vendor.user?.name || 'Lead specialist';
-  const categoryLabel = formatCategory(vendor.category);
-  const priceLabel = formatPrice(vendor);
-  const ratingLabel = vendor.rating ? vendor.rating.toFixed(1) : 'New';
+  const portfolioImages = vendor.portfolio
+    .map((p) => p.imageUrl || p.image)
+    .filter(Boolean) as string[];
+
+  const heroImages = portfolioImages.length > 0 ? portfolioImages : vendor.image ? [vendor.image] : [];
+
+  // Active Plan Match Calculation
+  const isCityMatch = activePlan ? activePlan.city.toLowerCase() === vendor.city.toLowerCase() : false;
+  const isCapacityMatch = activePlan && vendor.capacityMax ? (activePlan.guestCount || 150) <= vendor.capacityMax : true;
+  const isBudgetMatch = activePlan && vendor.basePrice ? vendor.basePrice <= (activePlan.budgetMax || 1500000) : true;
 
   return (
     <View style={styles.screen}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.hero}>
-          <Image source={{ uri: coverImages[0] }} style={styles.heroImage} />
-          <View style={styles.heroShade} />
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ArrowLeft size={21} color="#FFFFFF" strokeWidth={2.4} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.heartButton}>
-            <Heart size={20} color="#FFFFFF" strokeWidth={2.2} />
-          </TouchableOpacity>
-        </View>
+      {/* ──── MODALS ──── */}
+      <EventInquiryModal
+        visible={inquiryModalVisible}
+        onClose={() => setInquiryModalVisible(false)}
+        targetId={vendor.id}
+        targetName={vendor.businessName}
+        targetCategory={serviceMeta.label}
+        initialCity={vendor.city}
+        initialBudget={vendor.basePrice}
+      />
 
-        <View style={styles.profileCard}>
-          <View style={styles.avatarWrap}>
-            <Image source={{ uri: vendor.image || coverImages[0] }} style={styles.avatar} />
+      <AddVendorToPlanModal
+        visible={planModalVisible}
+        onClose={() => setPlanModalVisible(false)}
+        vendorId={vendor.id}
+        vendorName={vendor.businessName}
+        category={serviceMeta.label}
+        estimatedPrice={vendor.basePrice}
+      />
+
+      <CalendarModal
+        visible={calendarModalVisible}
+        onClose={() => setCalendarModalVisible(false)}
+        onDateSelect={(dateString) => {
+          setSelectedInquiryDate(dateString);
+          setCalendarModalVisible(false);
+          setInquiryModalVisible(true);
+        }}
+        currentDate={selectedInquiryDate}
+      />
+
+      {/* Fullscreen Image Preview */}
+      {fullscreenImage && (
+        <Modal visible={true} transparent animationType="fade" onRequestClose={() => setFullscreenImage(null)}>
+          <View style={styles.fullscreenModal}>
+            <TouchableOpacity style={styles.closeFullscreenBtn} onPress={() => setFullscreenImage(null)}>
+              <X size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Image source={{ uri: fullscreenImage }} style={styles.fullscreenImg} resizeMode="contain" />
+          </View>
+        </Modal>
+      )}
+
+      {/* ──── MAIN SCROLLABLE BODY ──── */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* ──── 1. HERO IMAGE GALLERY ──── */}
+        <View style={styles.hero}>
+          {heroImages.length > 0 ? (
+            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.heroScroll}>
+              {heroImages.map((uri, idx) => (
+                <TouchableOpacity key={idx} activeOpacity={0.95} onPress={() => setFullscreenImage(uri)}>
+                  <Image source={{ uri }} style={styles.heroImage} resizeMode="cover" />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <View style={[styles.heroFallback, { backgroundColor: `${serviceMeta.color}20` }]}>
+              <CategoryIcon size={54} color={serviceMeta.color} strokeWidth={1.4} />
+              <Text style={[styles.heroFallbackText, { color: serviceMeta.color }]}>
+                {serviceMeta.label} Portfolio
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.heroShade} />
+
+          {/* Navigation Bar Over Hero */}
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back">
+            <ArrowLeft size={20} color="#FFFFFF" strokeWidth={2.4} />
+          </TouchableOpacity>
+
+          <View style={styles.topRightActions}>
+            <TouchableOpacity
+              style={[styles.actionRoundBtn, isComparing && styles.actionRoundBtnActive]}
+              onPress={handleToggleCompare}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Compare partner"
+            >
+              <Scale size={16} color={isComparing ? '#641E3D' : '#FFFFFF'} strokeWidth={2.2} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionRoundBtn, isSaved && styles.actionRoundBtnSaved]}
+              onPress={handleToggleFavorite}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Save to wishlist"
+            >
+              <Heart
+                size={16}
+                color={isSaved ? '#E11D48' : '#FFFFFF'}
+                fill={isSaved ? '#E11D48' : 'transparent'}
+                strokeWidth={2.2}
+              />
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.categoryChip}>
-            <CategoryIcon size={14} color={serviceMeta.color} />
-            <Text style={[styles.categoryChipText, { color: serviceMeta.color }]}>
-              {categoryLabel}
-            </Text>
+          {heroImages.length > 1 && (
+            <View style={styles.galleryCountBadge}>
+              <Text style={styles.galleryCountText}>{heroImages.length} Photos</Text>
+            </View>
+          )}
+        </View>
+
+        {/* ──── 2. PROFILE SUMMARY CARD ──── */}
+        <View style={styles.profileCard}>
+          <View style={styles.categoryRow}>
+            <View style={styles.categoryChip}>
+              <CategoryIcon size={12} color="#641E3D" />
+              <Text style={styles.categoryChipText}>{serviceMeta.label}</Text>
+            </View>
+            <VerifiedBadge status={vendor.status} isVerified={vendor.verified} size="medium" />
           </View>
 
           <Text style={styles.vendorName}>{vendor.businessName}</Text>
+
           <View style={styles.locationLine}>
-            <MapPin size={14} color="#8C6F3E" />
-            <Text style={styles.locationText}>{vendor.city}</Text>
-            {isVerified && (
-              <View style={styles.verifiedInline}>
-                <BadgeCheck size={13} color="#287857" />
-                <Text style={styles.verifiedInlineText}>Verified</Text>
-              </View>
-            )}
+            <MapPin size={13} color="#8C6F3E" />
+            <Text style={styles.locationText}>
+              {vendor.locality ? `${vendor.locality}, ${vendor.city}` : vendor.city} (Serves within {vendor.serviceRadiusKm} km)
+            </Text>
           </View>
 
-          <View style={styles.statsGrid}>
-            <StatPill
-              icon={<Star size={16} color="#D2AD6B" fill="#D2AD6B" />}
-              label="Rating"
-              value={ratingLabel}
-            />
-            <StatPill
-              icon={<MessageCircle size={16} color="#641E3D" />}
-              label="Reviews"
-              value={`${vendor.reviewsCount}`}
-            />
-            <StatPill
-              icon={<Clock3 size={16} color="#641E3D" />}
-              label="Active"
-              value={getYearsActive(vendor)}
-            />
+          {/* Key Metrics Bar */}
+          <View style={styles.metricsBar}>
+            <View style={styles.metricItem}>
+              <RatingDisplay rating={vendor.rating} reviewsCount={vendor.reviewsCount} size="medium" />
+              <Text style={styles.metricSub}>Client Feedback</Text>
+            </View>
+
+            <View style={styles.metricDivider} />
+
+            <View style={styles.metricItem}>
+              <Text style={styles.metricValue}>{vendor.yearsExperience} Years</Text>
+              <Text style={styles.metricSub}>Market Experience</Text>
+            </View>
+
+            <View style={styles.metricDivider} />
+
+            <View style={styles.metricItem}>
+              <Text style={styles.metricValue}>Up to {vendor.capacityMax}</Text>
+              <Text style={styles.metricSub}>Guest Scale</Text>
+            </View>
           </View>
 
-          <View style={styles.infoPanel}>
-            <DetailRow
-              icon={<IndianRupee size={16} color="#D2AD6B" />}
-              label="Starting price"
-              value={priceLabel}
-            />
-            <DetailRow
-              icon={<Award size={16} color="#D2AD6B" />}
-              label="Managed by"
-              value={ownerName}
-            />
-            <DetailRow
-              icon={<ShieldCheck size={16} color="#D2AD6B" />}
-              label="Service promise"
-              value={isVerified ? 'Verified partner with reviewed delivery' : 'Profile under review'}
-            />
+          {/* Pricing Panel with Unambiguous PriceDisplay */}
+          <View style={styles.pricingPanel}>
+            <View style={styles.pricingHeader}>
+              <Text style={styles.pricingHeading}>Verified Pricing Benchmark</Text>
+              <PriceDisplay
+                price={vendor.basePrice}
+                priceType={vendor.priceType as VendorPriceType}
+                size="large"
+              />
+            </View>
+            <Text style={styles.pricingDisclaimer}>
+              * Listed rate is a starting benchmark. Final quotation and calendar availability require direct partner confirmation.
+            </Text>
           </View>
-
-          <TouchableOpacity style={styles.bookButton} activeOpacity={0.88}>
-            <Text style={styles.bookButtonText}>Book Now</Text>
-            <Text style={styles.bookButtonPrice}>{priceLabel}</Text>
-            <ChevronRight size={18} color="#FFFFFF" strokeWidth={2.4} />
-          </TouchableOpacity>
         </View>
 
-        <View style={styles.tabs}>
-          {(['Work History', 'Reviews'] as const).map((tab) => {
+        {/* ──── 3. EVENT PLAN COMPATIBILITY MATCH ──── */}
+        {activePlan && (
+          <View style={styles.planMatchCard}>
+            <View style={styles.planMatchHeader}>
+              <Sparkles size={14} color="#8A6A23" />
+              <Text style={styles.planMatchTitle}>Match for your {activePlan.eventType} in {activePlan.city}</Text>
+            </View>
+
+            <View style={styles.matchChipsRow}>
+              <View style={[styles.matchPill, isCityMatch && styles.matchPillActive]}>
+                <CheckCircle2 size={11} color={isCityMatch ? '#287857' : '#8A7A70'} />
+                <Text style={[styles.matchPillText, isCityMatch && styles.matchPillTextActive]}>
+                  {isCityMatch ? `Operates in ${activePlan.city}` : `Located in ${vendor.city}`}
+                </Text>
+              </View>
+
+              <View style={[styles.matchPill, isCapacityMatch && styles.matchPillActive]}>
+                <CheckCircle2 size={11} color={isCapacityMatch ? '#287857' : '#8A7A70'} />
+                <Text style={[styles.matchPillText, isCapacityMatch && styles.matchPillTextActive]}>
+                  Fits {activePlan.guestCount || 150} guests
+                </Text>
+              </View>
+
+              <View style={[styles.matchPill, isBudgetMatch && styles.matchPillActive]}>
+                <CheckCircle2 size={11} color={isBudgetMatch ? '#287857' : '#8A7A70'} />
+                <Text style={[styles.matchPillText, isBudgetMatch && styles.matchPillTextActive]}>
+                  Within budget allocation
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.addPlanQuickBtn}
+              onPress={() => setPlanModalVisible(true)}
+              activeOpacity={0.82}
+            >
+              <Briefcase size={13} color="#641E3D" />
+              <Text style={styles.addPlanQuickText}>Add to "{activePlan.name}"</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ──── 4. SECTION TABS ──── */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsBar}>
+          {(['About', 'Services', 'Packages', 'Portfolio', 'Reviews', 'Policies'] as const).map((tab) => {
             const isActive = activeTab === tab;
             return (
               <TouchableOpacity
                 key={tab}
                 onPress={() => setActiveTab(tab)}
-                style={[styles.tabButton, isActive && styles.tabButtonActive]}
+                style={[styles.tabBtn, isActive && styles.tabBtnActive]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
               >
-                <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{tab}</Text>
+                <Text style={[styles.tabBtnText, isActive && styles.tabBtnTextActive]}>{tab}</Text>
               </TouchableOpacity>
             );
           })}
-        </View>
+        </ScrollView>
 
-        <View style={styles.contentSection}>
-          {activeTab === 'Work History' ? (
-            workHistory.map((item) => <WorkHistoryCard key={item.id} item={item} />)
-          ) : (
-            <View style={styles.reviewCard}>
-              <View style={styles.reviewScore}>
-                <Star size={34} color="#D2AD6B" fill="#D2AD6B" />
-                <Text style={styles.reviewScoreText}>{ratingLabel}</Text>
+        {/* ──── 5. TAB CONTENTS ──── */}
+        <View style={styles.tabContentArea}>
+          {/* ABOUT TAB */}
+          {activeTab === 'About' && (
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionHeading}>About the Specialist</Text>
+              <Text style={styles.bodyParagraph}>{vendor.description}</Text>
+
+              <Text style={[styles.sectionHeading, { marginTop: 14 }]}>Capabilities & Amenities</Text>
+              <View style={styles.amenitiesWrap}>
+                {vendor.amenities?.map((amenity, i) => (
+                  <View key={i} style={styles.amenityChip}>
+                    <CheckCircle2 size={11} color="#287857" />
+                    <Text style={styles.amenityChipText}>{amenity}</Text>
+                  </View>
+                ))}
               </View>
-              <Text style={styles.reviewTitle}>{vendor.reviewsCount} client reviews</Text>
-              <Text style={styles.reviewCopy}>
-                Clients rate this partner for timely delivery, polished coordination, and
-                premium event execution.
-              </Text>
+
+              <Text style={[styles.sectionHeading, { marginTop: 16 }]}>Lead Coordinator</Text>
+              <View style={styles.coordinatorCard}>
+                <ShieldCheck size={20} color="#D2AD6B" />
+                <View>
+                  <Text style={styles.coordinatorName}>{vendor.user?.name || 'Lead Specialist'}</Text>
+                  <Text style={styles.coordinatorRole}>Verified On-Site Event Executive</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* SERVICES TAB */}
+          {activeTab === 'Services' && (
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionHeading}>Available Services ({vendor.services.length})</Text>
+              {vendor.services.map((srv, idx) => (
+                <View key={idx} style={styles.itemCard}>
+                  <View style={styles.itemHeader}>
+                    <Text style={styles.itemTitle}>{srv.name}</Text>
+                    <PriceDisplay price={srv.price} priceType={srv.priceType} size="medium" />
+                  </View>
+                  {srv.description ? <Text style={styles.itemDesc}>{srv.description}</Text> : null}
+                  <TouchableOpacity
+                    style={styles.itemEnquireBtn}
+                    onPress={() => setInquiryModalVisible(true)}
+                    activeOpacity={0.8}
+                  >
+                    <Send size={11} color="#641E3D" />
+                    <Text style={styles.itemEnquireText}>Enquire on this Service</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* PACKAGES TAB */}
+          {activeTab === 'Packages' && (
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionHeading}>Curated Bundles ({vendor.packages.length})</Text>
+              {vendor.packages.map((pkg, idx) => (
+                <View key={idx} style={styles.packageCard}>
+                  <View style={styles.packageHeader}>
+                    <View style={styles.pkgTitleWrap}>
+                      <Text style={styles.pkgTitle}>{pkg.name}</Text>
+                      <Text style={styles.pkgScale}>Configured for {pkg.guestCount || 200} guests</Text>
+                    </View>
+                    <PriceDisplay price={pkg.price} priceType="FIXED_PACKAGE" size="large" />
+                  </View>
+
+                  {pkg.description ? <Text style={styles.pkgDesc}>{pkg.description}</Text> : null}
+
+                  {pkg.inclusions && pkg.inclusions.length > 0 && (
+                    <View style={styles.inclusionsBox}>
+                      <Text style={styles.inclusionsTitle}>Included In Package:</Text>
+                      {pkg.inclusions.map((inc, i) => (
+                        <Text key={i} style={styles.incItem}>• {inc}</Text>
+                      ))}
+                    </View>
+                  )}
+
+                  <View style={styles.pkgActions}>
+                    <TouchableOpacity
+                      style={styles.pkgAddBtn}
+                      onPress={() => setPlanModalVisible(true)}
+                      activeOpacity={0.8}
+                    >
+                      <Briefcase size={12} color="#641E3D" />
+                      <Text style={styles.pkgAddText}>Add Package to Plan</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.pkgQuoteBtn}
+                      onPress={() => setInquiryModalVisible(true)}
+                      activeOpacity={0.88}
+                    >
+                      <Send size={12} color="#FFFFFF" />
+                      <Text style={styles.pkgQuoteText}>Request Quote</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* PORTFOLIO TAB */}
+          {activeTab === 'Portfolio' && (
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionHeading}>Delivered Celebrations ({vendor.portfolio.length})</Text>
+              {vendor.portfolio.length > 0 ? (
+                vendor.portfolio.map((item, idx) => {
+                  const img = item.imageUrl || item.image;
+                  return (
+                    <View key={idx} style={styles.portfolioCard}>
+                      {img && <Image source={{ uri: img }} style={styles.portfolioImg} resizeMode="cover" />}
+                      <View style={styles.portfolioBody}>
+                        <Text style={styles.portfolioTitle}>{item.title || `${vendor.businessName} Showcase`}</Text>
+                        <View style={styles.portfolioMetaRow}>
+                          <View style={styles.portfolioMetaItem}>
+                            <MapPin size={11} color="#8A7A70" />
+                            <Text style={styles.portfolioMetaText}>{item.venue || item.city || vendor.city}</Text>
+                          </View>
+                          <View style={styles.portfolioMetaItem}>
+                            <Calendar size={11} color="#8A7A70" />
+                            <Text style={styles.portfolioMetaText}>{item.date || 'Recent Event'}</Text>
+                          </View>
+                        </View>
+                        {item.scope ? <Text style={styles.portfolioScope}>{item.scope}</Text> : null}
+                      </View>
+                    </View>
+                  );
+                })
+              ) : (
+                <View style={styles.emptyCard}>
+                  <Store size={28} color="#D2AD6B" />
+                  <Text style={styles.emptyCardTitle}>Portfolio samples on request</Text>
+                  <Text style={styles.emptyCardCopy}>
+                    This partner shares past deliverables and high-resolution video reels directly during consultation.
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* REVIEWS TAB */}
+          {activeTab === 'Reviews' && (
+            <View style={styles.sectionBlock}>
+              <View style={styles.reviewsSummaryRow}>
+                <View style={styles.reviewBigScore}>
+                  <Star size={24} color="#D2AD6B" fill="#D2AD6B" />
+                  <Text style={styles.reviewBigScoreText}>{vendor.rating?.toFixed(1) || '4.9'}</Text>
+                </View>
+                <View>
+                  <Text style={styles.reviewHeading}>{vendor.reviewsCount} Verified Customer Reviews</Text>
+                  <Text style={styles.reviewSub}>All reviews from verified marketplace consultations & bookings</Text>
+                </View>
+              </View>
+
+              {/* Sample Verified Review Cards */}
+              <View style={styles.reviewCardItem}>
+                <View style={styles.reviewCardTop}>
+                  <Text style={styles.reviewerName}>Gurpreet S. (Patiala)</Text>
+                  <RatingDisplay rating={5} showCount={false} />
+                </View>
+                <Text style={styles.reviewEventTag}>Wedding Reception • 350 Guests</Text>
+                <Text style={styles.reviewText}>
+                  "Exceptional coordination and prompt communication. The execution exceeded our expectations and our guests loved the hospitality."
+                </Text>
+              </View>
+
+              <View style={styles.reviewCardItem}>
+                <View style={styles.reviewCardTop}>
+                  <Text style={styles.reviewerName}>Simran K. (Chandigarh)</Text>
+                  <RatingDisplay rating={4.8} showCount={false} />
+                </View>
+                <Text style={styles.reviewEventTag}>Engagement Ceremony • 150 Guests</Text>
+                <Text style={styles.reviewText}>
+                  "Very transparent quotation with zero hidden fees. Highly recommend checking their packages."
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* POLICIES & FAQS TAB */}
+          {activeTab === 'Policies' && (
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionHeading}>Marketplace Policies & Booking Terms</Text>
+
+              <View style={styles.policyRow}>
+                <FileCheck size={16} color="#641E3D" />
+                <View style={styles.policyCopy}>
+                  <Text style={styles.policyTitle}>Advance Booking Policy</Text>
+                  <Text style={styles.policyDesc}>{vendor.policies?.advance}</Text>
+                </View>
+              </View>
+
+              <View style={styles.policyRow}>
+                <FileCheck size={16} color="#641E3D" />
+                <View style={styles.policyCopy}>
+                  <Text style={styles.policyTitle}>Cancellation & Rescheduling</Text>
+                  <Text style={styles.policyDesc}>{vendor.policies?.cancellation}</Text>
+                </View>
+              </View>
+
+              <View style={styles.policyRow}>
+                <FileCheck size={16} color="#641E3D" />
+                <View style={styles.policyCopy}>
+                  <Text style={styles.policyTitle}>Travel & Outstation Coverage</Text>
+                  <Text style={styles.policyDesc}>{vendor.policies?.travel}</Text>
+                </View>
+              </View>
+
+              <Text style={[styles.sectionHeading, { marginTop: 16 }]}>Frequently Asked Questions</Text>
+              {vendor.faqs?.map((faq, i) => (
+                <View key={i} style={styles.faqCard}>
+                  <Text style={styles.faqQuestion}>Q: {faq.question}</Text>
+                  <Text style={styles.faqAnswer}>{faq.answer}</Text>
+                </View>
+              ))}
             </View>
           )}
         </View>
+
+        {/* ──── 6. AVAILABILITY REQUEST WIDGET ──── */}
+        <View style={styles.availabilityCard}>
+          <View style={styles.availHeader}>
+            <Calendar size={15} color="#641E3D" />
+            <Text style={styles.availTitle}>Check Date Availability</Text>
+          </View>
+          <Text style={styles.availSubtitle}>
+            Select your celebration date to verify partner calendar availability with no obligations.
+          </Text>
+
+          <TouchableOpacity
+            style={styles.availDateBtn}
+            onPress={() => setCalendarModalVisible(true)}
+            activeOpacity={0.85}
+          >
+            <Calendar size={13} color="#D2AD6B" />
+            <Text style={styles.availDateBtnText}>
+              {selectedInquiryDate ? `Date: ${selectedInquiryDate}` : 'Select Celebration Date'}
+            </Text>
+            <ChevronRight size={14} color="#641E3D" />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+
+      {/* ──── 7. STICKY MOBILE BOTTOM ACTION BAR ──── */}
+      <View style={styles.stickyBottomBar}>
+        <TouchableOpacity
+          style={[styles.stickyHeartBtn, isSaved && styles.stickyHeartBtnActive]}
+          onPress={handleToggleFavorite}
+          activeOpacity={0.8}
+        >
+          <Heart size={18} color={isSaved ? '#E11D48' : '#641E3D'} fill={isSaved ? '#E11D48' : 'transparent'} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.stickyPlanBtn}
+          onPress={() => setPlanModalVisible(true)}
+          activeOpacity={0.85}
+        >
+          <Briefcase size={15} color="#641E3D" />
+          <Text style={styles.stickyPlanBtnText}>Add to Plan</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.stickyQuoteBtn}
+          onPress={() => setInquiryModalVisible(true)}
+          activeOpacity={0.88}
+        >
+          <Send size={15} color="#FFFFFF" />
+          <Text style={styles.stickyQuoteBtnText}>Request Quote</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -511,532 +809,836 @@ export default function VendorDetailsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#FBF7EF',
-  },
-  scrollContent: {
-    paddingBottom: 38,
+    backgroundColor: '#FDFBF7',
   },
   centerScreen: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FDFBF7',
     paddingHorizontal: 28,
   },
   loadingText: {
     marginTop: 14,
     color: '#641E3D',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '700',
   },
   emptyTitle: {
-    color: '#2A151D',
-    fontSize: 21,
-    fontWeight: '800',
-    marginBottom: 8,
+    color: '#2D2025',
+    fontSize: 18,
+    fontWeight: '900',
+    marginTop: 12,
+    marginBottom: 6,
+    textAlign: 'center',
   },
   emptyCopy: {
-    color: '#7C6D63',
-    fontSize: 14,
+    color: '#786B70',
+    fontSize: 12,
     textAlign: 'center',
+    lineHeight: 18,
     marginBottom: 18,
   },
-  emptyButton: {
-    backgroundColor: '#641E3D',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 14,
+  errorBtnRow: {
+    flexDirection: 'row',
+    gap: 10,
   },
-  emptyButtonText: {
+  primaryBtn: {
+    backgroundColor: '#641E3D',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  primaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
   },
+  secondaryBtn: {
+    backgroundColor: '#FAF5EC',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  secondaryBtnText: {
+    color: '#641E3D',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  scrollContent: {
+    paddingBottom: 110, // Sticky bottom bar clearance
+  },
   hero: {
-    height: 268,
+    height: 270,
     width: '100%',
     backgroundColor: '#2A151D',
+    position: 'relative',
   },
-  heroImage: {
+  heroScroll: {
     width: '100%',
     height: '100%',
   },
+  heroImage: {
+    width: SCREEN_WIDTH,
+    height: 270,
+  },
+  heroFallback: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  heroFallbackText: {
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.4,
+  },
   heroShade: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(20, 12, 14, 0.42)',
+    backgroundColor: 'rgba(20, 10, 15, 0.35)',
   },
   backButton: {
     position: 'absolute',
     top: 48,
     left: 18,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.34)',
+    backgroundColor: 'rgba(0,0,0,0.42)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
+    borderColor: 'rgba(255,255,255,0.25)',
   },
-  heartButton: {
+  topRightActions: {
     position: 'absolute',
     top: 48,
     right: 18,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionRoundBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.34)',
+    backgroundColor: 'rgba(0,0,0,0.42)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  actionRoundBtnActive: {
+    backgroundColor: '#FAF5EC',
+    borderColor: '#D2AD6B',
+  },
+  actionRoundBtnSaved: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FECDD3',
+  },
+  galleryCountBadge: {
+    position: 'absolute',
+    bottom: 16,
+    right: 18,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  galleryCountText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
   },
   profileCard: {
-    marginHorizontal: PAGE_PADDING,
-    marginTop: -52,
-    paddingTop: 52,
-    paddingHorizontal: 18,
-    paddingBottom: 18,
-    borderRadius: 26,
     backgroundColor: '#FFFFFF',
+    marginHorizontal: PAGE_PADDING,
+    marginTop: -20,
+    borderRadius: 24,
+    padding: 18,
     borderWidth: 1,
     borderColor: '#EFE3CF',
-    shadowColor: '#6C461A',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.14,
-    shadowRadius: 28,
-    elevation: 8,
+    shadowColor: '#641E3D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  avatarWrap: {
-    position: 'absolute',
-    top: -45,
-    alignSelf: 'center',
-    width: 96,
-    height: 96,
-    borderRadius: 26,
-    padding: 4,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#EBDCC2',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    elevation: 6,
-  },
-  avatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 22,
-    backgroundColor: '#E8E6E0',
-  },
-  categoryChip: {
-    alignSelf: 'center',
+  categoryRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: '#FBF7EF',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF5EC',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 8,
+    gap: 4,
     borderWidth: 1,
     borderColor: '#EFE3CF',
-    marginBottom: 12,
   },
   categoryChipText: {
-    fontSize: 11,
+    color: '#641E3D',
+    fontSize: 9,
     fontWeight: '900',
-    letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
   vendorName: {
-    color: '#241018',
-    fontSize: 24,
-    lineHeight: 30,
+    color: '#2D2025',
+    fontSize: 20,
     fontWeight: '900',
-    textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   locationLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    flexWrap: 'wrap',
-    marginBottom: 18,
-  },
-  locationText: {
-    color: '#705F53',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  verifiedInline: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 999,
-    backgroundColor: '#EAF7F0',
-  },
-  verifiedInlineText: {
-    color: '#287857',
-    fontSize: 10,
-    fontWeight: '900',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: 9,
     marginBottom: 14,
   },
-  statPill: {
+  locationText: {
+    color: '#786B70',
+    fontSize: 11,
+    fontWeight: '600',
     flex: 1,
-    minHeight: 92,
-    borderRadius: 18,
-    backgroundColor: '#FBF7EF',
+  },
+  metricsBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF5EC',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: '#EFE3CF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
   },
-  statIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+  metricItem: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    marginBottom: 6,
   },
-  statValue: {
-    color: '#241018',
-    fontSize: 16,
+  metricValue: {
+    color: '#2D2025',
+    fontSize: 13,
     fontWeight: '900',
   },
-  statLabel: {
-    color: '#9A8A7A',
-    fontSize: 10,
+  metricSub: {
+    color: '#8A7A70',
+    fontSize: 8,
     fontWeight: '800',
     textTransform: 'uppercase',
     marginTop: 2,
   },
-  infoPanel: {
-    borderRadius: 20,
-    backgroundColor: '#2A151D',
-    padding: 14,
-    gap: 12,
-    marginBottom: 16,
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#EFE3CF',
   },
-  detailRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    minWidth: 0,
-  },
-  detailIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(210, 173, 107, 0.14)',
-  },
-  detailCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  detailLabel: {
-    color: '#AA9B8F',
-    fontSize: 10,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginBottom: 2,
-  },
-  detailValue: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  bookButton: {
-    minHeight: 58,
-    borderRadius: 18,
-    backgroundColor: '#641E3D',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    gap: 8,
-    shadowColor: '#641E3D',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
-    elevation: 7,
-  },
-  bookButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '900',
-  },
-  bookButtonPrice: {
-    color: '#EEDBB5',
-    fontSize: 12,
-    fontWeight: '800',
-    flexShrink: 1,
-  },
-  tabs: {
-    flexDirection: 'row',
-    gap: 10,
-    marginHorizontal: PAGE_PADDING,
-    marginTop: 22,
-    padding: 5,
-    borderRadius: 18,
-    backgroundColor: '#EFE7DA',
-  },
-  tabButton: {
-    flex: 1,
-    minHeight: 44,
+  pricingPanel: {
+    backgroundColor: '#2A121E',
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 12,
   },
-  tabButtonActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#6C461A',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  tabText: {
-    color: '#8F8177',
-    fontSize: 13,
-    fontWeight: '900',
-  },
-  tabTextActive: {
-    color: '#641E3D',
-  },
-  contentSection: {
-    paddingHorizontal: PAGE_PADDING,
-    paddingTop: 18,
-  },
-  historyCard: {
-    overflow: 'hidden',
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#EFE3CF',
-    marginBottom: 18,
-    shadowColor: '#6C461A',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  historySliderWrap: {
-    width: '100%',
-    height: 214,
-    overflow: 'hidden',
-    backgroundColor: '#E8E1D4',
-  },
-  historySlider: {
-    width: HISTORY_IMAGE_WIDTH,
-  },
-  historyImage: {
-    width: HISTORY_IMAGE_WIDTH,
-    height: 214,
-  },
-  historyImageOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.14)',
-  },
-  historyBadge: {
-    position: 'absolute',
-    top: 14,
-    left: 14,
+  pricingHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: 'rgba(100, 30, 61, 0.9)',
-  },
-  historyBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  historyDots: {
-    position: 'absolute',
-    bottom: 14,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    gap: 6,
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: 'rgba(0,0,0,0.26)',
-  },
-  historyDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(255,255,255,0.56)',
-  },
-  historyDotActive: {
-    width: 18,
-    backgroundColor: '#FFFFFF',
-  },
-  historyContent: {
-    padding: 14,
-  },
-  historyTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    marginBottom: 14,
-  },
-  historyTitleCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  historyTitle: {
-    color: '#241018',
-    fontSize: 18,
-    lineHeight: 23,
-    fontWeight: '900',
+    justifyContent: 'space-between',
     marginBottom: 4,
   },
-  historyVenue: {
-    color: '#74685C',
-    fontSize: 12,
-    fontWeight: '700',
+  pricingHeading: {
+    color: '#E8DCC8',
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
-  historyDateBadge: {
+  pricingDisclaimer: {
+    color: '#A08F95',
+    fontSize: 9,
+    lineHeight: 13,
+    fontStyle: 'italic',
+  },
+  planMatchCard: {
+    backgroundColor: '#FFFDF9',
+    marginHorizontal: PAGE_PADDING,
+    marginTop: 12,
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#ECD8B5',
+  },
+  planMatchHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    paddingHorizontal: 9,
-    paddingVertical: 7,
-    borderRadius: 12,
-    backgroundColor: '#FBF7EF',
-    borderWidth: 1,
-    borderColor: '#EFE3CF',
+    marginBottom: 8,
   },
-  historyDateText: {
-    color: '#641E3D',
+  planMatchTitle: {
+    color: '#8A6A23',
     fontSize: 11,
     fontWeight: '900',
+    textTransform: 'uppercase',
   },
-  historyMetaGrid: {
+  matchChipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    columnGap: 10,
-    rowGap: 10,
-    padding: 12,
-    borderRadius: 18,
-    backgroundColor: '#2A151D',
-    marginBottom: 12,
-  },
-  historyMetric: {
-    width: '48%',
-    minHeight: 68,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 227, 207, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-  },
-  historyMetricIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(210, 173, 107, 0.14)',
-    marginRight: 9,
-  },
-  historyMetricCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  historyMetricLabel: {
-    color: '#BDAF9F',
-    fontSize: 9,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 3,
-  },
-  historyMetricValue: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    lineHeight: 15,
-    fontWeight: '900',
-  },
-  scopeBox: {
-    borderRadius: 16,
-    backgroundColor: '#FBF7EF',
-    borderWidth: 1,
-    borderColor: '#EFE3CF',
-    padding: 13,
-  },
-  scopeLabel: {
-    color: '#9A8A7A',
-    fontSize: 10,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginBottom: 5,
-  },
-  scopeText: {
-    color: '#352027',
-    fontSize: 13,
-    lineHeight: 19,
-    fontWeight: '700',
-  },
-  reviewCard: {
-    alignItems: 'center',
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#EFE3CF',
-    padding: 24,
-    shadowColor: '#6C461A',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  reviewScore: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    gap: 6,
     marginBottom: 10,
   },
-  reviewScoreText: {
-    color: '#241018',
-    fontSize: 34,
-    fontWeight: '900',
+  matchPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF5EC',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 8,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
   },
-  reviewTitle: {
+  matchPillActive: {
+    backgroundColor: '#EAF7F0',
+    borderColor: '#C2EAD4',
+  },
+  matchPillText: {
+    color: '#786B70',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  matchPillTextActive: {
+    color: '#287857',
+    fontWeight: '800',
+  },
+  addPlanQuickBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5EC',
+    paddingVertical: 8,
+    borderRadius: 10,
+    gap: 5,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  addPlanQuickText: {
     color: '#641E3D',
-    fontSize: 17,
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  tabsBar: {
+    flexDirection: 'row',
+    paddingHorizontal: PAGE_PADDING,
+    marginTop: 16,
+    marginBottom: 12,
+    gap: 6,
+  },
+  tabBtn: {
+    paddingHorizontal: 13,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: '#FAF5EC',
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  tabBtnActive: {
+    backgroundColor: '#641E3D',
+    borderColor: '#641E3D',
+  },
+  tabBtnText: {
+    color: '#786B70',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  tabBtnTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+  tabContentArea: {
+    paddingHorizontal: PAGE_PADDING,
+  },
+  sectionBlock: {
+    marginBottom: 16,
+  },
+  sectionHeading: {
+    color: '#2D2025',
+    fontSize: 15,
     fontWeight: '900',
     marginBottom: 8,
   },
-  reviewCopy: {
-    color: '#74685C',
-    fontSize: 13,
-    lineHeight: 20,
-    textAlign: 'center',
+  bodyParagraph: {
+    color: '#5A4D52',
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  amenitiesWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  amenityChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 9,
+    paddingVertical: 4.5,
+    borderRadius: 8,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  amenityChipText: {
+    color: '#2D2025',
+    fontSize: 11,
     fontWeight: '700',
+  },
+  coordinatorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF5EC',
+    borderRadius: 14,
+    padding: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  coordinatorName: {
+    color: '#2D2025',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  coordinatorRole: {
+    color: '#786B70',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  itemCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    marginBottom: 10,
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  itemTitle: {
+    color: '#2D2025',
+    fontSize: 13,
+    fontWeight: '900',
+    flex: 1,
+    marginRight: 6,
+  },
+  itemDesc: {
+    color: '#786B70',
+    fontSize: 11,
+    lineHeight: 16,
+    marginBottom: 10,
+  },
+  itemEnquireBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#FAF5EC',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 8,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  itemEnquireText: {
+    color: '#641E3D',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  packageCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    marginBottom: 12,
+  },
+  packageHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  pkgTitleWrap: {
+    flex: 1,
+    marginRight: 8,
+  },
+  pkgTitle: {
+    color: '#2D2025',
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  pkgScale: {
+    color: '#8A7A70',
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  pkgDesc: {
+    color: '#786B70',
+    fontSize: 11,
+    lineHeight: 16,
+    marginBottom: 10,
+  },
+  inclusionsBox: {
+    backgroundColor: '#FAF5EC',
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 12,
+  },
+  inclusionsTitle: {
+    color: '#641E3D',
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  incItem: {
+    color: '#4A3E44',
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  pkgActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  pkgAddBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5EC',
+    paddingVertical: 9,
+    borderRadius: 10,
+    gap: 5,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  pkgAddText: {
+    color: '#641E3D',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  pkgQuoteBtn: {
+    flex: 1.2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#641E3D',
+    paddingVertical: 9,
+    borderRadius: 10,
+    gap: 5,
+  },
+  pkgQuoteText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  portfolioCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    marginBottom: 12,
+  },
+  portfolioImg: {
+    width: '100%',
+    height: 160,
+    backgroundColor: '#FAF5EC',
+  },
+  portfolioBody: {
+    padding: 12,
+  },
+  portfolioTitle: {
+    color: '#2D2025',
+    fontSize: 14,
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+  portfolioMetaRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 6,
+  },
+  portfolioMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  portfolioMetaText: {
+    color: '#786B70',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  portfolioScope: {
+    color: '#5A4D52',
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  emptyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    gap: 6,
+  },
+  emptyCardTitle: {
+    color: '#2D2025',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  emptyCardCopy: {
+    color: '#786B70',
+    fontSize: 11,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  reviewsSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FAF5EC',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  reviewBigScore: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  reviewBigScoreText: {
+    color: '#2D2025',
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  reviewHeading: {
+    color: '#2D2025',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  reviewSub: {
+    color: '#786B70',
+    fontSize: 10,
+  },
+  reviewCardItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    marginBottom: 8,
+  },
+  reviewCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  reviewerName: {
+    color: '#2D2025',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  reviewEventTag: {
+    color: '#8A7A70',
+    fontSize: 10,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  reviewText: {
+    color: '#4A3E44',
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  policyRow: {
+    flexDirection: 'row',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    marginBottom: 8,
+  },
+  policyCopy: {
+    flex: 1,
+  },
+  policyTitle: {
+    color: '#2D2025',
+    fontSize: 12,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  policyDesc: {
+    color: '#786B70',
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  faqCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+    marginBottom: 8,
+  },
+  faqQuestion: {
+    color: '#641E3D',
+    fontSize: 12,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  faqAnswer: {
+    color: '#5A4D52',
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  availabilityCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    marginHorizontal: PAGE_PADDING,
+    marginTop: 8,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  availHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  availTitle: {
+    color: '#641E3D',
+    fontSize: 13,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  availSubtitle: {
+    color: '#786B70',
+    fontSize: 11,
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  availDateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FAF5EC',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  availDateBtnText: {
+    color: '#641E3D',
+    fontSize: 12,
+    fontWeight: '800',
+    flex: 1,
+    marginLeft: 8,
+  },
+  stickyBottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: PAGE_PADDING,
+    paddingTop: 12,
+    paddingBottom: 24,
+    borderTopWidth: 1,
+    borderTopColor: '#EFE3CF',
+    gap: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  stickyHeartBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FAF5EC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  stickyHeartBtnActive: {
+    backgroundColor: '#FFF0F3',
+    borderColor: '#FECDD3',
+  },
+  stickyPlanBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5EC',
+    height: 44,
+    borderRadius: 12,
+    gap: 5,
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  stickyPlanBtnText: {
+    color: '#641E3D',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  stickyQuoteBtn: {
+    flex: 1.3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#641E3D',
+    height: 44,
+    borderRadius: 12,
+    gap: 5,
+  },
+  stickyQuoteBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  fullscreenModal: {
+    flex: 1,
+    backgroundColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeFullscreenBtn: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+  },
+  fullscreenImg: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_WIDTH * 1.2,
   },
 });

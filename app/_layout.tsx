@@ -22,10 +22,39 @@ export const unstable_settings = {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+import { Platform } from 'react-native';
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+
+  // Inject web global outline reset
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const styleId = 'vellure-no-outline-reset';
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+          *, *::before, *::after, input, textarea, select, button, [tabindex], [role="textbox"], [role="button"], [role="tab"] {
+            outline: none !important;
+            outline-width: 0 !important;
+            outline-style: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+          }
+          *:focus, *:focus-visible, input:focus, textarea:focus, select:focus, button:focus, [role="textbox"]:focus {
+            outline: none !important;
+            outline-width: 0 !important;
+            outline-style: none !important;
+            box-shadow: none !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+  }, []);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {

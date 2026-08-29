@@ -3,13 +3,23 @@ import {
   MapPin, 
   Flower, 
   Camera, 
-  BadgeCheck, 
   Utensils, 
   Music, 
   Scissors, 
   Car, 
   Gift, 
-  Wine 
+  Wine,
+  Building2,
+  CakeSlice,
+  Video,
+  Mic2,
+  BedDouble,
+  ClipboardList,
+  Lightbulb,
+  Mail,
+  ShieldCheck,
+  Sparkles,
+  HeartHandshake,
 } from 'lucide-react-native';
 
 export interface ServiceMetadata {
@@ -20,6 +30,12 @@ export interface ServiceMetadata {
 }
 
 export const SERVICE_REGISTRY: Record<string, ServiceMetadata> = {
+  'Venue': {
+    id: 'venue',
+    label: 'Venues',
+    icon: Building2,
+    color: '#641E3D'
+  },
   'Venue & Catering': {
     id: 'venue_catering',
     label: 'Venue & Catering',
@@ -37,6 +53,36 @@ export const SERVICE_REGISTRY: Record<string, ServiceMetadata> = {
     label: 'Photography',
     icon: Camera,
     color: '#BA0F6B' // Deep Pink
+  },
+  'Videography': {
+    id: 'videography',
+    label: 'Videography & Films',
+    icon: Video,
+    color: '#7A3154'
+  },
+  'Catering': {
+    id: 'catering',
+    label: 'Catering',
+    icon: Utensils,
+    color: '#A35E2E'
+  },
+  'Cake & Desserts': {
+    id: 'cake_desserts',
+    label: 'Cakes & Desserts',
+    icon: CakeSlice,
+    color: '#B85772'
+  },
+  'Makeup': {
+    id: 'makeup',
+    label: 'Makeup & Styling',
+    icon: Scissors,
+    color: '#BA0F6B'
+  },
+  'Mehendi': {
+    id: 'mehendi',
+    label: 'Mehendi Artists',
+    icon: Sparkles,
+    color: '#557A46'
   },
   'Attire & Makeup': {
     id: 'attire_makeup',
@@ -57,6 +103,18 @@ export const SERVICE_REGISTRY: Record<string, ServiceMetadata> = {
     icon: Music,
     color: '#7B68EE' // Slate Blue
   },
+  'DJ': {
+    id: 'dj',
+    label: 'DJ & Music',
+    icon: Music,
+    color: '#6852A3'
+  },
+  'Live Music': {
+    id: 'live_music',
+    label: 'Live Music',
+    icon: Mic2,
+    color: '#6F4C8B'
+  },
   'Bartending': {
     id: 'bartending',
     label: 'Drinks & Bar',
@@ -68,6 +126,48 @@ export const SERVICE_REGISTRY: Record<string, ServiceMetadata> = {
     label: 'Fleet & Cars',
     icon: Car,
     color: '#4682B4' // Steel Blue
+  },
+  'Accommodation': {
+    id: 'accommodation',
+    label: 'Guest Accommodation',
+    icon: BedDouble,
+    color: '#4C6B7C'
+  },
+  'Event Planning': {
+    id: 'event_planning',
+    label: 'Event Planners',
+    icon: ClipboardList,
+    color: '#8A5C32'
+  },
+  'Sound & Lighting': {
+    id: 'sound_lighting',
+    label: 'Sound & Lighting',
+    icon: Lightbulb,
+    color: '#A47720'
+  },
+  'Invitations': {
+    id: 'invitations',
+    label: 'Invitations & Printing',
+    icon: Mail,
+    color: '#8C5A72'
+  },
+  'Security': {
+    id: 'security',
+    label: 'Security & Guest Safety',
+    icon: ShieldCheck,
+    color: '#3F6B63'
+  },
+  'Ceremony Services': {
+    id: 'ceremony_services',
+    label: 'Ceremony Services',
+    icon: HeartHandshake,
+    color: '#9A6C29'
+  },
+  'Priest': {
+    id: 'priest',
+    label: 'Ceremony Services',
+    icon: HeartHandshake,
+    color: '#9A6C29'
   }
 };
 

@@ -63,6 +63,7 @@ export function InfoCard({
       ) : (
         <TextInput 
           className="text-[#1A1A1A] text-[13px] font-semibold text-center tracking-wide w-full p-0 m-0"
+          style={{ outline: 'none' } as any}
           value={value}
           onChangeText={onChangeText}
           keyboardType={keyboardType}
