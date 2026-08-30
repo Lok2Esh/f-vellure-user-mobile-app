@@ -66,6 +66,7 @@ import { AddVendorToPlanModal } from '../../components/vendor/AddVendorToPlanMod
 import { AddToPackageModal } from '../../components/package/AddToPackageModal';
 import { CalendarModal } from '../../components/ui/CalendarModal';
 import { VendorWorkHistory, VendorWorkItem } from '../../components/vendor/VendorWorkHistory';
+import { VendorServiceCatalog } from '../../components/vendor/VendorServiceCatalog';
 import { colors } from '../../constants/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -125,76 +126,36 @@ type NormalizedVendor = {
 
 function normalizeVendor(raw: any): NormalizedVendor {
   const portfolio: VendorWorkItem[] = Array.isArray(raw?.portfolio) ? raw.portfolio : [];
-  const services: VendorServiceItem[] = Array.isArray(raw?.services)
-    ? raw.services
-    : [
-        {
-          name: 'Core Specialist Service',
-          price: raw?.basePrice || 50000,
-          priceType: raw?.priceType || 'STARTING_PRICE',
-          description: raw?.description || 'Full-service execution for your celebration with dedicated on-site crew.',
-        },
-      ];
-
-  const packages: VendorPackageItem[] = Array.isArray(raw?.packages) && raw.packages.length > 0
-    ? raw.packages
-    : [
-        {
-          id: 'pkg_signature',
-          name: 'Signature Celebration Package',
-          price: (raw?.basePrice ? raw.basePrice * 1.5 : 120000),
-          guestCount: 200,
-          description: 'Comprehensive setup including design, dedicated on-site coordinator, and premium deliverables.',
-          inclusions: ['Complete setup & tear-down', 'Dedicated on-site lead', 'Standard equipment & materials', 'Customization consult'],
-          exclusions: ['Outstation travel beyond 50 km', 'Last-minute overtime'],
-        },
-      ];
+  const services: VendorServiceItem[] = Array.isArray(raw?.services) ? raw.services : [];
+  const packages: VendorPackageItem[] = Array.isArray(raw?.packages) ? raw.packages : [];
 
   return {
     id: String(raw?.id || ''),
-    businessName: raw?.businessName || raw?.name || 'Verified Partner',
-    category: raw?.category || 'VENUE',
-    city: raw?.city || raw?.location || 'Patiala',
-    locality: raw?.locality || 'City Center',
-    serviceRadiusKm: raw?.serviceRadiusKm || 30,
+    businessName: raw?.businessName || raw?.name || '',
+    category: raw?.category || '',
+    city: raw?.city || raw?.location || '',
+    locality: raw?.locality,
+    serviceRadiusKm: raw?.serviceRadiusKm,
     cityTier: raw?.cityTier,
-    basePrice: raw?.basePrice || 45000,
-    priceType: raw?.priceType || 'STARTING_PRICE',
-    rating: typeof raw?.rating === 'number' ? raw.rating : 4.9,
-    reviewsCount: typeof raw?.reviewsCount === 'number' ? raw.reviewsCount : (raw?.reviews || 32),
-    status: raw?.status || 'VERIFIED',
-    verified: raw?.verified ?? true,
+    basePrice: typeof raw?.basePrice === 'number' ? raw.basePrice : undefined,
+    priceType: raw?.priceType,
+    rating: typeof raw?.rating === 'number' ? raw.rating : undefined,
+    reviewsCount: typeof raw?.reviewsCount === 'number' ? raw.reviewsCount : (typeof raw?.reviews === 'number' ? raw.reviews : 0),
+    status: raw?.status,
+    verified: raw?.verified ?? raw?.status === 'VERIFIED',
     image: raw?.image || (portfolio[0]?.imageUrl || portfolio[0]?.image),
     portfolio,
-    user: raw?.user || { name: 'Lead Specialist' },
+    user: raw?.user,
     createdAt: raw?.createdAt,
-    yearsExperience: raw?.yearsExperience || 8,
-    description: raw?.description || 'Experienced Indian event specialist providing bespoke services with uncompromising quality and verified marketplace credentials.',
+    yearsExperience: raw?.yearsExperience,
+    description: raw?.description,
     services,
     packages,
-    amenities: raw?.amenities || ['Power Backup', 'Valet Parking', 'Air Conditioning', 'Dressing Rooms', 'Dedicated Crew'],
-    capacityMin: raw?.capacityMin || 50,
-    capacityMax: raw?.capacityMax || 500,
-    policies: raw?.policies || {
-      advance: '30% deposit upon booking confirmation to secure event date.',
-      cancellation: 'Full refund if cancelled at least 30 days prior to the celebration date.',
-      rescheduling: 'Flexible date rescheduling allowed subject to seasonal availability.',
-      travel: 'Travel included within 30 km radius; outstation travel subject to actual fuel/crew stay.',
-    },
-    faqs: raw?.faqs || [
-      {
-        question: 'How early should I book your services?',
-        answer: 'We recommend requesting availability 2 to 4 months in advance, especially during peak wedding and festival seasons.',
-      },
-      {
-        question: 'Is custom pricing and tailoring available?',
-        answer: 'Yes, all services and packages can be customized to match your exact guest scale, venue, and ceremony preferences.',
-      },
-      {
-        question: 'Are taxes and crew expenses included in the starting price?',
-        answer: 'Starting prices represent core service estimates. Final itemized quotes detail any applicable taxes or travel costs.',
-      },
-    ],
+    amenities: Array.isArray(raw?.amenities) ? raw.amenities : [],
+    capacityMin: raw?.capacityMin,
+    capacityMax: raw?.capacityMax,
+    policies: raw?.policies,
+    faqs: Array.isArray(raw?.faqs) ? raw.faqs : [],
   };
 }
 
@@ -331,9 +292,9 @@ export default function VendorDetailsScreen() {
   const heroImages = portfolioImages.length > 0 ? portfolioImages : vendor.image ? [vendor.image] : [];
 
   // Active Plan Match Calculation
-  const isCityMatch = activePlan ? activePlan.city.toLowerCase() === vendor.city.toLowerCase() : false;
-  const isCapacityMatch = activePlan && vendor.capacityMax ? (activePlan.guestCount || 150) <= vendor.capacityMax : true;
-  const isBudgetMatch = activePlan && vendor.basePrice ? vendor.basePrice <= (activePlan.budgetMax || 1500000) : true;
+  const isCityMatch = Boolean(activePlan?.city && vendor.city && activePlan.city.toLowerCase() === vendor.city.toLowerCase());
+  const isCapacityMatch = Boolean(activePlan?.guestCount && vendor.capacityMax && activePlan.guestCount <= vendor.capacityMax);
+  const isBudgetMatch = Boolean(activePlan?.budgetMax && vendor.basePrice && vendor.basePrice <= activePlan.budgetMax);
 
   return (
     <View style={styles.screen}>
@@ -459,7 +420,8 @@ export default function VendorDetailsScreen() {
           <View style={styles.locationLine}>
             <MapPin size={13} color="#8C6F3E" />
             <Text style={styles.locationText}>
-              {vendor.locality ? `${vendor.locality}, ${vendor.city}` : vendor.city} (Serves within {vendor.serviceRadiusKm} km)
+              {[vendor.locality, vendor.city].filter(Boolean).join(', ') || 'Location not published'}
+              {vendor.serviceRadiusKm ? ` (Serves within ${vendor.serviceRadiusKm} km)` : ''}
             </Text>
           </View>
 
@@ -473,14 +435,14 @@ export default function VendorDetailsScreen() {
             <View style={styles.metricDivider} />
 
             <View style={styles.metricItem}>
-              <Text style={styles.metricValue}>{vendor.yearsExperience} Years</Text>
+              <Text style={styles.metricValue}>{vendor.yearsExperience ? `${vendor.yearsExperience} Years` : 'Not shared'}</Text>
               <Text style={styles.metricSub}>Market Experience</Text>
             </View>
 
             <View style={styles.metricDivider} />
 
             <View style={styles.metricItem}>
-              <Text style={styles.metricValue}>Up to {vendor.capacityMax}</Text>
+              <Text style={styles.metricValue}>{vendor.capacityMax ? `Up to ${vendor.capacityMax}` : 'Not shared'}</Text>
               <Text style={styles.metricSub}>Guest Scale</Text>
             </View>
           </View>
@@ -555,19 +517,23 @@ export default function VendorDetailsScreen() {
                 </Text>
               </View>
 
-              <View style={[styles.matchPill, isCapacityMatch && styles.matchPillActive]}>
-                <CheckCircle2 size={11} color={isCapacityMatch ? '#287857' : '#8A7A70'} />
-                <Text style={[styles.matchPillText, isCapacityMatch && styles.matchPillTextActive]}>
-                  Fits {activePlan.guestCount || 150} guests
-                </Text>
-              </View>
+              {activePlan.guestCount && vendor.capacityMax ? (
+                <View style={[styles.matchPill, isCapacityMatch && styles.matchPillActive]}>
+                  <CheckCircle2 size={11} color={isCapacityMatch ? '#287857' : '#8A7A70'} />
+                  <Text style={[styles.matchPillText, isCapacityMatch && styles.matchPillTextActive]}>
+                    Fits {activePlan.guestCount} guests
+                  </Text>
+                </View>
+              ) : null}
 
-              <View style={[styles.matchPill, isBudgetMatch && styles.matchPillActive]}>
-                <CheckCircle2 size={11} color={isBudgetMatch ? '#287857' : '#8A7A70'} />
-                <Text style={[styles.matchPillText, isBudgetMatch && styles.matchPillTextActive]}>
-                  Within budget allocation
-                </Text>
-              </View>
+              {activePlan.budgetMax && vendor.basePrice ? (
+                <View style={[styles.matchPill, isBudgetMatch && styles.matchPillActive]}>
+                  <CheckCircle2 size={11} color={isBudgetMatch ? '#287857' : '#8A7A70'} />
+                  <Text style={[styles.matchPillText, isBudgetMatch && styles.matchPillTextActive]}>
+                    Within budget allocation
+                  </Text>
+                </View>
+              ) : null}
             </View>
 
             <VellureButton
@@ -614,63 +580,66 @@ export default function VendorDetailsScreen() {
           {activeTab === 'About' && (
             <View style={styles.sectionBlock}>
               <Text style={styles.sectionHeading}>About the Specialist</Text>
-              <Text style={styles.bodyParagraph}>{vendor.description}</Text>
-
-              <Text style={[styles.sectionHeading, { marginTop: 14 }]}>Capabilities & Amenities</Text>
-              <View style={styles.amenitiesWrap}>
-                {vendor.amenities?.map((amenity, i) => (
-                  <View key={i} style={styles.amenityChip}>
-                    <CheckCircle2 size={11} color="#287857" />
-                    <Text style={styles.amenityChipText}>{amenity}</Text>
-                  </View>
-                ))}
-              </View>
-
-              <Text style={[styles.sectionHeading, { marginTop: 16 }]}>Lead Coordinator</Text>
-              <View style={styles.coordinatorCard}>
-                <ShieldCheck size={20} color="#D2AD6B" />
-                <View>
-                  <Text style={styles.coordinatorName}>{vendor.user?.name || 'Lead Specialist'}</Text>
-                  <Text style={styles.coordinatorRole}>Verified On-Site Event Executive</Text>
+              {vendor.description ? <Text style={styles.bodyParagraph}>{vendor.description}</Text> : (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyCardTitle}>About details not published</Text>
+                  <Text style={styles.emptyCardCopy}>This vendor has not added a business description to their backend profile.</Text>
                 </View>
-              </View>
+              )}
+
+              {vendor.amenities && vendor.amenities.length > 0 ? (
+                <>
+                  <Text style={[styles.sectionHeading, { marginTop: 14 }]}>Capabilities & Amenities</Text>
+                  <View style={styles.amenitiesWrap}>
+                    {vendor.amenities.map((amenity, i) => (
+                      <View key={i} style={styles.amenityChip}>
+                        <CheckCircle2 size={11} color="#287857" />
+                        <Text style={styles.amenityChipText}>{amenity}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              ) : null}
+
+              {vendor.user?.name ? (
+                <>
+                  <Text style={[styles.sectionHeading, { marginTop: 16 }]}>Lead Coordinator</Text>
+                  <View style={styles.coordinatorCard}>
+                    <ShieldCheck size={20} color="#D2AD6B" />
+                    <View>
+                      <Text style={styles.coordinatorName}>{vendor.user.name}</Text>
+                      <Text style={styles.coordinatorRole}>Vendor account contact</Text>
+                    </View>
+                  </View>
+                </>
+              ) : null}
             </View>
           )}
 
           {/* SERVICES TAB */}
           {activeTab === 'Services' && (
-            <View style={styles.sectionBlock}>
-              <Text style={styles.sectionHeading}>Available Services ({vendor.services.length})</Text>
-              {vendor.services.map((srv, idx) => (
-                <View key={idx} style={styles.itemCard}>
-                  <View style={styles.itemHeader}>
-                    <Text style={styles.itemTitle}>{srv.name}</Text>
-                    <PriceDisplay price={srv.price} priceType={srv.priceType} size="medium" />
-                  </View>
-                  {srv.description ? <Text style={styles.itemDesc}>{srv.description}</Text> : null}
-                  <VellureButton
-                    style={styles.itemEnquireBtn}
-                    onPress={() => setInquiryModalVisible(true)}
-                    activeOpacity={0.8}
-                  >
-                    <Send size={11} color="#641E3D" />
-                    <Text style={styles.itemEnquireText}>Enquire on this Service</Text>
-                  </VellureButton>
-                </View>
-              ))}
-            </View>
+            <VendorServiceCatalog
+              services={vendor.services}
+              onEnquire={() => setInquiryModalVisible(true)}
+            />
           )}
 
           {/* PACKAGES TAB */}
           {activeTab === 'Packages' && (
             <View style={styles.sectionBlock}>
               <Text style={styles.sectionHeading}>Curated Bundles ({vendor.packages.length})</Text>
+              {vendor.packages.length === 0 ? (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyCardTitle}>No packages published</Text>
+                  <Text style={styles.emptyCardCopy}>This vendor has not added packages to their backend profile.</Text>
+                </View>
+              ) : null}
               {vendor.packages.map((pkg, idx) => (
                 <View key={idx} style={styles.packageCard}>
                   <View style={styles.packageHeader}>
                     <View style={styles.pkgTitleWrap}>
                       <Text style={styles.pkgTitle}>{pkg.name}</Text>
-                      <Text style={styles.pkgScale}>Configured for {pkg.guestCount || 200} guests</Text>
+                      {pkg.guestCount ? <Text style={styles.pkgScale}>Configured for {pkg.guestCount} guests</Text> : null}
                     </View>
                     <PriceDisplay price={pkg.price} priceType="FIXED_PACKAGE" size="large" />
                   </View>
@@ -716,7 +685,7 @@ export default function VendorDetailsScreen() {
               <View style={styles.reviewsSummaryRow}>
                 <View style={styles.reviewBigScore}>
                   <Star size={24} color="#D2AD6B" fill="#D2AD6B" />
-                  <Text style={styles.reviewBigScoreText}>{vendor.rating?.toFixed(1) || '4.9'}</Text>
+                  <Text style={styles.reviewBigScoreText}>{vendor.rating ? vendor.rating.toFixed(1) : 'New'}</Text>
                 </View>
                 <View>
                   <Text style={styles.reviewHeading}>{vendor.reviewsCount} Verified Customer Reviews</Text>
@@ -724,27 +693,9 @@ export default function VendorDetailsScreen() {
                 </View>
               </View>
 
-              {/* Sample Verified Review Cards */}
-              <View style={styles.reviewCardItem}>
-                <View style={styles.reviewCardTop}>
-                  <Text style={styles.reviewerName}>Gurpreet S. (Patiala)</Text>
-                  <RatingDisplay rating={5} showCount={false} />
-                </View>
-                <Text style={styles.reviewEventTag}>Wedding Reception • 350 Guests</Text>
-                <Text style={styles.reviewText}>
-                  "Exceptional coordination and prompt communication. The execution exceeded our expectations and our guests loved the hospitality."
-                </Text>
-              </View>
-
-              <View style={styles.reviewCardItem}>
-                <View style={styles.reviewCardTop}>
-                  <Text style={styles.reviewerName}>Simran K. (Chandigarh)</Text>
-                  <RatingDisplay rating={4.8} showCount={false} />
-                </View>
-                <Text style={styles.reviewEventTag}>Engagement Ceremony • 150 Guests</Text>
-                <Text style={styles.reviewText}>
-                  "Very transparent quotation with zero hidden fees. Highly recommend checking their packages."
-                </Text>
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyCardTitle}>Individual reviews not available</Text>
+                <Text style={styles.emptyCardCopy}>Only the backend rating summary is currently published for this vendor.</Text>
               </View>
             </View>
           )}
@@ -754,37 +705,55 @@ export default function VendorDetailsScreen() {
             <View style={styles.sectionBlock}>
               <Text style={styles.sectionHeading}>Marketplace Policies & Booking Terms</Text>
 
-              <View style={styles.policyRow}>
-                <FileCheck size={16} color="#641E3D" />
-                <View style={styles.policyCopy}>
-                  <Text style={styles.policyTitle}>Advance Booking Policy</Text>
-                  <Text style={styles.policyDesc}>{vendor.policies?.advance}</Text>
+              {!vendor.policies?.advance && !vendor.policies?.cancellation && !vendor.policies?.rescheduling && !vendor.policies?.travel ? (
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyCardTitle}>Policies not published</Text>
+                  <Text style={styles.emptyCardCopy}>This vendor has not added booking policies to their backend profile.</Text>
                 </View>
-              </View>
+              ) : null}
 
-              <View style={styles.policyRow}>
-                <FileCheck size={16} color="#641E3D" />
-                <View style={styles.policyCopy}>
-                  <Text style={styles.policyTitle}>Cancellation & Rescheduling</Text>
-                  <Text style={styles.policyDesc}>{vendor.policies?.cancellation}</Text>
+              {vendor.policies?.advance ? (
+                <View style={styles.policyRow}>
+                  <FileCheck size={16} color="#641E3D" />
+                  <View style={styles.policyCopy}>
+                    <Text style={styles.policyTitle}>Advance Booking Policy</Text>
+                    <Text style={styles.policyDesc}>{vendor.policies.advance}</Text>
+                  </View>
                 </View>
-              </View>
+              ) : null}
 
-              <View style={styles.policyRow}>
-                <FileCheck size={16} color="#641E3D" />
-                <View style={styles.policyCopy}>
-                  <Text style={styles.policyTitle}>Travel & Outstation Coverage</Text>
-                  <Text style={styles.policyDesc}>{vendor.policies?.travel}</Text>
+              {vendor.policies?.cancellation || vendor.policies?.rescheduling ? (
+                <View style={styles.policyRow}>
+                  <FileCheck size={16} color="#641E3D" />
+                  <View style={styles.policyCopy}>
+                    <Text style={styles.policyTitle}>Cancellation & Rescheduling</Text>
+                    {vendor.policies.cancellation ? <Text style={styles.policyDesc}>{vendor.policies.cancellation}</Text> : null}
+                    {vendor.policies.rescheduling ? <Text style={styles.policyDesc}>{vendor.policies.rescheduling}</Text> : null}
+                  </View>
                 </View>
-              </View>
+              ) : null}
 
-              <Text style={[styles.sectionHeading, { marginTop: 16 }]}>Frequently Asked Questions</Text>
-              {vendor.faqs?.map((faq, i) => (
-                <View key={i} style={styles.faqCard}>
-                  <Text style={styles.faqQuestion}>Q: {faq.question}</Text>
-                  <Text style={styles.faqAnswer}>{faq.answer}</Text>
+              {vendor.policies?.travel ? (
+                <View style={styles.policyRow}>
+                  <FileCheck size={16} color="#641E3D" />
+                  <View style={styles.policyCopy}>
+                    <Text style={styles.policyTitle}>Travel & Outstation Coverage</Text>
+                    <Text style={styles.policyDesc}>{vendor.policies.travel}</Text>
+                  </View>
                 </View>
-              ))}
+              ) : null}
+
+              {vendor.faqs && vendor.faqs.length > 0 ? (
+                <>
+                  <Text style={[styles.sectionHeading, { marginTop: 16 }]}>Frequently Asked Questions</Text>
+                  {vendor.faqs.map((faq, i) => (
+                    <View key={i} style={styles.faqCard}>
+                      <Text style={styles.faqQuestion}>Q: {faq.question}</Text>
+                      <Text style={styles.faqAnswer}>{faq.answer}</Text>
+                    </View>
+                  ))}
+                </>
+              ) : null}
             </View>
           )}
         </View>

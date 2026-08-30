@@ -84,9 +84,9 @@ export function WorkHistoryDetailModal({
 
   const images = getItemImages(item);
   const budget = numericBudget(item.budget);
-  const location = [item.venue, item.city].filter(Boolean).join(', ') || vendorCity;
+  const location = [item.venue, item.city].filter(Boolean).join(', ') || 'Not shared';
   const collaborators: CollaboratingVendor[] = item.collaborators || [];
-  const eventTitle = cleanWorkTitle(item.title, item.eventType, vendorName);
+  const eventTitle = cleanWorkTitle(item.title, item.eventType);
 
   const handleShare = async () => {
     try {
@@ -179,7 +179,7 @@ export function WorkHistoryDetailModal({
             <View style={styles.badgeRow}>
               <View style={styles.eventTypeBadge}>
                 <Sparkles size={11} color="#8C6F3E" />
-                <Text style={styles.eventTypeText}>{item.eventType || 'Grand Celebration'}</Text>
+                <Text style={styles.eventTypeText}>{item.eventType || 'Event type not shared'}</Text>
               </View>
               <View style={styles.verifiedBadge}>
                 <CheckCircle2 size={11} color="#287857" />
@@ -242,8 +242,7 @@ export function WorkHistoryDetailModal({
                 <Text style={styles.sectionCardTitle}>Scope & Deliverables</Text>
               </View>
               <Text style={styles.narrativeText}>
-                {item.scope ||
-                  'The specialist managed complete planning, on-site setup, luxury detailing, and coordinated execution for this celebration.'}
+                {item.scope || 'Not shared'}
               </Text>
               {item.story ? (
                 <Text style={[styles.narrativeText, { marginTop: 10 }]}>{item.story}</Text>

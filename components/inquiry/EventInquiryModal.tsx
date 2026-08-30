@@ -29,25 +29,9 @@ import {
 } from 'lucide-react-native';
 import { createEventInquiry, fetchCustomerProfile } from '../../services/api';
 import { VellureInputField } from '../ui/VellureInputField';
+import { EVENT_TYPE_OPTIONS as EVENT_TYPES } from '../../constants/eventTypes';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const EVENT_TYPES = [
-  'Wedding',
-  'Engagement',
-  'Reception',
-  'Sangeet / Mehendi',
-  'Birthday',
-  'Anniversary',
-  'Corporate Event',
-  'Puja / Path',
-  'Nikah',
-  'Church Ceremony',
-  'Festival Celebration',
-  'Baby Shower',
-  'Housewarming',
-  'Other',
-];
 
 export interface EventInquiryModalProps {
   visible: boolean;

@@ -14,24 +14,13 @@ import {
 import { X, Sparkles, Check, RotateCcw, Info } from 'lucide-react-native';
 import { CustomerPreferences, saveUserPreferences } from '../../services/api';
 import { colors } from '../../constants/theme';
+import { EVENT_TYPE_OPTIONS } from '../../constants/eventTypes';
 
 interface EventPreferencesModalProps {
   visible: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }
-
-const EVENT_TYPE_OPTIONS = [
-  'Wedding',
-  'Engagement',
-  'Reception',
-  'Sangeet / Mehendi',
-  'Birthday',
-  'Anniversary',
-  'Corporate Event',
-  'Puja / Path',
-  'Festival Celebration',
-];
 
 const VENUE_STYLE_OPTIONS = [
   'Heritage Palace & Haveli',

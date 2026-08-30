@@ -54,7 +54,7 @@ export const QUICK_SUGGESTIONS: AiSuggestion[] = [
     id: 'sug-3',
     title: 'Grand Sangeet & DJ Night (₹3.5L)',
     prompt: 'Grand Sangeet and Mehendi night for 200 guests with DJ, sound, thematic lighting, and catering under ₹3.5 Lakh.',
-    eventType: 'Sangeet / Mehendi',
+    eventType: 'Sangeet & Mehendi',
     city: 'Patiala',
     guestCount: 200,
     budgetMin: 300000,

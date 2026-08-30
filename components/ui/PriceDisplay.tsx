@@ -10,6 +10,7 @@ export type VendorPriceType =
   | 'PER_EVENT'
   | 'PER_HOUR'
   | 'PER_ROOM'
+  | 'PER_ITEM'
   | 'FIXED_PACKAGE'
   | 'STARTING_PRICE'
   | 'QUOTE_REQUIRED';
@@ -39,6 +40,10 @@ export function formatPriceUnit(priceType?: string): string {
       return 'per hour';
     case 'PER_ROOM':
       return 'per room / night';
+    case 'PER_ITEM':
+      return 'per item';
+    case 'FIXED':
+      return 'fixed price';
     case 'FIXED_PACKAGE':
       return 'fixed package';
     case 'STARTING_PRICE':

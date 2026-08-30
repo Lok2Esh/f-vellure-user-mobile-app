@@ -41,7 +41,7 @@ const INDIAN_CITIES_LIST = [
 const EVENT_TYPE_KEYWORDS: Record<string, string[]> = {
   Wedding: ['wedding', 'shadi', 'shaadi', 'anand karaj', 'marriage', 'vivaah', 'nikah'],
   Engagement: ['engagement', 'roka', 'ring ceremony', 'sagai'],
-  'Sangeet / Mehendi': ['sangeet', 'mehendi', 'mehndi', 'haldi', 'dhol night', 'ladies sangeet'],
+  'Sangeet & Mehendi': ['sangeet', 'mehendi', 'mehndi', 'haldi', 'dhol night', 'ladies sangeet'],
   Reception: ['reception', 'walima'],
   Birthday: ['birthday', 'bday', '1st birthday', '50th birthday'],
   Anniversary: ['anniversary', 'silver jubilee', 'golden jubilee'],

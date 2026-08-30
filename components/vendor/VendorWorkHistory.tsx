@@ -112,7 +112,7 @@ export function getNormalizedCollaborators(item: VendorWorkItem): CollaboratingV
   return [];
 }
 
-export function cleanWorkTitle(title?: string, eventType?: string, vendorName?: string): string {
+function legacyCleanWorkTitle(title?: string, eventType?: string, vendorName?: string): string {
   if (!title) {
     if (eventType) return `${eventType} Celebration`;
     return 'Grand Wedding Celebration';
@@ -155,6 +155,14 @@ function displayDate(item: VendorWorkItem) {
   return Number.isNaN(parsed.getTime())
     ? String(value)
     : parsed.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+export function cleanWorkTitle(title?: string, eventType?: string): string {
+  return title?.trim() || eventType?.trim() || 'Untitled previous work';
+}
+
+function backendWorkTitle(item: VendorWorkItem): string {
+  return item.title?.trim() || item.eventType?.trim() || 'Untitled previous work';
 }
 
 function numericBudget(value?: number | string) {
@@ -223,8 +231,8 @@ export function VendorWorkHistory({
           const cardImages = getItemImages(item);
           const collaborators = getNormalizedCollaborators(item);
           const budget = numericBudget(item.budget);
-          const location = [item.venue, item.city].filter(Boolean).join(', ') || vendorCity;
-          const itemTitle = cleanWorkTitle(item.title, item.eventType, vendorName);
+          const location = [item.venue, item.city].filter(Boolean).join(', ') || 'Not shared';
+          const itemTitle = backendWorkTitle(item);
 
           return (
             <View key={item.id || `${itemTitle}-${index}`} style={styles.workCard}>
@@ -254,7 +262,7 @@ export function VendorWorkHistory({
                 {/* Title & Verified Tag */}
                 <View style={styles.titleRow}>
                   <View style={styles.titleCopy}>
-                    <Text style={styles.eventType}>{item.eventType || 'Completed Event'}</Text>
+                    {item.eventType ? <Text style={styles.eventType}>{item.eventType}</Text> : null}
                     <Text style={styles.title}>{itemTitle}</Text>
                   </View>
                   <View style={styles.verifiedPill}>
@@ -364,8 +372,7 @@ export function VendorWorkHistory({
                     <Text style={styles.scopeLabel}>Scope of Work & Deliverables</Text>
                   </View>
                   <Text style={styles.scopeText} numberOfLines={2}>
-                    {item.scope ||
-                      'Detailed execution deliverables and custom setup specs are documented for this celebration.'}
+                    {item.scope || 'Not shared'}
                   </Text>
                 </View>
 

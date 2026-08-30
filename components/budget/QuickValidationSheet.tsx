@@ -15,6 +15,7 @@ import { VellureInputField } from '../ui/VellureInputField';
 import { CityPickerModal, CityEntry } from '../ui/CityPickerModal';
 import { CalendarModal } from '../ui/CalendarModal';
 import { colors } from '../../constants/theme';
+import { EVENT_TYPE_OPTIONS } from '../../constants/eventTypes';
 
 export interface QuickValidationValues {
   eventType: string;
@@ -33,19 +34,6 @@ interface QuickValidationSheetProps {
   onClose: () => void;
   onApply: (updated: QuickValidationValues) => void;
 }
-
-const EVENT_TYPE_OPTIONS = [
-  'Wedding',
-  'Engagement',
-  'Reception',
-  'Sangeet / Mehendi',
-  'Birthday',
-  'Anniversary',
-  'Corporate Event',
-  'Puja / Path',
-  'Baby Shower',
-  'Housewarming',
-];
 
 const ALL_SERVICES = [
   'Venue & Catering',

@@ -74,7 +74,15 @@ const CATEGORY_MAP: Record<string, { label: string; key: string }> = {
   planning: { label: 'Event Planners', key: 'planning' },
   entertainment: { label: 'DJ & Live Music', key: 'entertainment' },
   music: { label: 'Live Bands', key: 'music' },
-  invitations: { label: 'Invitations & Gifts', key: 'invitations' },
+  live_music: { label: 'Live Bands', key: 'live_music' },
+  sound_lighting: { label: 'Sound & Lighting', key: 'sound_lighting' },
+  choreography: { label: 'Choreography', key: 'choreography' },
+  cakes: { label: 'Cakes & Desserts', key: 'cakes' },
+  invitations: { label: 'Invitations', key: 'invitations' },
+  gifts: { label: 'Gifts & Favors', key: 'gifts' },
+  bridal_wear: { label: 'Bridal Wear', key: 'bridal_wear' },
+  groom_wear: { label: 'Groom Wear', key: 'groom_wear' },
+  bartending: { label: 'Bar Services', key: 'bartending' },
   accommodation: { label: 'Guest Accommodations', key: 'accommodation' },
   transport: { label: 'Luxury Transport', key: 'transport' },
   security: { label: 'Valet & Security', key: 'security' },
@@ -501,7 +509,7 @@ export default function VendorsScreen() {
         {/* Result Count Line */}
         <View style={styles.resultCountBar}>
           <Text style={styles.resultCountText}>
-            {filteredVendors.length} verified partner{filteredVendors.length === 1 ? '' : 's'} found
+            {filteredVendors.length} marketplace listing{filteredVendors.length === 1 ? '' : 's'} found
           </Text>
         </View>
       </View>

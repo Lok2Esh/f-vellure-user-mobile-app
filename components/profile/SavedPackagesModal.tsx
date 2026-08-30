@@ -49,7 +49,7 @@ const SAVED_PACKAGES_DATA = [
     title: 'Couture Sangeet & Visuals Suite',
     tagline: 'Mood lighting + Candid Cinema + DJ',
     category: 'Entertainment & Decor',
-    eventType: 'Sangeet / Mehendi',
+    eventType: 'Sangeet & Mehendi',
     city: 'Patiala',
     guestCount: 200,
     estimatedPrice: 480000,

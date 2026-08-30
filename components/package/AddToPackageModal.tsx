@@ -29,6 +29,7 @@ import {
 import { router } from 'expo-router';
 import { VellureButton } from '../ui/VellureControls';
 import { PriceDisplay } from '../ui/PriceDisplay';
+import { EVENT_TYPE_OPTIONS as CELEBRATION_TYPES } from '../../constants/eventTypes';
 import {
   CustomPackage,
   getAllCustomPackages,
@@ -63,17 +64,6 @@ export interface AddToPackageModalProps {
   onClose: () => void;
   onSuccess?: (packageId: string, packageName: string) => void;
 }
-
-const CELEBRATION_TYPES = [
-  'Wedding',
-  'Sangeet',
-  'Reception',
-  'Engagement',
-  'Haldi & Mehendi',
-  'Cocktail Party',
-  'Anniversary',
-  'Corporate Gala',
-];
 
 export function AddToPackageModal({
   visible,

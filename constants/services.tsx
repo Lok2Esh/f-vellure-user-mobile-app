@@ -72,6 +72,30 @@ export const SERVICE_REGISTRY: Record<string, ServiceMetadata> = {
     icon: CakeSlice,
     color: '#B85772'
   },
+  'Bridal Wear': {
+    id: 'bridal_wear',
+    label: 'Bridal Wear',
+    icon: Sparkles,
+    color: '#A63F69'
+  },
+  'Groom Wear': {
+    id: 'groom_wear',
+    label: 'Groom Wear',
+    icon: Scissors,
+    color: '#415A77'
+  },
+  'Choreography': {
+    id: 'choreography',
+    label: 'Choreography',
+    icon: Music,
+    color: '#8B5E83'
+  },
+  'Gifts': {
+    id: 'gifts',
+    label: 'Gifts & Favors',
+    icon: Gift,
+    color: '#9A7634'
+  },
   'Makeup': {
     id: 'makeup',
     label: 'Makeup & Styling',
@@ -175,10 +199,12 @@ export const SERVICE_REGISTRY: Record<string, ServiceMetadata> = {
  * Helper to get metadata for a category name, with a fallback.
  */
 export function getServiceMetadata(categoryName: string): ServiceMetadata {
-  const key = Object.keys(SERVICE_REGISTRY).find(k => 
-    categoryName.toLowerCase().includes(k.toLowerCase()) || 
-    k.toLowerCase().includes(categoryName.toLowerCase())
-  );
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const normalizedCategory = normalize(categoryName);
+  const key = Object.keys(SERVICE_REGISTRY).find(k => {
+    const normalizedKey = normalize(k);
+    return normalizedCategory.includes(normalizedKey) || normalizedKey.includes(normalizedCategory);
+  });
 
   return SERVICE_REGISTRY[key || 'Miscellaneous'] || SERVICE_REGISTRY['Miscellaneous'];
 }

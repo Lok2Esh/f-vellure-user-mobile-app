@@ -27,25 +27,13 @@ import { router } from 'expo-router';
 import { createNewPlan, EventPlan } from '../../services/api';
 import { colors } from '../../constants/theme';
 import { VellureInputField } from '../ui/VellureInputField';
+import { EVENT_TYPE_OPTIONS } from '../../constants/eventTypes';
 
 interface NewPlanModalProps {
   visible: boolean;
   onClose: () => void;
   onPlanCreated: (plan: EventPlan) => void;
 }
-
-const EVENT_TYPE_OPTIONS = [
-  'Wedding',
-  'Engagement',
-  'Reception',
-  'Sangeet / Mehendi',
-  'Birthday',
-  'Anniversary',
-  'Corporate Event',
-  'Puja / Path',
-  'Festival Celebration',
-  'Other',
-];
 
 export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalProps) {
   const [mode, setMode] = useState<'choice' | 'manual'>('choice');
