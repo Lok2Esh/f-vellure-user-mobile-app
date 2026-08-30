@@ -14,6 +14,7 @@ import { X, Sliders, CheckCircle2, Sparkles, MapPin, Calendar, Users, IndianRupe
 import { VellureInputField } from '../ui/VellureInputField';
 import { CityPickerModal, CityEntry } from '../ui/CityPickerModal';
 import { CalendarModal } from '../ui/CalendarModal';
+import { setSelectedLocation } from '../../services/locationStore';
 import { colors } from '../../constants/theme';
 import { EVENT_TYPE_OPTIONS } from '../../constants/eventTypes';
 
@@ -83,6 +84,7 @@ export function QuickValidationSheet({
   };
 
   const handleConfirm = () => {
+    setSelectedLocation(city);
     onApply({
       eventType,
       city,

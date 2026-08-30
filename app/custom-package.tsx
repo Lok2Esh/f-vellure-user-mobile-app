@@ -86,6 +86,7 @@ import {
   updateCategoryBudget,
 } from '../services/customPackageStore';
 import { fetchVendorsData } from '../services/api';
+import { isVendorInCity, setSelectedLocation } from '../services/locationStore';
 
 type VendorChoiceItem = {
   id: string;
@@ -204,15 +205,17 @@ export default function CustomPackageScreen() {
   }, [params.id]);
 
   const handleUpdateSpecs = () => {
+    const updatedCity = pkgCity.trim() || 'Patiala';
     updateCustomPackageSettings({
       name: pkgName.trim() || 'My Bespoke Celebration Suite',
       eventType: pkgEventType,
-      city: pkgCity.trim() || 'Patiala',
+      city: updatedCity,
       eventDate: pkgDate.trim() || undefined,
       guestCount: parseInt(pkgGuests, 10) || 300,
       eventDays: parseInt(pkgDays, 10) || 1,
       targetBudget: parseInt(pkgBudget, 10) || 1500000,
     });
+    setSelectedLocation(updatedCity);
     setEditSpecsModalVisible(false);
   };
 
@@ -291,14 +294,20 @@ export default function CustomPackageScreen() {
     setCatBudgetInput(String(initialCatBudget));
     setLoadingCategoryVendors(true);
     try {
-      const grouped = await fetchVendorsData();
+      const targetCity = pkg.city || 'Patiala';
+      const grouped = await fetchVendorsData(targetCity);
       const allVendors = Object.values(grouped).flat() as VendorChoiceItem[];
       const filtered = allVendors.filter(
         (v: VendorChoiceItem) =>
-          v.category?.toUpperCase() === catKey.toUpperCase() ||
-          v.category?.toLowerCase().includes(catKey.toLowerCase())
+          (v.category?.toUpperCase() === catKey.toUpperCase() ||
+          v.category?.toLowerCase().includes(catKey.toLowerCase())) &&
+          isVendorInCity(v, targetCity)
       );
-      setCategoryVendors(filtered.length > 0 ? filtered : allVendors.slice(0, 4));
+      setCategoryVendors(
+        filtered.length > 0
+          ? filtered
+          : allVendors.filter((v) => isVendorInCity(v, targetCity)).slice(0, 4)
+      );
     } catch (_) {
       setCategoryVendors([]);
     } finally {

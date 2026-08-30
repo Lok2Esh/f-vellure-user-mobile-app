@@ -1174,9 +1174,10 @@ export const fetchVendorPacks = async (budget: number) => {
   }
 };
 
-export const fetchVendorsData = async () => {
+export const fetchVendorsData = async (city?: string) => {
   try {
-    const response = await fetchWithTimeout(`${BASE_URL}/vendors/public?limit=100`);
+    const cityParam = city ? `&city=${encodeURIComponent(city.trim())}` : '';
+    const response = await fetchWithTimeout(`${BASE_URL}/vendors/public?limit=100${cityParam}`);
     if (response.ok) {
       const data = await response.json();
 

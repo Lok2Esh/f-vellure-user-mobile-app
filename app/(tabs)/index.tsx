@@ -47,6 +47,13 @@ import {
   fetchVendorsData,
   fetchSavedVendorIds,
 } from '../../services/api';
+import {
+  getSelectedLocation,
+  setSelectedLocation,
+  subscribeSelectedLocation,
+  isVendorInCity,
+  POPULAR_CITIES,
+} from '../../services/locationStore';
 import { colors } from '../../constants/theme';
 import { ConversationalAiInput, AiSubmitPayload } from '../../components/ui/ConversationalAiInput';
 import { SectionHeader } from '../../components/ui/SectionHeader';
@@ -64,7 +71,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Royal & Heritage Ceremonies',
     icon: Heart,
     color: '#641E3D',
-    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/wedding.jpg'),
   },
   {
     id: 'engagement',
@@ -72,7 +79,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Ring Ceremonies & Roka',
     icon: Crown,
     color: '#8A5A27',
-    image: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/engagement.jpg'),
   },
   {
     id: 'reception',
@@ -80,7 +87,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Grand Galas & Banquets',
     icon: Flower2,
     color: '#A05A2C',
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/reception.jpg'),
   },
   {
     id: 'sangeet',
@@ -88,7 +95,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Music, Dance & Henna Nights',
     icon: Music,
     color: '#9A3F32',
-    image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/sangeet-mehendi.jpg'),
   },
   {
     id: 'birthday',
@@ -96,7 +103,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Themed Celebrations & Milestones',
     icon: Gift,
     color: '#7B4D83',
-    image: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/birthday.jpg'),
   },
   {
     id: 'anniversary',
@@ -104,7 +111,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Golden, Silver & Milestone Soirées',
     icon: Sparkles,
     color: '#6F3D82',
-    image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/anniversary.jpg'),
   },
   {
     id: 'baby-shower',
@@ -112,7 +119,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Godh Bharai & Welcoming Blessings',
     icon: Heart,
     color: '#476A91',
-    image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/baby-shower.jpg'),
   },
   {
     id: 'housewarming',
@@ -120,7 +127,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Griha Pravesh & Blessings',
     icon: Hotel,
     color: '#7E5C3A',
-    image: 'https://images.unsplash.com/photo-1544145945-f904253db0ad?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/housewarming.jpg'),
   },
   {
     id: 'corporate',
@@ -128,7 +135,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Summits, Galas & Dinners',
     icon: Hotel,
     color: '#365C78',
-    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/corporate-event.jpg'),
   },
   {
     id: 'product-launch',
@@ -136,7 +143,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Media, Sound & Experiential Staging',
     icon: Sparkles,
     color: '#2A5C8A',
-    image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/product-launch.jpg'),
   },
   {
     id: 'conference',
@@ -144,7 +151,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Keynotes & Exhibition Halls',
     icon: CalendarDays,
     color: '#2E6F5A',
-    image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/conference.jpg'),
   },
   {
     id: 'private-party',
@@ -152,7 +159,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Intimate Dinners & Cocktails',
     icon: Music,
     color: '#8A2D58',
-    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/private-party.jpg'),
   },
   {
     id: 'festival',
@@ -160,7 +167,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Diwali, Holi, Eid, Christmas & Baisakhi',
     icon: Gift,
     color: '#B45B27',
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/festival-celebration.jpg'),
   },
   {
     id: 'puja-path',
@@ -168,7 +175,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Traditional Vedic Rituals & Havans',
     icon: Sparkles,
     color: '#7A5B20',
-    image: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/puja-path.jpg'),
   },
   {
     id: 'ramayan-path',
@@ -176,7 +183,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Akhand Path & Devotional Sangeet',
     icon: Sparkles,
     color: '#9C6228',
-    image: 'https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/ramayan-path-kirtan.jpg'),
   },
   {
     id: 'guru-granth-path',
@@ -184,7 +191,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Akhand Path & Kirtan Darbar',
     icon: Crown,
     color: '#266352',
-    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/guru-granth-sahib-path.jpg'),
   },
   {
     id: 'nikah',
@@ -192,7 +199,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Islamic Ceremonies & Feast',
     icon: Heart,
     color: '#2F6D62',
-    image: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/nikah-walima.jpg'),
   },
   {
     id: 'church-ceremony',
@@ -200,7 +207,7 @@ const EVENT_CATEGORIES = [
     tagline: 'Christian Weddings & Blessings',
     icon: CalendarDays,
     color: '#476A91',
-    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&auto=format&fit=crop',
+    image: require('../../assets/images/celebrations/church-ceremony.jpg'),
   },
 ];
 
@@ -232,7 +239,6 @@ const PARTNER_OFFERS = [
 ];
 
 export default function HomeScreen() {
-  const [currentCity, setCurrentCity] = useState('Patiala');
   const [userName, setUserName] = useState('Host');
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
@@ -256,7 +262,11 @@ export default function HomeScreen() {
     return 'Good evening';
   }, []);
 
-  const loadHomeData = async () => {
+  const [currentCity, setCurrentCity] = useState<string>(getSelectedLocation().city);
+  const [currentState, setCurrentState] = useState<string>(getSelectedLocation().state || 'Punjab');
+
+  const loadHomeData = async (targetCity?: string) => {
+    const activeCity = targetCity || getSelectedLocation().city || currentCity;
     try {
       // 1. Fetch preferences
       try {
@@ -264,7 +274,6 @@ export default function HomeScreen() {
         if (pref) {
           if (pref.totalBudget) setUserBudget(pref.totalBudget);
           if (pref.guestCount) setGuestCount(pref.guestCount);
-          if (pref.city) setCurrentCity(pref.city);
           if (pref.eventType) setUserEventType(pref.eventType);
           if (pref.user?.name) setUserName(pref.user.name);
         }
@@ -278,11 +287,12 @@ export default function HomeScreen() {
         }
       } catch (_) {}
 
-      // 3. Fetch top verified vendors
+      // 3. Fetch top verified vendors specifically for this city
       try {
-        const vendorData = await fetchVendorsData();
+        const vendorData = await fetchVendorsData(activeCity);
         const all = Object.values(vendorData).flat() as any[];
-        setVerifiedVendors(all.slice(0, 10));
+        const cityMatches = all.filter((v) => isVendorInCity(v, activeCity));
+        setVerifiedVendors(cityMatches.length > 0 ? cityMatches.slice(0, 10) : all.slice(0, 10));
       } catch (_) {}
 
       // 4. Saved items count
@@ -299,31 +309,24 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    loadHomeData();
+    const unsubscribe = subscribeSelectedLocation((loc) => {
+      setCurrentCity(loc.city);
+      setCurrentState(loc.state || 'Punjab');
+      loadHomeData(loc.city);
+    });
+    return unsubscribe;
   }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
-    loadHomeData();
+    loadHomeData(currentCity);
   };
 
-  const [citiesList, setCitiesList] = useState<CityEntry[]>([
-    { city: 'Patiala', state: 'Punjab' },
-    { city: 'Chandigarh', state: 'Punjab' },
-    { city: 'Amritsar', state: 'Punjab' },
-    { city: 'Ludhiana', state: 'Punjab' },
-    { city: 'Delhi NCR', state: 'Delhi' },
-    { city: 'Gurgaon', state: 'Haryana' },
-    { city: 'Noida', state: 'Uttar Pradesh' },
-    { city: 'Jaipur', state: 'Rajasthan' },
-    { city: 'Udaipur', state: 'Rajasthan' },
-    { city: 'Mumbai', state: 'Maharashtra' },
-    { city: 'Pune', state: 'Maharashtra' },
-    { city: 'Bangalore', state: 'Karnataka' },
-  ]);
+  const [citiesList, setCitiesList] = useState<CityEntry[]>(POPULAR_CITIES);
 
   const handleCitySelect = (selectedCityName: string) => {
-    setCurrentCity(selectedCityName);
+    const matched = POPULAR_CITIES.find((c) => c.city.toLowerCase() === selectedCityName.toLowerCase());
+    setSelectedLocation(selectedCityName, matched?.state);
     setCityPickerVisible(false);
   };
 
@@ -486,7 +489,7 @@ export default function HomeScreen() {
                 onPress={() => handleCategoryPress(cat)}
                 activeOpacity={0.82}
               >
-                <Image source={{ uri: cat.image }} style={styles.catImage} />
+                <Image source={cat.image} style={styles.catImage} />
                 <View style={styles.catOverlay} />
                 <View style={[styles.catIconWrap, { backgroundColor: cat.color }]}>
                   <IconComponent size={14} color="#FFFFFF" />

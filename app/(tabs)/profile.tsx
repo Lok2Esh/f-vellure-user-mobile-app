@@ -46,6 +46,7 @@ import {
   fetchSavedVendorIds,
   fetchVendorsData,
 } from '../../services/api';
+import { getSelectedLocation, subscribeSelectedLocation } from '../../services/locationStore';
 import { colors } from '../../constants/theme';
 
 // Profile Components
@@ -130,7 +131,8 @@ export default function ProfileScreen() {
         fetchVendorsData().catch(() => ({})),
       ]);
 
-      setProfile(prof);
+      const activeCity = getSelectedLocation().city;
+      setProfile(prof ? { ...prof, primaryCity: activeCity || prof.primaryCity } : prof);
       setActivePlan(plan);
       setInquiries(inqs);
 
@@ -143,6 +145,13 @@ export default function ProfileScreen() {
       setIsLoading(false);
       setRefreshing(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeSelectedLocation((loc) => {
+      setProfile((p) => (p ? { ...p, primaryCity: loc.city } : p));
+    });
+    return unsubscribe;
   }, []);
 
   useFocusEffect(

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { X, MapPin, Plus, Trash2, Home, Building2, Navigation } from 'lucide-react-native';
 import { SavedLocationItem, fetchSavedLocations, addSavedLocation, removeSavedLocation } from '../../services/api';
+import { getSelectedLocation, setSelectedLocation } from '../../services/locationStore';
 import { colors } from '../../constants/theme';
 import { VellureInputField } from '../ui/VellureInputField';
 import { VellureButton } from "@/components/ui/VellureControls";
@@ -107,38 +108,51 @@ export function SavedLocationsModal({ visible, onClose }: SavedLocationsModalPro
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-              {locations.map((loc) => (
-                <View key={loc.id} style={styles.locCard}>
-                  <View style={styles.locIconWrap}>
-                    {loc.tag === 'Primary' ? (
-                      <Home size={16} color="#641E3D" />
-                    ) : (
-                      <Building2 size={16} color="#641E3D" />
-                    )}
-                  </View>
-                  <View style={styles.locInfo}>
-                    <View style={styles.tagRow}>
-                      <Text style={styles.locName}>{loc.name}</Text>
-                      {loc.tag && (
-                        <View style={styles.tagBadge}>
-                          <Text style={styles.tagBadgeText}>{loc.tag}</Text>
-                        </View>
+              {locations.map((loc) => {
+                const isActive = getSelectedLocation().city.toLowerCase() === loc.city.toLowerCase();
+                return (
+                  <VellureButton
+                    key={loc.id}
+                    style={[styles.locCard, isActive && { borderColor: '#641E3D', backgroundColor: '#FAF5EC' }]}
+                    onPress={() => setSelectedLocation(loc.city, loc.state)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.locIconWrap}>
+                      {loc.tag === 'Primary' ? (
+                        <Home size={16} color="#641E3D" />
+                      ) : (
+                        <Building2 size={16} color="#641E3D" />
                       )}
                     </View>
-                    <Text style={styles.locSub}>
-                      {loc.city}, {loc.state}
-                    </Text>
-                  </View>
-                  <VellureButton
-                    style={styles.deleteBtn}
-                    onPress={() => setDeleteTarget(loc)}
-                    activeOpacity={0.7}
-                    accessibilityLabel={`Remove location ${loc.name}`}
-                  >
-                    <Trash2 size={15} color="#B63A4A" />
+                    <View style={styles.locInfo}>
+                      <View style={styles.tagRow}>
+                        <Text style={styles.locName}>{loc.name}</Text>
+                        {isActive && (
+                          <View style={[styles.tagBadge, { backgroundColor: '#EBF8F2', borderColor: '#C3ECD8' }]}>
+                            <Text style={[styles.tagBadgeText, { color: '#287857' }]}>Active ✓</Text>
+                          </View>
+                        )}
+                        {loc.tag && !isActive && (
+                          <View style={styles.tagBadge}>
+                            <Text style={styles.tagBadgeText}>{loc.tag}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.locSub}>
+                        {loc.city}, {loc.state}
+                      </Text>
+                    </View>
+                    <VellureButton
+                      style={styles.deleteBtn}
+                      onPress={() => setDeleteTarget(loc)}
+                      activeOpacity={0.7}
+                      accessibilityLabel={`Remove location ${loc.name}`}
+                    >
+                      <Trash2 size={15} color="#B63A4A" />
+                    </VellureButton>
                   </VellureButton>
-                </View>
-              ))}
+                );
+              })}
 
               {/* Add New Location Form or Trigger */}
               {showAddForm ? (

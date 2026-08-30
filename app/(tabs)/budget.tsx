@@ -50,6 +50,7 @@ import { QuickValidationSheet, QuickValidationValues } from '../../components/bu
 import { CityPickerModal, CityEntry } from '../../components/ui/CityPickerModal';
 import { CalendarModal } from '../../components/ui/CalendarModal';
 import { EventInquiryModal } from '../../components/inquiry/EventInquiryModal';
+import { getSelectedLocation, setSelectedLocation, subscribeSelectedLocation } from '../../services/locationStore';
 
 const DEFAULT_PROMPT =
   'Outdoor engagement in Patiala for 150 guests with catering, decor, photography, and live music. Budget ₹4 lakh.';

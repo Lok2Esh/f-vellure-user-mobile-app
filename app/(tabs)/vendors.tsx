@@ -43,6 +43,13 @@ import {
   getCustomPackage,
   CustomPackage,
 } from '../../services/customPackageStore';
+import {
+  getSelectedLocation,
+  setSelectedLocation,
+  subscribeSelectedLocation,
+  isVendorInCity,
+  POPULAR_CITIES,
+} from '../../services/locationStore';
 import VendorCard from '../../components/vendor/VendorCard';
 import { VellureSearchInput } from '../../components/ui/VellureInputField';
 import {
@@ -153,8 +160,9 @@ export default function VendorsScreen() {
     return unsubscribe;
   }, []);
 
+  const [currentLocation, setCurrentLocation] = useState(getSelectedLocation());
   const [allData, setAllData] = useState<Record<string, MarketplaceVendor[]>>({});
-  const [citiesData, setCitiesData] = useState<CityEntry[]>([]);
+  const [citiesData, setCitiesData] = useState<CityEntry[]>(POPULAR_CITIES);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -167,30 +175,37 @@ export default function VendorsScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (targetCity?: string) => {
     setIsLoading(true);
     setLoadError(null);
+    const activeCity = targetCity || currentLocation.city;
     try {
       const [data, saved, compared, citiesResp] = await Promise.all([
-        fetchVendorsData(),
+        fetchVendorsData(activeCity),
         fetchSavedVendorIds(),
         fetchComparedVendorIds(),
-        fetchCitiesData().catch(() => ({ cities: [] })),
+        fetchCitiesData().catch(() => ({ cities: POPULAR_CITIES })),
       ]);
       setAllData(data as Record<string, MarketplaceVendor[]>);
       setSavedIds(saved);
       setCompareIds(compared);
-      setCitiesData(citiesResp?.cities || []);
+      if (citiesResp?.cities && citiesResp.cities.length > 0) {
+        setCitiesData(citiesResp.cities);
+      }
     } catch (error) {
       console.error('Error fetching marketplace vendors:', error);
       setLoadError('We could not load marketplace partners. Check the backend connection and try again.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentLocation.city]);
 
   useEffect(() => {
-    loadData();
+    const unsubscribe = subscribeSelectedLocation((loc) => {
+      setCurrentLocation(loc);
+      loadData(loc.city);
+    });
+    return unsubscribe;
   }, [loadData]);
 
   // Handle incoming route params (e.g. from Home category or city click)
@@ -199,11 +214,11 @@ export default function VendorsScreen() {
       setSelectedCategory(params.category.toLowerCase());
     }
     if (params.city) {
-      setFilters((current) => ({ ...current, city: params.city || 'all' }));
+      setSelectedLocation(params.city);
     }
   }, [params.category, params.city, allData]);
 
-  // Flatten and filter all vendors
+  // Flatten and filter all vendors strictly by selected city
   const filteredVendors = useMemo(() => {
     let list: MarketplaceVendor[] = [];
 
@@ -221,7 +236,11 @@ export default function VendorsScreen() {
       return true;
     });
 
-    // 1. Search filter
+    // 1. Strict City Filter (Always enforce current selected city across all pages)
+    const activeCity = currentLocation.city;
+    list = list.filter((v) => isVendorInCity(v, activeCity));
+
+    // 2. Search filter
     if (debouncedQuery.trim()) {
       const q = debouncedQuery.toLowerCase().trim();
       list = list.filter(
@@ -231,13 +250,6 @@ export default function VendorsScreen() {
           (v.city || '').toLowerCase().includes(q) ||
           (v.locality || '').toLowerCase().includes(q) ||
           (v.description || '').toLowerCase().includes(q)
-      );
-    }
-
-    // 2. City filter
-    if (filters.city && filters.city !== 'all') {
-      list = list.filter(
-        (v) => (v.city || '').toLowerCase() === filters.city.toLowerCase()
       );
     }
 
@@ -261,7 +273,7 @@ export default function VendorsScreen() {
     }
 
     return list;
-  }, [allData, selectedCategory, debouncedQuery, filters]);
+  }, [allData, selectedCategory, debouncedQuery, filters, currentLocation.city]);
 
   const displayedVendors = useMemo(() => {
     return filteredVendors.slice(0, visibleCount);
@@ -360,7 +372,7 @@ export default function VendorsScreen() {
       });
   }, [compareIds, allData]);
 
-  const currentCityLabel = filters.city !== 'all' ? filters.city : 'Patiala, Punjab';
+  const currentCityLabel = `${currentLocation.city}${currentLocation.state ? `, ${currentLocation.state}` : ''}`;
 
   return (
     <View style={styles.screen}>
@@ -661,7 +673,7 @@ export default function VendorsScreen() {
         cities={citiesData}
         onClose={() => setShowCityPicker(false)}
         onSelect={(city) => {
-          setFilters({ ...filters, city });
+          setSelectedLocation(city);
           setShowCityPicker(false);
         }}
       />
