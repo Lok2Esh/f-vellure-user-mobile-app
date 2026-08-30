@@ -299,133 +299,9 @@ const PROFILE_STORAGE_KEY = 'vellure_customer_profile';
 const NOTIFICATIONS_STORAGE_KEY = 'vellure_notification_preferences';
 const LOCATIONS_STORAGE_KEY = 'vellure_saved_locations';
 
-let plansCache: EventPlan[] = [
-  {
-    id: 'plan_wedding_patiala',
-    userId: 'user_1',
-    name: 'Royal Wedding Celebration',
-    eventType: 'Wedding',
-    ceremonyType: 'Anand Karaj & Reception',
-    status: 'QUOTES_RECEIVED',
-    city: 'Patiala',
-    venueArea: 'Urban Estate / Heritage Belt',
-    eventDate: '2026-11-12',
-    flexibleDate: false,
-    guestCount: 300,
-    budgetMin: 2000000,
-    budgetMax: 2500000,
-    theme: 'Grand & Royal',
-    description: 'Heritage palace wedding with traditional Anand Karaj, gourmet feasting, and candid cinematography.',
-    progress: 65,
-    isPrimary: true,
-    servicesCount: 5,
-    enquiriesCount: 2,
-    quotesCount: 1,
-    nextRecommendedStep: 'Review received quotes for Royal Feasting & Photography',
-    notes: 'Bride side arrival at 10 AM. Royal entrance with dhol and mood lighting required.',
-    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-let servicesCache: Record<string, PlanService[]> = {
-  plan_wedding_patiala: [
-    {
-      id: 'srv_1',
-      planId: 'plan_wedding_patiala',
-      categoryKey: 'venue',
-      categoryName: 'Grand Palace Venue',
-      requirement: 'REQUIRED',
-      status: 'VENDOR_SELECTED',
-      allocatedBudget: 1000000,
-      estimatedPrice: 950000,
-      shortlistedVendorIds: ['0b7c232f-0f45-4966-b7b2-6db3633d926d'],
-      preferredVendorId: '0b7c232f-0f45-4966-b7b2-6db3633d926d',
-      notes: 'Fort Patiala shortlisted for lawns & heritage banquet hall.',
-    },
-    {
-      id: 'srv_2',
-      planId: 'plan_wedding_patiala',
-      categoryKey: 'catering',
-      categoryName: 'Royal Artisanal Catering',
-      requirement: 'REQUIRED',
-      status: 'QUOTE_RECEIVED',
-      allocatedBudget: 600000,
-      estimatedPrice: 580000,
-      shortlistedVendorIds: ['cat_royal_kitchen'],
-      notes: '3-course feast for 300 guests with live chaat and tandoor counters.',
-    },
-    {
-      id: 'srv_3',
-      planId: 'plan_wedding_patiala',
-      categoryKey: 'photography',
-      categoryName: 'Cinematic Photography & Film',
-      requirement: 'REQUIRED',
-      status: 'VENDOR_SHORTLISTED',
-      allocatedBudget: 350000,
-      estimatedPrice: 320000,
-      shortlistedVendorIds: ['51c9bde8-d49c-43c1-8891-b8610c31d97e'],
-      notes: 'RR Studios candid photography and drone cinema.',
-    },
-    {
-      id: 'srv_4',
-      planId: 'plan_wedding_patiala',
-      categoryKey: 'decor',
-      categoryName: 'Bespoke Decor & Lighting',
-      requirement: 'REQUIRED',
-      status: 'VENDOR_SHORTLISTED',
-      allocatedBudget: 400000,
-      estimatedPrice: 380000,
-      shortlistedVendorIds: ['47118ca0-17af-47c3-bb33-8c4624c0435b'],
-      notes: 'Shaandaar Events floral mandap and mood lighting entrance.',
-    },
-    {
-      id: 'srv_5',
-      planId: 'plan_wedding_patiala',
-      categoryKey: 'makeup',
-      categoryName: 'Bridal Couture Makeup',
-      requirement: 'RECOMMENDED',
-      status: 'VENDOR_NEEDED',
-      allocatedBudget: 150000,
-      estimatedPrice: 120000,
-      shortlistedVendorIds: [],
-    },
-  ],
-};
-
-let quotesCache: Record<string, VendorQuote[]> = {
-  plan_wedding_patiala: [
-    {
-      id: 'quote_101',
-      planId: 'plan_wedding_patiala',
-      serviceId: 'srv_2',
-      vendorId: 'cat_royal_kitchen',
-      vendorName: 'Royal Kitchen Caterers',
-      vendorCategory: 'Catering',
-      vendorCity: 'Patiala',
-      vendorRating: 4.9,
-      vendorVerified: true,
-      status: 'RECEIVED',
-      currency: 'INR',
-      totalAmount: 570000,
-      priceUnit: '₹1,900 / Plate (300 Guests)',
-      validUntil: '2026-09-30',
-      includedItems: [
-        { id: 'item_1', title: '6 Welcome Drinks & Mocktails', amount: 30000 },
-        { id: 'item_2', title: '8 Live Starters (Veg & Non-Veg Tandoor)', amount: 120000 },
-        { id: 'item_3', title: 'Main Feast Buffet (16 Items + Breads)', amount: 320000 },
-        { id: 'item_4', title: '4 Royal Desserts + Kulfi Counter', amount: 60000 },
-        { id: 'item_5', title: 'Service Uniform Staff & Cutlery', amount: 40000 },
-      ],
-      excludedItems: ['Imported Mineral Water Bottles', 'Specialist Ice Sculptures'],
-      cancellationPolicy: '100% refundable up to 30 days prior to celebration.',
-      partnerOffer: 'Complimentary Live Coffee & Paan Counter',
-      responseTime: 'Under 6 hours',
-      vendorNotes: 'Rates confirmed for 300 guests. Complimentary chef food tasting session included upon selection.',
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    },
-  ],
-};
+let plansCache: EventPlan[] = [];
+let servicesCache: Record<string, PlanService[]> = {};
+let quotesCache: Record<string, VendorQuote[]> = {};
 
 let profileCache: CustomerProfile = {
   id: 'guest_user',
@@ -459,51 +335,9 @@ let savedLocationsCache: SavedLocationItem[] = [
   { id: 'loc-2', name: 'Family Home', city: 'Chandigarh', state: 'Punjab', tag: 'Family' },
 ];
 
-let inquiriesCache: EventInquiry[] = [
-  {
-    id: 'VEL-INQ-101',
-    targetId: '0b7c232f-0f45-4966-b7b2-6db3633d926d',
-    targetName: 'Fort Patiala',
-    targetCategory: 'Grand Palace Venue',
-    eventType: 'Wedding',
-    eventDate: '2026-11-12',
-    guestCount: 300,
-    city: 'Patiala',
-    estimatedBudget: 1000000,
-    specialNotes: 'Looking for royal heritage lawns and banquet hall.',
-    userName: 'Event Host',
-    userPhone: '+91 98765 43210',
-    userEmail: 'host@vellure.in',
-    status: 'Quote Ready',
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    quoteAmount: 950000,
-  },
-  {
-    id: 'VEL-INQ-102',
-    targetId: '51c9bde8-d49c-43c1-8891-b8610c31d97e',
-    targetName: 'RR Studios',
-    targetCategory: 'Cinematic Photography & Film',
-    eventType: 'Wedding',
-    eventDate: '2026-11-12',
-    guestCount: 300,
-    city: 'Patiala',
-    estimatedBudget: 350000,
-    specialNotes: 'Looking for 3-day coverage including pre-wedding teaser.',
-    userName: 'Event Host',
-    userPhone: '+91 98765 43210',
-    userEmail: 'host@vellure.in',
-    status: 'Under Review',
-    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
-
-let savedVendorIdsCache: string[] = [
-  '0b7c232f-0f45-4966-b7b2-6db3633d926d',
-  '51c9bde8-d49c-43c1-8891-b8610c31d97e',
-  '47118ca0-17af-47c3-bb33-8c4624c0435b',
-];
-
-let savedPackageIdsCache: string[] = ['pack_essential', 'pack_premium'];
+let inquiriesCache: EventInquiry[] = [];
+let savedVendorIdsCache: string[] = [];
+let savedPackageIdsCache: string[] = [];
 let comparedVendorIdsCache: string[] = [];
 
 // ============================================================
@@ -575,7 +409,12 @@ export const fetchCustomerPlans = async (): Promise<EventPlan[]> => {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       const stored = window.localStorage.getItem(PLANS_STORAGE_KEY);
-      if (stored) plansCache = JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          plansCache = parsed.filter((p: any) => p.id !== 'plan_wedding_patiala');
+        }
+      }
     }
   } catch (_) {}
   return [...plansCache];
@@ -1152,6 +991,49 @@ export const fetchBudgetDashboardData = async () => {
   }
 };
 
+export interface PublicCategory {
+  id: string;
+  key: string;
+  name: string;
+  type: 'EVENT' | 'SERVICE';
+  tagline?: string;
+  icon?: string;
+  image?: string;
+  color?: string;
+  isActive: boolean;
+  order: number;
+  allowedServices?: string[];
+}
+
+export const fetchPublicCategories = async (type?: 'EVENT' | 'SERVICE'): Promise<PublicCategory[]> => {
+  try {
+    const typeParam = type ? `?type=${type}` : '';
+    const response = await fetchWithTimeout(`${BASE_URL}/categories/public${typeParam}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data.categories)) {
+        return data.categories;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to fetch public categories from backend:', err);
+  }
+  return [];
+};
+
+export const fetchEventServicesMap = async (): Promise<Record<string, string[]>> => {
+  try {
+    const response = await fetchWithTimeout(`${BASE_URL}/categories/event-services-map`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.map) return data.map;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch event services map from backend:', err);
+  }
+  return {};
+};
+
 export const fetchCitiesData = async () => {
   try {
     const response = await fetchWithTimeout(`${BASE_URL}/budget/cities`);
@@ -1260,7 +1142,12 @@ export const fetchEventInquiries = async (): Promise<EventInquiry[]> => {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       const stored = window.localStorage.getItem(INQUIRIES_STORAGE_KEY);
-      if (stored) inquiriesCache = JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          inquiriesCache = parsed.filter((i: any) => i.id !== 'VEL-INQ-101' && i.id !== 'VEL-INQ-102');
+        }
+      }
     }
   } catch (_) {}
   return [...inquiriesCache];

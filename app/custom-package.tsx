@@ -137,7 +137,7 @@ const STANDARD_CATEGORIES = [
   { key: 'DECOR', label: 'Decor & Styling', icon: Flower },
   { key: 'MAKEUP', label: 'Bridal & Groom Makeup', icon: Scissors },
   { key: 'ENTERTAINMENT', label: 'DJ & Sound Lighting', icon: Music },
-  { key: 'PRIEST', label: 'Priest & Rituals', icon: HeartHandshake },
+  { key: 'PRIEST', label: 'Pandit Ji & Rituals', icon: HeartHandshake },
   { key: 'PLANNING', label: 'Planner & Coordinator', icon: Briefcase },
 ];
 

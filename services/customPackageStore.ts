@@ -112,91 +112,19 @@ export function recalculatePackage(pkg: CustomPackage): CustomPackage {
 
 const DEFAULT_PACKAGES: CustomPackage[] = [
   recalculatePackage({
-    id: 'pkg_grand_wedding',
-    name: 'Grand Royal Wedding Suite',
+    id: 'pkg_bespoke_suite_1',
+    name: 'My Bespoke Celebration Suite',
     eventType: 'Grand Wedding',
     city: 'Patiala',
-    guestCount: 400,
-    eventDays: 2,
-    targetBudget: 2200000,
-    eventDate: '15 Nov 2025',
-    status: 'READY',
-    vendors: [
-      {
-        vendorId: 'v_patiala_palace',
-        businessName: 'The Heritage Palace Patiala',
-        category: 'VENUE',
-        city: 'Patiala',
-        image: 'https://images.unsplash.com/photo-1545232979-fbf678ab2659?w=800',
-        basePrice: 450000,
-        priceType: 'PER_EVENT',
-        calculatedPrice: 450000,
-        rating: 4.9,
-        reviewsCount: 38,
-        addedAt: new Date().toISOString(),
-      },
-      {
-        vendorId: 'v_royal_caterers',
-        businessName: 'Bhogal Royal Banquet Catering',
-        category: 'CATERING',
-        city: 'Patiala',
-        image: 'https://images.unsplash.com/photo-1555244162-803834f70033?w=800',
-        basePrice: 1400,
-        priceType: 'PER_PLATE',
-        calculatedPrice: 560000,
-        rating: 4.8,
-        reviewsCount: 52,
-        addedAt: new Date().toISOString(),
-      },
-      {
-        vendorId: 'v_candid_lens',
-        businessName: 'Rohan Roy Candid Studios',
-        category: 'PHOTOGRAPHY',
-        city: 'Patiala',
-        image: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800',
-        basePrice: 165000,
-        priceType: 'PER_EVENT',
-        calculatedPrice: 165000,
-        rating: 5.0,
-        reviewsCount: 44,
-        addedAt: new Date().toISOString(),
-      },
-    ],
-    subtotal: 1175000,
-    estimatedTax: 211500,
-    totalPrice: 1386500,
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    updatedAt: new Date().toISOString(),
-  }),
-  recalculatePackage({
-    id: 'pkg_sangeet_cocktail',
-    name: 'Sangeet & Cocktail Fiesta',
-    eventType: 'Sangeet & Cocktail',
-    city: 'Patiala',
-    guestCount: 200,
+    guestCount: 300,
     eventDays: 1,
-    targetBudget: 850000,
-    eventDate: '14 Nov 2025',
+    targetBudget: 1500000,
     status: 'DRAFT',
-    vendors: [
-      {
-        vendorId: 'v_dj_sound',
-        businessName: 'Bass & Beats Sound & DJ',
-        category: 'ENTERTAINMENT',
-        city: 'Patiala',
-        image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800',
-        basePrice: 65000,
-        priceType: 'PER_EVENT',
-        calculatedPrice: 65000,
-        rating: 4.8,
-        reviewsCount: 29,
-        addedAt: new Date().toISOString(),
-      },
-    ],
-    subtotal: 65000,
-    estimatedTax: 11700,
-    totalPrice: 76700,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
+    vendors: [],
+    subtotal: 0,
+    estimatedTax: 0,
+    totalPrice: 0,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }),
 ];
@@ -204,18 +132,29 @@ const DEFAULT_PACKAGES: CustomPackage[] = [
 let packagesStore: CustomPackage[] = [...DEFAULT_PACKAGES];
 let activePackageId: string = DEFAULT_PACKAGES[0].id;
 
-// Load from persistence
+// Load from persistence (ignoring legacy dummy package ids)
 if (typeof window !== 'undefined' && window.localStorage) {
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY_PACKAGES);
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        packagesStore = parsed.map((p) => recalculatePackage(p));
+        // Filter out legacy dummy entries
+        const cleanList = parsed.filter(
+          (p) => p.id !== 'pkg_grand_wedding' && p.id !== 'pkg_sangeet_cocktail'
+        );
+        if (cleanList.length > 0) {
+          packagesStore = cleanList.map((p) => recalculatePackage(p));
+        }
       }
     }
     const savedActiveId = window.localStorage.getItem(STORAGE_KEY_ACTIVE_ID);
-    if (savedActiveId && packagesStore.some((p) => p.id === savedActiveId)) {
+    if (
+      savedActiveId &&
+      savedActiveId !== 'pkg_grand_wedding' &&
+      savedActiveId !== 'pkg_sangeet_cocktail' &&
+      packagesStore.some((p) => p.id === savedActiveId)
+    ) {
       activePackageId = savedActiveId;
     } else if (packagesStore.length > 0) {
       activePackageId = packagesStore[0].id;

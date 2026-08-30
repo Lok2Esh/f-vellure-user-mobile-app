@@ -37,6 +37,8 @@ import {
   saveComparedVendorIds,
   toggleSaveVendorId,
   fetchCitiesData,
+  fetchPublicCategories,
+  fetchEventServicesMap,
 } from '../../services/api';
 import {
   subscribeCustomPackage,
@@ -93,8 +95,29 @@ const CATEGORY_MAP: Record<string, { label: string; key: string }> = {
   accommodation: { label: 'Guest Accommodations', key: 'accommodation' },
   transport: { label: 'Luxury Transport', key: 'transport' },
   security: { label: 'Valet & Security', key: 'security' },
-  priest: { label: 'Ceremony Priest', key: 'priest' },
+  priest: { label: 'Pandit Ji & Priests', key: 'priest' },
   ceremony: { label: 'Rituals & Puja', key: 'ceremony' },
+};
+
+export const EVENT_SERVICES_MAP: Record<string, string[]> = {
+  reception: ['venue', 'catering', 'decor', 'photography', 'videography', 'entertainment', 'music', 'live_music', 'bartending', 'sound_lighting', 'cakes', 'makeup'],
+  wedding: ['venue', 'catering', 'decor', 'photography', 'videography', 'makeup', 'mehendi', 'planning', 'priest', 'ceremony', 'bridal_wear', 'groom_wear', 'gifts', 'invitations', 'sound_lighting', 'transport', 'security'],
+  engagement: ['venue', 'catering', 'decor', 'photography', 'videography', 'cakes', 'entertainment', 'invitations', 'makeup', 'music'],
+  sangeet: ['entertainment', 'music', 'live_music', 'choreography', 'mehendi', 'sound_lighting', 'decor', 'catering', 'photography', 'venue'],
+  'sangeet & mehendi': ['entertainment', 'music', 'live_music', 'choreography', 'mehendi', 'sound_lighting', 'decor', 'catering', 'photography', 'venue'],
+  birthday: ['venue', 'catering', 'decor', 'cakes', 'entertainment', 'photography', 'gifts', 'music'],
+  anniversary: ['venue', 'catering', 'decor', 'photography', 'music', 'live_music', 'cakes', 'entertainment'],
+  'baby shower': ['venue', 'catering', 'decor', 'photography', 'cakes', 'gifts', 'invitations'],
+  'baby-shower': ['venue', 'catering', 'decor', 'photography', 'cakes', 'gifts', 'invitations'],
+  housewarming: ['priest', 'ceremony', 'catering', 'decor', 'photography', 'gifts'],
+  corporate: ['venue', 'catering', 'sound_lighting', 'photography', 'videography', 'transport', 'security'],
+  'corporate event': ['venue', 'catering', 'sound_lighting', 'photography', 'videography', 'transport', 'security'],
+  conference: ['venue', 'catering', 'sound_lighting', 'photography', 'videography', 'transport'],
+  'product launch': ['venue', 'decor', 'sound_lighting', 'photography', 'videography', 'catering', 'entertainment'],
+  'private party': ['venue', 'catering', 'bartending', 'entertainment', 'music', 'sound_lighting', 'decor'],
+  cocktail: ['venue', 'catering', 'bartending', 'entertainment', 'music', 'live_music', 'sound_lighting'],
+  'cocktail party': ['venue', 'catering', 'bartending', 'entertainment', 'music', 'live_music', 'sound_lighting'],
+  haldi: ['decor', 'photography', 'videography', 'catering', 'music', 'mehendi'],
 };
 
 const POPULAR_SEARCH_SUGGESTIONS = [
@@ -103,7 +126,7 @@ const POPULAR_SEARCH_SUGGESTIONS = [
   'Engagement photographer',
   'Outdoor floral decor',
   'Live acoustic music & DJ',
-  'Pandit for ceremony',
+  'Pandit Ji for ceremony',
   'Bridal makeup specialist',
 ];
 
@@ -141,6 +164,7 @@ export default function VendorsScreen() {
   const params = useLocalSearchParams<{ category?: string; eventType?: string; city?: string }>();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedEventType, setSelectedEventType] = useState<string | null>(params.eventType || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [filters, setFilters] = useState<ExploreFilters>(DEFAULT_FILTERS);
@@ -163,6 +187,8 @@ export default function VendorsScreen() {
   const [currentLocation, setCurrentLocation] = useState(getSelectedLocation());
   const [allData, setAllData] = useState<Record<string, MarketplaceVendor[]>>({});
   const [citiesData, setCitiesData] = useState<CityEntry[]>(POPULAR_CITIES);
+  const [categoryMap, setCategoryMap] = useState<Record<string, { label: string; key: string }>>(CATEGORY_MAP);
+  const [eventServicesMap, setEventServicesMap] = useState<Record<string, string[]>>(EVENT_SERVICES_MAP);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -180,17 +206,31 @@ export default function VendorsScreen() {
     setLoadError(null);
     const activeCity = targetCity || currentLocation.city;
     try {
-      const [data, saved, compared, citiesResp] = await Promise.all([
+      const [data, saved, compared, citiesResp, dynamicServices, dynamicMap] = await Promise.all([
         fetchVendorsData(activeCity),
         fetchSavedVendorIds(),
         fetchComparedVendorIds(),
         fetchCitiesData().catch(() => ({ cities: POPULAR_CITIES })),
+        fetchPublicCategories('SERVICE').catch(() => []),
+        fetchEventServicesMap().catch(() => ({})),
       ]);
       setAllData(data as Record<string, MarketplaceVendor[]>);
       setSavedIds(saved);
       setCompareIds(compared);
       if (citiesResp?.cities && citiesResp.cities.length > 0) {
         setCitiesData(citiesResp.cities);
+      }
+      if (Array.isArray(dynamicServices) && dynamicServices.length > 0) {
+        const updated: Record<string, { label: string; key: string }> = {
+          all: { label: 'All Services', key: 'all' },
+        };
+        dynamicServices.forEach((sc) => {
+          updated[sc.key] = { label: sc.name, key: sc.key };
+        });
+        setCategoryMap(updated);
+      }
+      if (dynamicMap && Object.keys(dynamicMap).length > 0) {
+        setEventServicesMap((prev) => ({ ...prev, ...dynamicMap }));
       }
     } catch (error) {
       console.error('Error fetching marketplace vendors:', error);
@@ -210,13 +250,16 @@ export default function VendorsScreen() {
 
   // Handle incoming route params (e.g. from Home category or city click)
   useEffect(() => {
+    if (params.eventType) {
+      setSelectedEventType(params.eventType);
+    }
     if (params.category && (CATEGORY_MAP[params.category.toLowerCase()] || allData[params.category.toLowerCase()])) {
       setSelectedCategory(params.category.toLowerCase());
     }
     if (params.city) {
       setSelectedLocation(params.city);
     }
-  }, [params.category, params.city, allData]);
+  }, [params.category, params.eventType, params.city, allData]);
 
   // Flatten and filter all vendors strictly by selected city
   const filteredVendors = useMemo(() => {
@@ -240,7 +283,37 @@ export default function VendorsScreen() {
     const activeCity = currentLocation.city;
     list = list.filter((v) => isVendorInCity(v, activeCity));
 
-    // 2. Search filter
+    // 2. Strict Event Type Filter (e.g. Reception, Wedding, Sangeet, Birthday)
+    if (selectedEventType) {
+      const eventKey = selectedEventType.toLowerCase().trim();
+      const allowedServices = eventServicesMap[eventKey] || EVENT_SERVICES_MAP[eventKey] || [];
+
+      list = list.filter((v) => {
+        const vCat = (v.category || '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+        // Check if vendor's category is among the allowed services for this celebration
+        if (allowedServices.length > 0 && allowedServices.includes(vCat)) {
+          return true;
+        }
+
+        // Check if vendor has explicit eventTypes tag
+        if (Array.isArray((v as any).eventTypes)) {
+          if ((v as any).eventTypes.some((t: string) => t.toLowerCase().includes(eventKey))) {
+            return true;
+          }
+        }
+
+        // Check text match in businessName or description
+        const text = `${v.businessName || ''} ${v.description || ''} ${v.category || ''}`.toLowerCase();
+        if (text.includes(eventKey)) {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
+    // 3. Search filter
     if (debouncedQuery.trim()) {
       const q = debouncedQuery.toLowerCase().trim();
       list = list.filter(
@@ -253,17 +326,17 @@ export default function VendorsScreen() {
       );
     }
 
-    // 3. Verified only filter
+    // 4. Verified only filter
     if (filters.verifiedOnly) {
       list = list.filter((v) => v.status === 'VERIFIED' || v.verified);
     }
 
-    // 4. Minimum rating filter
+    // 5. Minimum rating filter
     if (filters.minimumRating > 0) {
       list = list.filter((v) => (v.rating || 0) >= filters.minimumRating);
     }
 
-    // 5. Price & Rating sorting
+    // 6. Price & Rating sorting
     if (filters.sortBy === 'price_asc') {
       list.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
     } else if (filters.sortBy === 'price_desc') {
@@ -273,7 +346,7 @@ export default function VendorsScreen() {
     }
 
     return list;
-  }, [allData, selectedCategory, debouncedQuery, filters, currentLocation.city]);
+  }, [allData, selectedCategory, debouncedQuery, filters, currentLocation.city, selectedEventType, eventServicesMap]);
 
   const displayedVendors = useMemo(() => {
     return filteredVendors.slice(0, visibleCount);
@@ -307,6 +380,7 @@ export default function VendorsScreen() {
   const handleResetFilters = () => {
     setFilters(DEFAULT_FILTERS);
     setSelectedCategory('all');
+    setSelectedEventType(null);
     setSearchQuery('');
   };
 
@@ -450,13 +524,32 @@ export default function VendorsScreen() {
           </ScrollView>
         )}
 
-        {/* ──── EXPANDED CATEGORY BAR ──── */}
+        {/* ──── ACTIVE CELEBRATION EVENT FILTER BANNER ──── */}
+        {selectedEventType && (
+          <View style={styles.activeEventBanner}>
+            <View style={styles.activeEventLeft}>
+              <Sparkles size={13} color="#641E3D" />
+              <Text style={styles.activeEventText}>
+                Filtered for <Text style={styles.activeEventBold}>{selectedEventType}</Text> services only
+              </Text>
+            </View>
+            <VellureButton
+              style={styles.clearEventBtn}
+              onPress={() => setSelectedEventType(null)}
+              activeOpacity={0.75}
+            >
+              <Text style={styles.clearEventBtnText}>Show All ✕</Text>
+            </VellureButton>
+          </View>
+        )}
+
+        {/* ──── EXPANDED CATEGORY BAR (DYNAMIC FROM BACKEND) ──── */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryBar}
         >
-          {Object.entries(CATEGORY_MAP).map(([key, cat]) => {
+          {Object.entries(categoryMap).map(([key, cat]) => {
             const isSelected = selectedCategory === key;
             return (
               <VellureButton
@@ -831,6 +924,45 @@ const styles = StyleSheet.create({
   },
   catChipTextActive: {
     color: '#FFFFFF',
+    fontWeight: '800',
+  },
+  activeEventBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FAF1E3',
+    marginHorizontal: 20,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ECD8B5',
+  },
+  activeEventLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flex: 1,
+  },
+  activeEventText: {
+    color: '#4A3B40',
+    fontSize: 10.5,
+    fontWeight: '600',
+  },
+  activeEventBold: {
+    color: '#641E3D',
+    fontWeight: '800',
+  },
+  clearEventBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    backgroundColor: '#641E3D',
+    borderRadius: 7,
+  },
+  clearEventBtnText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
     fontWeight: '800',
   },
   activeFiltersRow: {

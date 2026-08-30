@@ -57,7 +57,7 @@ const SERVICE_KEYWORDS: Record<string, string[]> = {
   'Photography': ['photography', 'photographer', 'photo', 'video', 'videography', 'cinematography', 'drone', 'candid'],
   'Entertainment': ['live music', 'music', 'dj', 'singer', 'band', 'dhol', 'anchor', 'emcee', 'performers', 'orchestra'],
   'Attire & Makeup': ['makeup', 'make up', 'bridal makeup', 'hair', 'groom attire', 'bridal wear', 'mehendi artist'],
-  'Miscellaneous & Rituals': ['priest', 'pandit', 'granthi', 'invitation', 'cake', 'transport', 'security', 'favors', 'gifts'],
+  'Miscellaneous & Rituals': ['priest', 'pandit ji', 'pandit', 'granthi', 'invitation', 'cake', 'transport', 'security', 'favors', 'gifts'],
 };
 
 export function parseNaturalLanguagePrompt(

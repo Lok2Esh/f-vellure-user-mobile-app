@@ -65,7 +65,7 @@ export const QUICK_SUGGESTIONS: AiSuggestion[] = [
   {
     id: 'sug-4',
     title: 'Traditional Puja & Path (₹1.5L)',
-    prompt: 'Traditional Vedic Puja & Path ceremony for 100 guests with Pandit ji, floral mandap, and pure vegetarian feast. Budget ₹1.5 Lakh.',
+    prompt: 'Traditional Vedic Puja & Path ceremony for 100 guests with Pandit Ji, floral mandap, and pure vegetarian feast. Budget ₹1.5 Lakh.',
     eventType: 'Puja / Path',
     city: 'Patiala',
     guestCount: 100,

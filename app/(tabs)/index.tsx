@@ -59,7 +59,7 @@ import { ConversationalAiInput, AiSubmitPayload } from '../../components/ui/Conv
 import { SectionHeader } from '../../components/ui/SectionHeader';
 import { VendorPackDetailModal } from '../../components/vendor/VendorPackDetailModal';
 import { CityPickerModal, CityEntry } from '../../components/ui/CityPickerModal';
-import { fetchCitiesData } from '../../services/api';
+import { fetchCitiesData, fetchPublicCategories } from '../../services/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -252,6 +252,7 @@ export default function HomeScreen() {
   const [userEventType, setUserEventType] = useState('Wedding');
   const [vendorPacks, setVendorPacks] = useState<any[]>([]);
   const [verifiedVendors, setVerifiedVendors] = useState<any[]>([]);
+  const [eventCategories, setEventCategories] = useState<any[]>(EVENT_CATEGORIES);
   const [isLoading, setIsLoading] = useState(true);
 
   // Time-based greeting
@@ -299,6 +300,36 @@ export default function HomeScreen() {
       try {
         const savedIds = await fetchSavedVendorIds();
         setSavedCount(savedIds.length);
+      } catch (_) {}
+
+      // 5. Dynamic Active Celebration Categories from Backend
+      try {
+        const dynamicCats = await fetchPublicCategories('EVENT');
+        if (Array.isArray(dynamicCats) && dynamicCats.length > 0) {
+          const mapped = dynamicCats.map((dc) => {
+            const normKey = dc.key.toLowerCase().replace(/_/g, '-');
+            const matched = EVENT_CATEGORIES.find(
+              (ec) =>
+                ec.id.toLowerCase() === normKey ||
+                ec.id.toLowerCase() === dc.key.toLowerCase() ||
+                ec.name.toLowerCase() === dc.name.toLowerCase()
+            );
+            return {
+              id: dc.key,
+              name: dc.name,
+              tagline: dc.tagline || (matched ? matched.tagline : 'Celebration Specialists'),
+              icon: matched ? matched.icon : Heart,
+              color: dc.color || (matched ? matched.color : '#641E3D'),
+              image: matched
+                ? matched.image
+                : dc.image && dc.image.startsWith('http')
+                ? { uri: dc.image }
+                : require('../../assets/images/celebrations/wedding.jpg'),
+              isActive: dc.isActive,
+            };
+          });
+          setEventCategories(mapped);
+        }
       } catch (_) {}
     } catch (e) {
       console.error('Home load error:', e);
@@ -468,11 +499,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* ──── 4. EVENT CATEGORIES (ALL 18 INDIAN & UNIVERSAL TYPES) ──── */}
+        {/* ──── 4. EVENT CATEGORIES (DYNAMIC ACTIVE FROM BACKEND) ──── */}
         <SectionHeader
           title="Plan by Celebration"
           subtitle="Explore curated vendors tailored to Indian & universal ceremonies"
-          badge="18 Ceremonies"
+          badge={`${eventCategories.length} Ceremonies`}
         />
 
         <ScrollView
@@ -480,7 +511,7 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesRow}
         >
-          {EVENT_CATEGORIES.map((cat) => {
+          {eventCategories.map((cat) => {
             const IconComponent = cat.icon;
             return (
               <VellureButton

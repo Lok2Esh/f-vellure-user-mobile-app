@@ -36,7 +36,7 @@ const AVAILABLE_CATEGORIES = [
   { name: 'DJ & Sound Production', key: 'entertainment_dj', defaultBudget: 120000 },
   { name: 'Live Band & Folk Troupe', key: 'entertainment_live', defaultBudget: 150000 },
   { name: 'Dhol & Royal Welcome', key: 'entertainment_dhol', defaultBudget: 40000 },
-  { name: 'Priest / Religious Officiant', key: 'priest', defaultBudget: 30000 },
+  { name: 'Pandit Ji / Religious Officiant', key: 'priest', defaultBudget: 30000 },
   { name: 'Guest Transport & Luxury Cars', key: 'transport', defaultBudget: 100000 },
   { name: 'Guest Accommodation / Rooms', key: 'accommodation', defaultBudget: 200000 },
   { name: 'Designer Invitations & Stationery', key: 'invitations', defaultBudget: 40000 },
