@@ -90,7 +90,7 @@ export function BudgetAllocationMatrix({
         <View style={styles.chartContainer}>
           <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
             {validCategories.map((cat, idx) => {
-              const pct = Math.max(1, Math.round((cat.amount / totalBudget) * 100));
+              const pct = (cat.amount / totalBudget) * 100;
               const angle = (pct / 100) * 360;
               const endAngle = currentAngle + angle;
               const path = createArc(currentAngle, endAngle);
@@ -117,7 +117,7 @@ export function BudgetAllocationMatrix({
                     {cat.name}
                   </Text>
                   <Text style={styles.catAmount}>
-                    ₹{(cat.amount / 100000).toFixed(2)}L ({pct}%)
+                    ₹{Math.round(cat.amount).toLocaleString('en-IN')} ({pct}%)
                   </Text>
                 </View>
               </View>
@@ -130,7 +130,7 @@ export function BudgetAllocationMatrix({
       {reasoning ? (
         <View style={styles.reasoningBox}>
           <Sparkles size={12} color="#8A6A23" />
-          <Text style={styles.reasoningText} numberOfLines={2}>
+          <Text style={styles.reasoningText}>
             {reasoning}
           </Text>
         </View>

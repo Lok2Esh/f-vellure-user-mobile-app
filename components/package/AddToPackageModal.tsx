@@ -27,8 +27,9 @@ import {
   Check,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { VellureButton } from '../ui/VellureControls';
+import { VellureButton, VellureFieldTrigger } from '../ui/VellureControls';
 import { PriceDisplay } from '../ui/PriceDisplay';
+import { CelebrationTypePickerModal } from '../ui/CelebrationTypePickerModal';
 import { EVENT_TYPE_OPTIONS as CELEBRATION_TYPES } from '../../constants/eventTypes';
 import {
   CustomPackage,
@@ -78,6 +79,7 @@ export function AddToPackageModal({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newSuiteName, setNewSuiteName] = useState('');
   const [newEventType, setNewEventType] = useState('Wedding');
+  const [showTypePicker, setShowTypePicker] = useState(false);
   const [newCity, setNewCity] = useState('Patiala');
   const [newBudgetLakhs, setNewBudgetLakhs] = useState('20');
 
@@ -276,22 +278,16 @@ export function AddToPackageModal({
                   />
                 </View>
 
-                {/* Event Type Chips */}
+                {/* Celebration Type Dropdown with Search */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Celebration Type</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeChipsRow}>
-                    {CELEBRATION_TYPES.map((type) => (
-                      <VellureButton
-                        key={type}
-                        style={[styles.typeChip, newEventType === type && styles.typeChipActive]}
-                        onPress={() => setNewEventType(type)}
-                      >
-                        <Text style={[styles.typeChipText, newEventType === type && styles.typeChipTextActive]}>
-                          {type}
-                        </Text>
-                      </VellureButton>
-                    ))}
-                  </ScrollView>
+                  <VellureFieldTrigger
+                    value={newEventType}
+                    placeholder="Select Celebration Type..."
+                    kind="dropdown"
+                    onPress={() => setShowTypePicker(true)}
+                    accessibilityLabel={`Celebration Type: ${newEventType}`}
+                  />
                 </View>
 
                 {/* City & Budget Row */}
@@ -449,6 +445,16 @@ export function AddToPackageModal({
           </ScrollView>
         </View>
       </View>
+
+      <CelebrationTypePickerModal
+        visible={showTypePicker}
+        selectedType={newEventType}
+        onClose={() => setShowTypePicker(false)}
+        onSelect={(selected) => {
+          setNewEventType(selected);
+          setShowTypePicker(false);
+        }}
+      />
     </Modal>
   );
 }

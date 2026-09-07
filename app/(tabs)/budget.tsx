@@ -3,7 +3,7 @@ import {
 import React,
   { useState,
   useEffect,
-  useCallback } from 'react';
+  useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import {
   fetchBudgetDashboardData,
   generateBudgetMatch,
+  PlannerRequestError,
   fetchCitiesData,
   fetchUserPreferences,
   createNewPlan,
@@ -38,6 +39,7 @@ import {
   parseNaturalLanguagePrompt,
   ParsedEventPlan,
 } from '../../services/aiParser';
+import { plannerServiceKeys } from '../../constants/plannerServices';
 import { colors } from '../../constants/theme';
 
 // Reusable Components
@@ -45,7 +47,7 @@ import { ConversationalAiInput, AiSubmitPayload } from '../../components/ui/Conv
 import { AiInterpretationCard } from '../../components/budget/AiInterpretationCard';
 import { BudgetAllocationMatrix, BudgetCategoryItem } from '../../components/budget/BudgetAllocationMatrix';
 import { AiVendorRecommendations } from '../../components/budget/AiVendorRecommendations';
-import { AiCuratedBundles } from '../../components/budget/AiCuratedBundles';
+import { AiPlannerPackagesSection } from '../../components/budget/AiPlannerPackagesSection';
 import { QuickValidationSheet, QuickValidationValues } from '../../components/budget/QuickValidationSheet';
 import { CityPickerModal, CityEntry } from '../../components/ui/CityPickerModal';
 import { CalendarModal } from '../../components/ui/CalendarModal';
@@ -83,6 +85,9 @@ export default function BudgetScreen() {
   const [aiProvider, setAiProvider] = useState<'ollama' | 'local-planner'>('local-planner');
   const [aiModel, setAiModel] = useState('vellure-rules-v1');
   const [reasoning, setReasoning] = useState('');
+  const [plannerEvidence, setPlannerEvidence] = useState<any>(null);
+  const [plannerError, setPlannerError] = useState('');
+  const requestVersion = useRef(0);
   const [citiesData, setCitiesData] = useState<CityEntry[]>([]);
 
   // Modals state
@@ -93,56 +98,48 @@ export default function BudgetScreen() {
 
   // Run AI Optimization
   const runAiOptimization = async (plan: ParsedEventPlan) => {
+    const version = ++requestVersion.current;
     setIsGenerating(true);
+    setPlannerError('');
+    setCategories([]);
+    setMatchedVendors({});
+    setPlannerEvidence(null);
+    setReasoning('');
+    if (!plan.confirmedDetails && plan.missingInfo.some(info => /guest count|budget limit/.test(info))) {
+      setPlannerError('Confirm your budget and guest count to generate a useful plan.');
+      setShowValidationSheet(true);
+      setIsGenerating(false);
+      return;
+    }
     try {
       const result = await generateBudgetMatch({
-        totalBudget: plan.totalBudget,
-        guestCount: plan.guestCount,
-        city: plan.city,
-        vibe: plan.theme,
-        eventType: plan.eventType,
-        description: plan.rawPrompt,
-        date: plan.eventDate || '',
+        totalBudget: plan.totalBudget, guestCount: plan.guestCount, city: plan.city,
+        vibe: plan.theme, eventType: plan.eventType, description: plan.rawPrompt, date: plan.eventDate || '',
+        services: plan.selectedServiceKeys, confirmedDetails: plan.confirmedDetails,
       });
-
-      if (result.categories && result.categories.length > 0) {
-        setCategories(result.categories);
-        if (result.matchedVendors) setMatchedVendors(result.matchedVendors);
-        if (result.aiGenerated !== undefined) setAiGenerated(result.aiGenerated);
-        if (result.provider) setAiProvider(result.provider);
-        if (result.model) setAiModel(result.model);
-        if (result.reasoning) setReasoning(result.reasoning);
-      } else {
-        // Fallback calculation matching Indian market standards
-        const b = plan.totalBudget;
-        setCategories([
-          { id: '1', name: 'Venue & Catering', amount: Math.round(b * 0.48), color: '#641E3D' },
-          { id: '2', name: 'Decor & Lighting', amount: Math.round(b * 0.22), color: '#9E3A5A' },
-          { id: '3', name: 'Photography', amount: Math.round(b * 0.15), color: '#D2AD6B' },
-          { id: '4', name: 'Entertainment & Music', amount: Math.round(b * 0.10), color: '#E8DCC8' },
-          { id: '5', name: 'Miscellaneous & Rituals', amount: Math.round(b * 0.05), color: '#A08F7E' },
-        ]);
-        setReasoning(`Optimized allocation matrix for ${plan.eventType} in ${plan.city}`);
-        setAiGenerated(false);
-        setAiProvider('local-planner');
-        setAiModel('vellure-rules-v1');
-      }
+      if (version !== requestVersion.current) return;
+      if (!Array.isArray(result.categories) || !result.categories.length) throw new Error('The planner returned no allocations. Please clarify the services you need.');
+      setCategories(result.categories);
+      setMatchedVendors(result.matchedVendors || {});
+      setAiGenerated(Boolean(result.aiGenerated));
+      setAiProvider(result.provider || 'local-planner');
+      setAiModel(result.model || 'vellure-constraints-v2');
+      setReasoning(result.reasoning || '');
+      setPlannerEvidence({ ...result, assumptions: [...new Set([...(plan.assumptions || []), ...(result.assumptions || [])])] });
+      setParsedPlan({ ...plan,
+        requiredServices: result.categories.filter((c: any) => c.service !== 'buffer').map((c: any) => c.name),
+        selectedServiceKeys: result.interpretation?.services,
+        assumptions: [...new Set([...(plan.assumptions || []), ...(result.assumptions || [])])] as string[], missingInfo: result.clarificationQuestions || [],
+      });
     } catch (err) {
-      console.error('Budget generation error:', err);
-      const b = plan.totalBudget;
-      setCategories([
-        { id: '1', name: 'Venue & Catering', amount: Math.round(b * 0.48), color: '#641E3D' },
-        { id: '2', name: 'Decor & Lighting', amount: Math.round(b * 0.22), color: '#9E3A5A' },
-        { id: '3', name: 'Photography', amount: Math.round(b * 0.15), color: '#D2AD6B' },
-        { id: '4', name: 'Entertainment & Music', amount: Math.round(b * 0.10), color: '#E8DCC8' },
-        { id: '5', name: 'Miscellaneous & Rituals', amount: Math.round(b * 0.05), color: '#A08F7E' },
-      ]);
-      setReasoning(`Benchmark distribution applied for ${plan.eventType}`);
-      setAiGenerated(false);
-      setAiProvider('local-planner');
-      setAiModel('vellure-rules-v1');
+      if (version !== requestVersion.current) return;
+      const message = err instanceof PlannerRequestError && err.questions.length
+        ? err.questions.join('\n')
+        : err instanceof Error ? err.message : 'Planner unavailable. Please try again.';
+      setPlannerError(message);
+      Alert.alert('Plan needs attention', message);
     } finally {
-      setIsGenerating(false);
+      if (version === requestVersion.current) setIsGenerating(false);
     }
   };
 
@@ -202,8 +199,8 @@ export default function BudgetScreen() {
 
     if (payload.eventType) parsed.eventType = payload.eventType;
     if (payload.city) parsed.city = payload.city;
-    if (payload.guestCount) parsed.guestCount = payload.guestCount;
-    if (payload.budget) parsed.totalBudget = payload.budget;
+    if (payload.guestCount) { parsed.guestCount = payload.guestCount; parsed.missingInfo = parsed.missingInfo.filter(info => !info.includes('guest count')); }
+    if (payload.budget) { parsed.totalBudget = payload.budget; parsed.missingInfo = parsed.missingInfo.filter(info => !info.includes('budget limit')); }
     if (payload.theme) parsed.theme = payload.theme;
     if (payload.services) parsed.requiredServices = payload.services;
 
@@ -222,6 +219,8 @@ export default function BudgetScreen() {
       theme: updated.theme,
       eventDate: updated.date,
       requiredServices: updated.requiredServices,
+      selectedServiceKeys: plannerServiceKeys(updated.requiredServices),
+      confirmedDetails: true,
       confidence: 1.0,
       assumptions: [`Manually reviewed and validated by host for ${updated.city}`],
       missingInfo: [],
@@ -232,6 +231,7 @@ export default function BudgetScreen() {
 
   // Save as Active Blueprint into My Plans
   const handleSaveAsBlueprint = async () => {
+    if (isGenerating || !categories.length || plannerError) { Alert.alert('Plan not ready', 'Generate a valid plan before saving.'); return; }
     try {
       const created = await createNewPlan({
         name: `${parsedPlan.theme} ${parsedPlan.eventType}`,
@@ -309,7 +309,7 @@ export default function BudgetScreen() {
           </View>
           <Text style={styles.headerTitle}>Plan with AI</Text>
           <Text style={styles.headerSubtitle}>
-            Transform your vision into structured budgets, verified specialist allocations, and actionable celebration blueprints.
+            Transform your vision into service budgets, source-backed local listings, and clear next steps.
           </Text>
         </View>
 
@@ -330,12 +330,16 @@ export default function BudgetScreen() {
             const updated = parsedPlan.requiredServices.includes(srv)
               ? parsedPlan.requiredServices.filter((s) => s !== srv)
               : [...parsedPlan.requiredServices, srv];
-            setParsedPlan({ ...parsedPlan, requiredServices: updated });
+            const nextPlan = { ...parsedPlan, requiredServices: updated, selectedServiceKeys: plannerServiceKeys(updated) };
+            setParsedPlan(nextPlan);
+            void runAiOptimization(nextPlan);
           }}
         />
 
         {/* ──── 4. SMART BUDGET ALLOCATION MATRIX ──── */}
-        <BudgetAllocationMatrix
+        {isGenerating ? <View style={{ marginHorizontal: 20, marginBottom: 16, gap: 8 }}><ActivityIndicator color="#641E3D" /><Text style={{ color: '#641E3D' }}>Planning your services and checking local estimates…</Text></View> : null}
+        {plannerError ? <Text style={{ marginHorizontal: 20, marginBottom: 16, color: '#9E3A5A' }}>{plannerError}</Text> : null}
+        {categories.length > 0 ? <BudgetAllocationMatrix
           totalBudget={parsedPlan.totalBudget}
           guestCount={parsedPlan.guestCount}
           categories={categories}
@@ -343,7 +347,15 @@ export default function BudgetScreen() {
           aiGenerated={aiGenerated}
           provider={aiProvider}
           model={aiModel}
-        />
+        /> : null}
+        {categories.length > 0 || plannerEvidence ? (
+          <AiPlannerPackagesSection
+            plan={parsedPlan}
+            categories={categories}
+            matchedVendors={matchedVendors}
+            evidence={plannerEvidence}
+          />
+        ) : null}
 
         {/* ──── 5. AI MATCHED LOCAL VENDORS ──── */}
         <AiVendorRecommendations
@@ -353,13 +365,6 @@ export default function BudgetScreen() {
         />
 
         {/* ──── 6. CURATED STARTER PACKAGES ──── */}
-        <AiCuratedBundles
-          eventType={parsedPlan.eventType}
-          guestCount={parsedPlan.guestCount}
-          city={parsedPlan.city}
-          totalBudget={parsedPlan.totalBudget}
-          onInquireBundle={handleInquireBundle}
-        />
 
         {/* ──── 7. ACTION HUB: SAVE & EXPLORE ──── */}
         <View style={styles.actionHub}>
@@ -371,6 +376,7 @@ export default function BudgetScreen() {
           <VellureButton
             style={styles.saveBlueprintBtn}
             onPress={handleSaveAsBlueprint}
+            disabled={isGenerating || !categories.length || Boolean(plannerError)}
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel="Save as active celebration blueprint"

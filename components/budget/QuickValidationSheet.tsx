@@ -14,8 +14,10 @@ import { X, Sliders, CheckCircle2, Sparkles, MapPin, Calendar, Users, IndianRupe
 import { VellureInputField } from '../ui/VellureInputField';
 import { CityPickerModal, CityEntry } from '../ui/CityPickerModal';
 import { CalendarModal } from '../ui/CalendarModal';
+import { CelebrationTypePickerModal } from '../ui/CelebrationTypePickerModal';
 import { setSelectedLocation } from '../../services/locationStore';
 import { colors } from '../../constants/theme';
+import { PLANNER_SERVICES, getDefaultServicesForCelebration } from '../../constants/plannerServices';
 import { EVENT_TYPE_OPTIONS } from '../../constants/eventTypes';
 
 export interface QuickValidationValues {
@@ -36,14 +38,7 @@ interface QuickValidationSheetProps {
   onApply: (updated: QuickValidationValues) => void;
 }
 
-const ALL_SERVICES = [
-  'Venue & Catering',
-  'Decor & Lighting',
-  'Photography',
-  'Entertainment',
-  'Attire & Makeup',
-  'Miscellaneous & Rituals',
-];
+const ALL_SERVICES = PLANNER_SERVICES.map(service => service.name);
 
 export function QuickValidationSheet({
   visible,
@@ -60,6 +55,7 @@ export function QuickValidationSheet({
   const [date, setDate] = useState(initialValues.date || '');
   const [services, setServices] = useState<string[]>(initialValues.requiredServices || []);
 
+  const [showTypePicker, setShowTypePicker] = useState(false);
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -113,25 +109,17 @@ export function QuickValidationSheet({
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-            {/* Event Type Options */}
-            <Text style={styles.inputLabel}>Celebration Type</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.typeScroll}
-            >
-              {EVENT_TYPE_OPTIONS.map((t) => (
-                <VellureButton
-                  key={t}
-                  style={[styles.typeChip, eventType === t && styles.typeChipActive]}
-                  onPress={() => setEventType(t)}
-                >
-                  <Text style={[styles.typeChipText, eventType === t && styles.typeChipTextActive]}>
-                    {t}
-                  </Text>
-                </VellureButton>
-              ))}
-            </ScrollView>
+            {/* Celebration Type Dropdown with Search */}
+            <View style={{ marginBottom: 14 }}>
+              <VellureInputField
+                label="Celebration Type"
+                icon={<Sparkles size={13} color="#D2AD6B" />}
+                value={eventType}
+                isReadOnly
+                onPress={() => setShowTypePicker(true)}
+                placeholder="Select Celebration Type"
+              />
+            </View>
 
             {/* City & Date */}
             <View style={styles.row}>
@@ -192,7 +180,21 @@ export function QuickValidationSheet({
             />
 
             {/* Service Toggle Chips */}
-            <Text style={styles.inputLabel}>Required Services</Text>
+            <View style={styles.servicesHeaderRow}>
+              <View>
+                <Text style={styles.inputLabel}>Required Services ({services.length})</Text>
+                <Text style={styles.servicesSubLabel}>
+                  Auto-aligned to {eventType}
+                </Text>
+              </View>
+              <VellureButton
+                style={styles.resetServicesBtn}
+                onPress={() => setServices(getDefaultServicesForCelebration(eventType))}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.resetServicesBtnText}>Reset to {eventType}</Text>
+              </VellureButton>
+            </View>
             <View style={styles.servicesGrid}>
               {ALL_SERVICES.map((srv) => {
                 const isSelected = services.includes(srv);
@@ -224,6 +226,18 @@ export function QuickValidationSheet({
           </ScrollView>
         </View>
       </View>
+
+      <CelebrationTypePickerModal
+        visible={showTypePicker}
+        selectedType={eventType}
+        onClose={() => setShowTypePicker(false)}
+        onSelect={(selected) => {
+          setEventType(selected);
+          const autoServices = getDefaultServicesForCelebration(selected);
+          setServices(autoServices);
+          setShowTypePicker(false);
+        }}
+      />
 
       <CityPickerModal
         visible={showCityPicker}
@@ -321,6 +335,31 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+  },
+  servicesHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  servicesSubLabel: {
+    color: '#8A6A23',
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: -2,
+  },
+  resetServicesBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    backgroundColor: '#FAF5EC',
+    borderWidth: 1,
+    borderColor: '#EFE3CF',
+  },
+  resetServicesBtnText: {
+    color: '#641E3D',
+    fontSize: 10,
+    fontWeight: '700',
   },
   servicesGrid: {
     flexDirection: 'row',

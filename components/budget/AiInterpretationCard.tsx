@@ -32,7 +32,10 @@ export function AiInterpretationCard({
   onEditPress,
   onServiceToggle,
 }: AiInterpretationCardProps) {
-  const budgetFormatted = `₹${(plan.totalBudget / 100000).toFixed(1)} Lakh`;
+  const budgetFormatted =
+    plan.totalBudget >= 100000
+      ? `₹${(plan.totalBudget / 100000).toFixed(1)} Lakh`
+      : `₹${plan.totalBudget.toLocaleString('en-IN')}`;
   const perGuest = Math.round(plan.totalBudget / (plan.guestCount || 1));
 
   return (
@@ -46,7 +49,7 @@ export function AiInterpretationCard({
 
         <View style={styles.confidencePill}>
           <Text style={styles.confidenceText}>
-            {Math.round(plan.confidence * 100)}% Match Confidence
+            Review event details
           </Text>
         </View>
       </View>
@@ -56,7 +59,7 @@ export function AiInterpretationCard({
         {plan.theme} {plan.eventType}
       </Text>
       <Text style={styles.subtitleText}>
-        Structured from your request with verified Indian marketplace benchmarks.
+        Check the event details and service scope before using the allocations.
       </Text>
 
       {/* Key Metrics Grid */}

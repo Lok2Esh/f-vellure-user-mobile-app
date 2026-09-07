@@ -1,3 +1,4 @@
+import { PLANNER_SERVICES, plannerServiceKeys, getDefaultServicesForCelebration } from '../constants/plannerServices';
 export interface ParsedEventPlan {
   eventType: string;
   city: string;
@@ -9,6 +10,8 @@ export interface ParsedEventPlan {
   missingInfo: string[];
   confidence: number;
   eventDate?: string;
+  selectedServiceKeys?: string[];
+  confirmedDetails?: boolean;
   rawPrompt: string;
 }
 
@@ -99,12 +102,10 @@ export function parseNaturalLanguagePrompt(
 
   // 3. Detect Guest Count
   let detectedGuests = 150;
-  const guestMatch =
-    text.match(/(\d+)\s*(?:guests?|people|pax|persons?|attendees?|members?)/i) ||
-    text.match(/(?:for|around|about)\s*(\d+)\s*(?:guests?|people|pax)?/i);
+  const guestMatch = text.match(/(\d[\d,]*)\s*(?:guests?|people|pax|persons?|attendees?|members?)\b/i);
 
   if (guestMatch && guestMatch[1]) {
-    const parsed = parseInt(guestMatch[1], 10);
+    const parsed = parseInt(guestMatch[1].replace(/,/g, ''), 10);
     if (parsed > 0 && parsed <= 5000) {
       detectedGuests = parsed;
     }
@@ -119,26 +120,17 @@ export function parseNaturalLanguagePrompt(
 
   // 4. Detect Budget (Handles: ₹4 lakh, 4L, 400000, 25 lakh, 3.5L, 50k, etc.)
   let detectedBudget = 400000;
-  const lakhMatch =
-    text.match(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:lakhs?|lac|lacs?|l\b)/i) ||
-    text.match(/budget\s*(?:is|around|of|approx)?\s*(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:lakhs?|lac|lacs?|l\b)/i);
-
-  const kMatch = text.match(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:k|thousand)\b/i);
-  const rawNumMatch = text.match(/(?:₹|rs\.?|inr)\s*(\d{4,8})\b/i) || text.match(/budget\s*(?:is|around|of|approx)?\s*(\d{4,8})\b/i);
-
-  if (lakhMatch && lakhMatch[1]) {
-    detectedBudget = Math.round(parseFloat(lakhMatch[1]) * 100000);
-  } else if (kMatch && kMatch[1]) {
-    detectedBudget = Math.round(parseFloat(kMatch[1]) * 1000);
-  } else if (rawNumMatch && rawNumMatch[1]) {
-    detectedBudget = parseInt(rawNumMatch[1], 10);
+  const moneyPattern = /(?:₹|rs\.?|inr)?\s*(\d[\d,]*(?:\.\d+)?)\s*(crores?|cr|lakhs?|lacs?|l\b|k\b|thousand)?/i;
+  const budgetText = text.includes('total budget') ? text.slice(text.indexOf('total budget')) : text;
+  const budgetClause = budgetText.match(/(?:total budget|budget)\s*(?:is|around|of|approx|under|:|=)?\s*([^;.!]*?(?:\d[\d,]*(?:\.\d+)?\s*(?:crores?|cr|lakhs?|lacs?|l\b|k\b|thousand)?))/i);
+  const currency = budgetClause?.[1]?.match(moneyPattern);
+  if (currency) {
+    const unit = (currency[2] || '').toLowerCase();
+    const multiplier = /^(crore|cr)/.test(unit) ? 10000000 : /^(lakh|lac|l$)/.test(unit) ? 100000 : /^(k|thousand)/.test(unit) ? 1000 : 1;
+    detectedBudget = Math.round(Number(currency[1].replace(/,/g, '')) * multiplier);
   } else {
-    // Standard default budget based on event type & guests
-    if (detectedType === 'Wedding') detectedBudget = 1500000;
-    else if (detectedType === 'Engagement') detectedBudget = 400000;
-    else if (detectedType === 'Birthday') detectedBudget = 100000;
-    else detectedBudget = 300000;
-    assumptions.push(`Budget estimated at ₹${(detectedBudget / 100000).toFixed(1)} Lakh for ${detectedGuests} guests`);
+    detectedBudget = detectedType === 'Wedding' ? 1500000 : detectedType === 'Engagement' ? 400000 : 100000;
+    assumptions.push('Budget is a starter value; confirm your total spending limit.');
     missingInfo.push('Target budget limit not specified');
   }
 
@@ -167,13 +159,17 @@ export function parseNaturalLanguagePrompt(
     }
   }
 
+  let finalRequiredServices: string[];
   if (detectedServices.length === 0) {
-    detectedServices.push('Venue & Catering', 'Decor & Lighting', 'Photography');
-    assumptions.push('Included standard core services: Venue & Catering, Decor & Lighting, Photography');
+    // Culturally reflect all essential services based on the detected Celebration Type
+    finalRequiredServices = getDefaultServicesForCelebration(detectedType);
+    assumptions.push(`Auto-curated services tailored to ${detectedType}: ${finalRequiredServices.slice(0, 4).join(', ')}...`);
   } else {
     if (!detectedServices.includes('Venue & Catering') && (text.includes('food') || text.includes('catering') || text.includes('venue'))) {
       detectedServices.push('Venue & Catering');
     }
+    const mapped = PLANNER_SERVICES.filter(service => plannerServiceKeys(detectedServices).includes(service.key)).map(service => service.name);
+    finalRequiredServices = mapped.length > 0 ? mapped : getDefaultServicesForCelebration(detectedType);
   }
 
   // Missing info check
@@ -191,10 +187,11 @@ export function parseNaturalLanguagePrompt(
     guestCount: detectedGuests,
     totalBudget: detectedBudget,
     theme: detectedTheme,
-    requiredServices: detectedServices,
+    requiredServices: finalRequiredServices,
     assumptions,
     missingInfo,
     confidence,
+    eventDate: text.match(/\b\d{4}-\d{2}-\d{2}\b/)?.[0],
     rawPrompt: prompt,
   };
 }

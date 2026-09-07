@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { createLocalBudgetPlan, BudgetPlannerInput } from './localBudgetPlanner';
+import { BudgetPlannerInput } from './localBudgetPlanner';
 
 // ============================================================
 // API Service — Strict Database & Plans Workspace Store Mode
@@ -964,20 +964,17 @@ export const saveUserPreferences = async (payload: any) => {
   }
 };
 
-export const generateBudgetMatch = async (payload: BudgetPlannerInput) => {
-  try {
-    const response = await fetchWithTimeout(`${BASE_URL}/budget/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }, 8000);
+export class PlannerRequestError extends Error {
+  constructor(message: string, public questions: string[] = []) { super(message); }
+}
 
-    if (response.ok) return await response.json();
-    throw new Error(`API error: ${response.status}`);
-  } catch (err) {
-    console.warn('AI backend unavailable; using the free local planner.', err);
-    return createLocalBudgetPlan(payload);
-  }
+export const generateBudgetMatch = async (payload: BudgetPlannerInput): Promise<any> => {
+  const response = await fetchWithTimeout(`${BASE_URL}/budget/generate`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+  }, 195000);
+  const result = await response.json();
+  if (!response.ok) throw new PlannerRequestError(result.error || 'Unable to complete this plan.', result.clarificationQuestions || []);
+  return result;
 };
 
 export const fetchBudgetDashboardData = async () => {

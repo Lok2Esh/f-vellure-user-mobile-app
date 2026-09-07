@@ -12,6 +12,7 @@ import {
   Pressable,
 } from 'react-native';
 import { Check, X } from 'lucide-react-native';
+import { VellureSearchInput } from './VellureInputField';
 
 interface FormDropdownProps {
   label: string;
@@ -21,6 +22,8 @@ interface FormDropdownProps {
   options: string[];
   onChange: (value: string) => void;
   placeholder?: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
 }
 
 export function FormDropdown({
@@ -31,11 +34,33 @@ export function FormDropdown({
   options,
   onChange,
   placeholder = 'Select...',
+  searchable,
+  searchPlaceholder,
 }: FormDropdownProps) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const isSearchEnabled = searchable ?? options.length >= 6;
+
+  const filteredOptions = React.useMemo(() => {
+    if (!isSearchEnabled || !searchQuery.trim()) return options;
+    const q = searchQuery.trim().toLowerCase();
+    return options.filter((opt) => opt.toLowerCase().includes(q));
+  }, [options, isSearchEnabled, searchQuery]);
 
   const handleSelect = (opt: string) => {
     onChange(opt);
+    setSearchQuery('');
+    setModalVisible(false);
+  };
+
+  const handleOpen = () => {
+    setSearchQuery('');
+    setModalVisible(true);
+  };
+
+  const handleClose = () => {
+    setSearchQuery('');
     setModalVisible(false);
   };
 
@@ -54,7 +79,7 @@ export function FormDropdown({
         value={value}
         placeholder={placeholder}
         kind="dropdown"
-        onPress={() => setModalVisible(true)}
+        onPress={handleOpen}
         activeOpacity={0.7}
         accessibilityLabel={`${label}: ${value || placeholder}`}
       />
@@ -64,11 +89,11 @@ export function FormDropdown({
         visible={modalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={handleClose}
       >
         <Pressable
           style={styles.modalOverlay}
-          onPress={() => setModalVisible(false)}
+          onPress={handleClose}
         >
           <Pressable
             style={styles.modalSheet}
@@ -82,47 +107,67 @@ export function FormDropdown({
               </View>
               <VellureButton
                 style={styles.closeBtn}
-                onPress={() => setModalVisible(false)}
+                onPress={handleClose}
                 accessibilityLabel="Close options"
               >
                 <X size={18} color="#641E3D" />
               </VellureButton>
             </View>
 
+            {/* Search Input */}
+            {isSearchEnabled && (
+              <View style={styles.searchWrap}>
+                <VellureSearchInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  onClear={() => setSearchQuery('')}
+                  placeholder={searchPlaceholder || `Search ${label.toLowerCase()}...`}
+                  size="compact"
+                />
+              </View>
+            )}
+
             {/* Options List */}
             <ScrollView
               style={styles.optionsList}
               showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
             >
-              {options.map((opt, idx) => {
-                const isSelected = value === opt;
-                return (
-                  <VellureButton
-                    key={opt}
-                    style={[
-                      styles.optionItem,
-                      isSelected && styles.optionItemSelected,
-                      idx === options.length - 1 && styles.optionItemLast,
-                    ]}
-                    onPress={() => handleSelect(opt)}
-                    activeOpacity={0.75}
-                  >
-                    <Text
+              {filteredOptions.length === 0 ? (
+                <View style={styles.emptyOptions}>
+                  <Text style={styles.emptyOptionsText}>No matches found</Text>
+                </View>
+              ) : (
+                filteredOptions.map((opt, idx) => {
+                  const isSelected = value === opt;
+                  return (
+                    <VellureButton
+                      key={opt}
                       style={[
-                        styles.optionText,
-                        isSelected && styles.optionTextSelected,
+                        styles.optionItem,
+                        isSelected && styles.optionItemSelected,
+                        idx === filteredOptions.length - 1 && styles.optionItemLast,
                       ]}
+                      onPress={() => handleSelect(opt)}
+                      activeOpacity={0.75}
                     >
-                      {opt}
-                    </Text>
-                    {isSelected && (
-                      <View style={styles.checkWrap}>
-                        <Check size={14} color="#641E3D" strokeWidth={2.5} />
-                      </View>
-                    )}
-                  </VellureButton>
-                );
-              })}
+                      <Text
+                        style={[
+                          styles.optionText,
+                          isSelected && styles.optionTextSelected,
+                        ]}
+                      >
+                        {opt}
+                      </Text>
+                      {isSelected && (
+                        <View style={styles.checkWrap}>
+                          <Check size={14} color="#641E3D" strokeWidth={2.5} />
+                        </View>
+                      )}
+                    </VellureButton>
+                  );
+                })
+              )}
             </ScrollView>
           </Pressable>
         </Pressable>
@@ -194,6 +239,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF5EC',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  searchWrap: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F4ECE1',
+    marginBottom: 6,
+  },
+  emptyOptions: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyOptionsText: {
+    color: '#8D7F85',
+    fontSize: 13,
+    fontWeight: '500',
   },
   optionsList: {
     maxHeight: 320,

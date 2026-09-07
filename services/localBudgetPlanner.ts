@@ -6,6 +6,8 @@ export type BudgetPlannerInput = {
   eventType?: string;
   date?: string;
   description?: string;
+  services?: string[];
+  confirmedDetails?: boolean;
 };
 
 type AllocationKey = 'venue' | 'decor' | 'photography' | 'attire' | 'misc';

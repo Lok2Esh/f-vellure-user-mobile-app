@@ -27,7 +27,9 @@ import { router } from 'expo-router';
 import { createNewPlan, EventPlan } from '../../services/api';
 import { colors } from '../../constants/theme';
 import { VellureInputField } from '../ui/VellureInputField';
+import { CelebrationTypePickerModal } from '../ui/CelebrationTypePickerModal';
 import { EVENT_TYPE_OPTIONS } from '../../constants/eventTypes';
+import { getDefaultServicesForCelebration } from '../../constants/plannerServices';
 
 interface NewPlanModalProps {
   visible: boolean;
@@ -41,6 +43,7 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
   // Manual Form State
   const [name, setName] = useState('');
   const [eventType, setEventType] = useState('Wedding');
+  const [showTypePicker, setShowTypePicker] = useState(false);
   const [city, setCity] = useState('Patiala');
   const [date, setDate] = useState('');
   const [guestCount, setGuestCount] = useState('250');
@@ -74,6 +77,7 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
         budgetMax: numericBudget,
         theme: theme.trim(),
         description: description.trim(),
+        requiredServices: getDefaultServicesForCelebration(eventType),
       });
 
       onPlanCreated(plan);
@@ -158,24 +162,15 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
                 placeholder="e.g. Royal Anand Karaj & Reception"
               />
 
-              <Text style={styles.inputLabel}>Event Type</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.typeScroll}
-              >
-                {EVENT_TYPE_OPTIONS.map((t) => (
-                  <VellureButton
-                    key={t}
-                    style={[styles.typeChip, eventType === t && styles.typeChipActive]}
-                    onPress={() => setEventType(t)}
-                  >
-                    <Text style={[styles.typeChipText, eventType === t && styles.typeChipTextActive]}>
-                      {t}
-                    </Text>
-                  </VellureButton>
-                ))}
-              </ScrollView>
+              <View style={{ marginBottom: 12 }}>
+                <VellureInputField
+                  label="Celebration Type"
+                  value={eventType}
+                  isReadOnly
+                  onPress={() => setShowTypePicker(true)}
+                  placeholder="Select Celebration Type"
+                />
+              </View>
 
               <View style={styles.row}>
                 <View style={{ flex: 1, marginRight: 8 }}>
@@ -264,6 +259,16 @@ export function NewPlanModal({ visible, onClose, onPlanCreated }: NewPlanModalPr
           )}
         </View>
       </View>
+
+      <CelebrationTypePickerModal
+        visible={showTypePicker}
+        selectedType={eventType}
+        onClose={() => setShowTypePicker(false)}
+        onSelect={(selected) => {
+          setEventType(selected);
+          setShowTypePicker(false);
+        }}
+      />
     </Modal>
   );
 }

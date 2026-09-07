@@ -21,6 +21,10 @@ export interface RecommendedVendor {
   priceType?: string;
   imageUrl?: string;
   isVerified?: boolean;
+  estimatedTotal?: number;
+  priceLabel?: string;
+  caveats?: string[];
+  fitReasons?: string[];
 }
 
 export interface AiVendorRecommendationsProps {
@@ -50,7 +54,7 @@ export function AiVendorRecommendations({
             <Store size={12} color="#641E3D" />
             <Text style={styles.badgeText}>AI Matched Partners in {hostCity}</Text>
           </View>
-          <Text style={styles.heading}>Verified Local Specialists</Text>
+          <Text style={styles.heading}>Local Listings That Fit</Text>
         </View>
 
         <VellureButton
@@ -82,7 +86,7 @@ export function AiVendorRecommendations({
                 <Text style={styles.catBadgeText}>{catKey}</Text>
               </View>
               <Text style={styles.priceEstimate}>
-                Starting ₹{(topVendor.startingPrice || 50000).toLocaleString('en-IN')}
+                {topVendor.estimatedTotal != null ? `Est. ₹${topVendor.estimatedTotal.toLocaleString('en-IN')}` : 'Quote required'}
               </Text>
             </View>
 
@@ -98,7 +102,7 @@ export function AiVendorRecommendations({
               <View style={styles.vendorInfo}>
                 <View style={styles.vendorNameRow}>
                   <Text style={styles.vendorName}>{topVendor.name}</Text>
-                  <BadgeCheck size={14} color="#D2AD6B" />
+                  {topVendor.isVerified ? <BadgeCheck size={14} color="#D2AD6B" /> : null}
                 </View>
 
                 <View style={styles.vendorMetaRow}>
@@ -109,13 +113,15 @@ export function AiVendorRecommendations({
                   <View style={styles.metaItem}>
                     <Star size={11} color="#D2AD6B" fill="#D2AD6B" />
                     <Text style={styles.metaText}>
-                      {topVendor.rating ? topVendor.rating.toFixed(1) : '4.9'} ({topVendor.ratingCount || 28})
+                      {topVendor.rating ? `${topVendor.rating.toFixed(1)}${topVendor.ratingCount ? ` (${topVendor.ratingCount})` : ''}` : 'No rating recorded'}
                     </Text>
                   </View>
                 </View>
               </View>
             </View>
 
+            <Text style={styles.disclaimerText}>{topVendor.priceLabel || `${topVendor.startingPrice} · ${topVendor.priceType || 'unit unconfirmed'}`}</Text>
+            {(topVendor.caveats || []).map((note, i) => <Text key={i} style={styles.disclaimerText}>{note}</Text>)}
             {/* Actions */}
             <View style={styles.actionsRow}>
               <VellureButton
