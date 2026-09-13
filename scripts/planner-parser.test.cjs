@@ -29,4 +29,39 @@ test('mobile prompt parser reads the total budget, not the first service price',
     assert.equal(result.totalBudget, budget);
   }
   assert.ok(parseNaturalLanguagePrompt('Plan a birthday', 'Patiala').missingInfo.some(s => s.includes('budget limit')));
+  assert.deepEqual(
+    parseNaturalLanguagePrompt('Jaipur engagement for 120 guests with catering and decor. Budget ₹6 lakh.', 'Patiala').selectedServiceKeys,
+    ['catering', 'decor']
+  );
+});
+
+test('offline planner builds an exact, service-aware budget allocation', () => {
+  const catalog = compile('constants/plannerServices.ts');
+  const { createLocalBudgetPlan } = compile('services/localBudgetPlanner.ts', {
+    '../constants/plannerServices': catalog,
+  });
+  const result = createLocalBudgetPlan({
+    totalBudget: 2500000,
+    guestCount: 250,
+    city: 'Jaipur',
+    vibe: 'Royal Heritage',
+    eventType: 'Wedding',
+    services: ['venue', 'catering', 'decor', 'photography'],
+    confirmedDetails: true,
+  });
+  assert.equal(result.categories.reduce((sum, item) => sum + item.amount, 0), 2500000);
+  assert.deepEqual(result.interpretation.services, ['venue', 'catering', 'decor', 'photography']);
+  assert.ok(result.categories.every(item => item.lowEstimate > 0 && item.highEstimate >= item.lowEstimate));
+  assert.ok(result.categories.some(item => item.service === 'buffer'));
+});
+
+test('offline planner adjusts benchmark ranges by Indian city market', () => {
+  const catalog = compile('constants/plannerServices.ts');
+  const { createLocalBudgetPlan } = compile('services/localBudgetPlanner.ts', {
+    '../constants/plannerServices': catalog,
+  });
+  const base = { totalBudget: 1200000, guestCount: 200, vibe: 'Elegant', eventType: 'Wedding', services: ['venue'] };
+  const mumbai = createLocalBudgetPlan({ ...base, city: 'Mumbai' });
+  const patiala = createLocalBudgetPlan({ ...base, city: 'Patiala' });
+  assert.ok(mumbai.categories[0].highEstimate > patiala.categories[0].highEstimate);
 });

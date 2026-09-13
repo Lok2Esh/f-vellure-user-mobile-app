@@ -55,12 +55,23 @@ const EVENT_TYPE_KEYWORDS: Record<string, string[]> = {
 };
 
 const SERVICE_KEYWORDS: Record<string, string[]> = {
-  'Venue & Catering': ['catering', 'caterer', 'food', 'buffet', 'feast', 'banquet', 'venue', 'resort', 'palace', 'lawn', 'farmhouse', 'hall'],
+  'Venue': ['banquet', 'venue', 'resort', 'palace', 'lawn', 'farmhouse', 'hall'],
+  'Catering': ['catering', 'caterer', 'food', 'buffet', 'feast', 'menu', 'cuisine'],
   'Decor & Lighting': ['decor', 'decoration', 'floral', 'lighting', 'stage', 'mandap', 'flower', 'props', 'led'],
-  'Photography': ['photography', 'photographer', 'photo', 'video', 'videography', 'cinematography', 'drone', 'candid'],
-  'Entertainment': ['live music', 'music', 'dj', 'singer', 'band', 'dhol', 'anchor', 'emcee', 'performers', 'orchestra'],
-  'Attire & Makeup': ['makeup', 'make up', 'bridal makeup', 'hair', 'groom attire', 'bridal wear', 'mehendi artist'],
-  'Miscellaneous & Rituals': ['priest', 'pandit ji', 'pandit', 'granthi', 'invitation', 'cake', 'transport', 'security', 'favors', 'gifts'],
+  'Photography': ['photography', 'photographer', 'photo', 'candid'],
+  'Videography': ['video', 'videography', 'cinematography', 'drone', 'film'],
+  'Live Music': ['live music', 'singer', 'band', 'dhol', 'orchestra', 'kirtan'],
+  'Entertainment': ['dj', 'anchor', 'emcee', 'performers', 'entertainment'],
+  'Makeup': ['makeup', 'make up', 'bridal makeup', 'hair', 'mua'],
+  'Attire': ['groom attire', 'bridal wear', 'outfit', 'lehenga', 'sherwani'],
+  'Mehendi Artist': ['mehendi artist', 'mehndi artist', 'henna artist'],
+  'Priest & Rituals': ['priest', 'pandit ji', 'pandit', 'granthi', 'qazi', 'ritual'],
+  'Invitations': ['invitation', 'invite', 'stationery', 'save the date'],
+  'Cake & Desserts': ['cake', 'dessert', 'patisserie'],
+  'Transport': ['transport', 'shuttle', 'car rental', 'guest transfer'],
+  'Gifts & Favors': ['favors', 'favours', 'gifts', 'welcome hamper'],
+  'Sound & Lighting': ['sound system', 'audio', 'stage lighting', 'pa system'],
+  'Security': ['security', 'bouncers', 'valet'],
 };
 
 export function parseNaturalLanguagePrompt(
@@ -165,9 +176,6 @@ export function parseNaturalLanguagePrompt(
     finalRequiredServices = getDefaultServicesForCelebration(detectedType);
     assumptions.push(`Auto-curated services tailored to ${detectedType}: ${finalRequiredServices.slice(0, 4).join(', ')}...`);
   } else {
-    if (!detectedServices.includes('Venue & Catering') && (text.includes('food') || text.includes('catering') || text.includes('venue'))) {
-      detectedServices.push('Venue & Catering');
-    }
     const mapped = PLANNER_SERVICES.filter(service => plannerServiceKeys(detectedServices).includes(service.key)).map(service => service.name);
     finalRequiredServices = mapped.length > 0 ? mapped : getDefaultServicesForCelebration(detectedType);
   }
@@ -188,6 +196,7 @@ export function parseNaturalLanguagePrompt(
     totalBudget: detectedBudget,
     theme: detectedTheme,
     requiredServices: finalRequiredServices,
+    selectedServiceKeys: plannerServiceKeys(finalRequiredServices),
     assumptions,
     missingInfo,
     confidence,

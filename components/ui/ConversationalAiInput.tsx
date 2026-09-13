@@ -2,7 +2,7 @@ import {
   VellureButton,
   VellureTextInput } from "@/components/ui/VellureControls";
 import React,
-  { useState } from 'react';
+  { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -124,6 +124,10 @@ export function ConversationalAiInput({
   onSubmit,
 }: ConversationalAiInputProps) {
   const [prompt, setPrompt] = useState(initialText);
+
+  useEffect(() => {
+    setPrompt(initialText);
+  }, [initialText]);
 
   const handleVoicePress = () => {
     Alert.alert(

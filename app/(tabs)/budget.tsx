@@ -22,6 +22,7 @@ import {
   BookmarkCheck,
   RotateCcw,
   CheckCircle2,
+  Package,
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -202,7 +203,10 @@ export default function BudgetScreen() {
     if (payload.guestCount) { parsed.guestCount = payload.guestCount; parsed.missingInfo = parsed.missingInfo.filter(info => !info.includes('guest count')); }
     if (payload.budget) { parsed.totalBudget = payload.budget; parsed.missingInfo = parsed.missingInfo.filter(info => !info.includes('budget limit')); }
     if (payload.theme) parsed.theme = payload.theme;
-    if (payload.services) parsed.requiredServices = payload.services;
+    if (payload.services) {
+      parsed.requiredServices = payload.services;
+      parsed.selectedServiceKeys = plannerServiceKeys(payload.services);
+    }
 
     setParsedPlan(parsed);
     runAiOptimization(parsed);
@@ -385,6 +389,12 @@ export default function BudgetScreen() {
             <Text style={styles.saveBlueprintBtnText}>Save as Active Event Blueprint</Text>
           </VellureButton>
 
+          <VellureButton style={styles.packageBuilderBtn} onPress={() => router.push('/package-builder')}>
+            <Package size={15} color={colors.primary} />
+            <Text style={styles.packageBuilderText}>Create a Visual Custom Package</Text>
+            <ChevronRight size={15} color={colors.primary} />
+          </VellureButton>
+
           <View style={styles.secondaryActionsRow}>
             <VellureButton
               style={styles.secBtn}
@@ -564,6 +574,24 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '900',
+  },
+  packageBuilderBtn: {
+    minHeight: 46,
+    marginBottom: 10,
+    paddingHorizontal: 13,
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#F7EEEA',
+    borderWidth: 1,
+    borderColor: '#E7D2CE',
+  },
+  packageBuilderText: {
+    flex: 1,
+    color: colors.primary,
+    fontSize: 11,
+    fontWeight: '800',
   },
   secondaryActionsRow: {
     flexDirection: 'row',

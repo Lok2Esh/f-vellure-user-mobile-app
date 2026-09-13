@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { BudgetPlannerInput } from './localBudgetPlanner';
+import { BudgetPlannerInput, createLocalBudgetPlan } from './localBudgetPlanner';
 
 // ============================================================
 // API Service — Strict Database & Plans Workspace Store Mode
@@ -969,12 +969,21 @@ export class PlannerRequestError extends Error {
 }
 
 export const generateBudgetMatch = async (payload: BudgetPlannerInput): Promise<any> => {
-  const response = await fetchWithTimeout(`${BASE_URL}/budget/generate`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
-  }, 195000);
-  const result = await response.json();
-  if (!response.ok) throw new PlannerRequestError(result.error || 'Unable to complete this plan.', result.clarificationQuestions || []);
-  return result;
+  try {
+    const response = await fetchWithTimeout(`${BASE_URL}/budget/generate`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+    }, 5000);
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const questions = Array.isArray(result.clarificationQuestions) ? result.clarificationQuestions : [];
+      if (questions.length) throw new PlannerRequestError(result.error || 'More event details are needed.', questions);
+      throw new Error(result.error || `Planner service returned ${response.status}`);
+    }
+    return result;
+  } catch (error) {
+    if (error instanceof PlannerRequestError) throw error;
+    return createLocalBudgetPlan(payload);
+  }
 };
 
 export const fetchBudgetDashboardData = async () => {

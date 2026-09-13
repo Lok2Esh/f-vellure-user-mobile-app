@@ -27,6 +27,7 @@ import {
   Search,
   Music,
   PartyPopper,
+  Package,
   Plus,
   Sparkles,
   Settings,
@@ -72,6 +73,7 @@ const quickActions = [
 
 const planningStudio = [
   { label: 'Create New Event', detail: 'Start another celebration', icon: Plus, route: '/event-setup' as const },
+  { label: 'Package Studio', detail: 'Build your partner suite', icon: Package, route: '/package-builder' as const },
   { label: 'Event Timeline', detail: 'Your celebration schedule', icon: CalendarCheck, route: '/timeline' as const },
   { label: 'E-Invitations', detail: 'Create and share beautifully', icon: Send, route: '/invitations' as const },
   { label: 'Vendor Messages', detail: 'Proposals and conversations', icon: MessageCircle, route: '/messages' as const },

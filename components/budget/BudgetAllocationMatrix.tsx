@@ -9,6 +9,9 @@ export interface BudgetCategoryItem {
   amount: number;
   color: string;
   percentage?: number;
+  lowEstimate?: number;
+  highEstimate?: number;
+  basis?: string;
 }
 
 export interface BudgetAllocationMatrixProps {
@@ -119,6 +122,11 @@ export function BudgetAllocationMatrix({
                   <Text style={styles.catAmount}>
                     ₹{Math.round(cat.amount).toLocaleString('en-IN')} ({pct}%)
                   </Text>
+                  {cat.lowEstimate && cat.highEstimate ? (
+                    <Text style={styles.catRange}>
+                      Market ₹{Math.round(cat.lowEstimate).toLocaleString('en-IN')}–₹{Math.round(cat.highEstimate).toLocaleString('en-IN')}
+                    </Text>
+                  ) : null}
                 </View>
               </View>
             );
@@ -268,6 +276,12 @@ const styles = StyleSheet.create({
     color: '#641E3D',
     fontSize: 11,
     fontWeight: '900',
+  },
+  catRange: {
+    color: '#9A8E94',
+    fontSize: 8,
+    lineHeight: 11,
+    marginTop: 2,
   },
   reasoningBox: {
     flexDirection: 'row',
