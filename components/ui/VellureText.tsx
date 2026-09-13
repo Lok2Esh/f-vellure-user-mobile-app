@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text as RNText, TextProps as RNTextProps, StyleSheet, TextStyle, StyleProp } from 'react-native';
-import { colors } from '../../constants/theme';
+import { colors, typography } from '../../constants/theme';
 
 export type VellureTextVariant =
   | 'h1'
@@ -65,21 +65,24 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   h1: {
-    fontSize: 24,
-    lineHeight: 30,
-    fontWeight: '800',
-    letterSpacing: -0.5,
+    fontFamily: typography.serif,
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: '500',
+    letterSpacing: -0.7,
   },
   h2: {
-    fontSize: 20,
-    lineHeight: 26,
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    fontFamily: typography.serif,
+    fontSize: 23,
+    lineHeight: 29,
+    fontWeight: '500',
+    letterSpacing: -0.4,
   },
   h3: {
-    fontSize: 17,
-    lineHeight: 22,
-    fontWeight: '700',
+    fontFamily: typography.serif,
+    fontSize: 18,
+    lineHeight: 23,
+    fontWeight: '500',
   },
   title: {
     fontSize: 15,
@@ -114,7 +117,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   price: {
-    fontSize: 18,
+    fontFamily: typography.serif,
+    fontSize: 20,
     lineHeight: 24,
     fontWeight: '800',
     letterSpacing: -0.3,

@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -6,9 +6,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import '../global.css';
 
-import { useColorScheme } from '@/components/useColorScheme';
 import { GluestackUIProvider } from '@gluestack-ui/themed';
 import { config } from '../gluestack-ui.config';
+import { colors } from '../constants/theme';
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -75,12 +75,22 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const navigationTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: colors.cream,
+      card: colors.surfaceCard,
+      text: colors.textPrimary,
+      primary: colors.primary,
+      border: colors.borderLight,
+    },
+  };
 
   return (
     <GluestackUIProvider config={config}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
+      <ThemeProvider value={navigationTheme}>
+        <Stack screenOptions={{ contentStyle: { backgroundColor: colors.cream }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>

@@ -3,34 +3,38 @@
  * Luxury Indian Event Planning & Marketplace Identity
  */
 
+import { Platform } from 'react-native';
+
 export const colors = {
   // Brand Colors
-  primary: '#641E3D',      // Primary burgundy
-  wine: '#78123C',         // Deep wine
-  wineDark: '#450D23',     // Deepest wine
-  wineLight: '#9E3058',    // Soft burgundy
-  gold: '#D2AD6B',         // Premium gold
-  goldDark: '#B8924B',     // Rich antique gold
-  goldLight: '#F5E8CE',    // Pale gold / shimmer
+  primary: '#5B263E',
+  wine: '#6D304A',
+  wineDark: '#3A1727',
+  wineLight: '#A8667D',
+  gold: '#C99958',
+  goldDark: '#A97637',
+  goldLight: '#F4E2C7',
 
   // Surfaces & Backgrounds
-  cream: '#FDFBF7',        // Main canvas background
-  surface: '#FFF8EF',      // Soft warm surface
-  surfaceCard: '#FFFFFF',  // Pure card background
-  surfaceDark: '#2A121E',  // Dark luxury card
-  surfaceMuted: '#F3EDE2', // Muted surface / input background
+  cream: '#FBF7F2',
+  surface: '#F8EFEA',
+  surfaceCard: '#FFFDFC',
+  surfaceDark: '#412031',
+  surfaceMuted: '#F1E7E2',
+  blush: '#E9D6D2',
+  blushLight: '#F7EEEA',
 
   // Text & Typography
-  textPrimary: '#2D2025',   // Main dark text
-  textSecondary: '#786B70', // Secondary subtle text
-  textMuted: '#9A8E94',     // Placeholder / tertiary text
+  textPrimary: '#35262D',
+  textSecondary: '#76676D',
+  textMuted: '#A09297',
   textInverse: '#FFFFFF',   // White text on dark
   textGold: '#D2AD6B',      // Golden highlight text
 
   // Borders & Accents
-  borderLight: '#F1E8DB',
-  borderMedium: '#E5DACB',
-  borderGold: 'rgba(210, 173, 107, 0.4)',
+  borderLight: '#EFE4DE',
+  borderMedium: '#E3D5CE',
+  borderGold: 'rgba(201, 153, 88, 0.38)',
 
   // Semantic Feedback
   success: '#2F7D62',
@@ -75,13 +79,15 @@ export const theme = {
 };
 
 export const typography = {
-  titleLarge: { fontSize: 26, fontWeight: '900' as const, letterSpacing: -0.4 },
-  titleMedium: { fontSize: 20, fontWeight: '800' as const, letterSpacing: -0.2 },
-  titleSmall: { fontSize: 16, fontWeight: '800' as const },
-  bodyLarge: { fontSize: 15, fontWeight: '600' as const, lineHeight: 22 },
-  bodyMedium: { fontSize: 13, fontWeight: '500' as const, lineHeight: 19 },
-  bodySmall: { fontSize: 11, fontWeight: '500' as const, lineHeight: 16 },
-  caption: { fontSize: 10, fontWeight: '800' as const, letterSpacing: 0.5, textTransform: 'uppercase' as const },
+  serif: Platform.select({ ios: 'Georgia', android: 'serif', web: 'Georgia' }),
+  sans: Platform.select({ ios: 'Avenir Next', android: 'sans-serif', web: 'Inter, system-ui, sans-serif' }),
+  titleLarge: { fontSize: 30, lineHeight: 35, fontWeight: '500' as const, letterSpacing: -0.7 },
+  titleMedium: { fontSize: 22, lineHeight: 27, fontWeight: '500' as const, letterSpacing: -0.35 },
+  titleSmall: { fontSize: 17, lineHeight: 22, fontWeight: '600' as const },
+  bodyLarge: { fontSize: 15, fontWeight: '500' as const, lineHeight: 22 },
+  bodyMedium: { fontSize: 13, fontWeight: '400' as const, lineHeight: 19 },
+  bodySmall: { fontSize: 11, fontWeight: '400' as const, lineHeight: 16 },
+  caption: { fontSize: 10, fontWeight: '700' as const, letterSpacing: 0.7, textTransform: 'uppercase' as const },
 };
 
 export const shadows = {
